@@ -948,10 +948,6 @@ class FullContentPlugin(feedworker.CommonPlugins.FeedPlugin):
 
         # check if the item is new or not
         is_new = (self.items_new > old_items_new)
-        if is_new:
-            print >>sys.stderr, "We got a new item!"
-        else:
-            print >>sys.stderr, "We got an already existing item!"  
         
         # check if we need to refetch updated items or not
         must_refetch = ssscrapeapi.config.get_bool('feeds', 'default-partial-update-refetch', False)
@@ -960,6 +956,7 @@ class FullContentPlugin(feedworker.CommonPlugins.FeedPlugin):
         if self.metadata:
             try:
                 if (is_new or must_refetch) and (self.metadata['kind'] == 'partial'):
+                    #print >>sys.stderr, "Item new or should refetch always, scheduling..."
                     self._schedule_permalink(collection, item)
             except KeyError:
                 pass # not a full content feed anyway
