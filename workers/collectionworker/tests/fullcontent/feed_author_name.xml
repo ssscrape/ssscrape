@@ -1,0 +1,15 @@
+<!--
+Description: feed author name
+Expect:      feed['author']['name'] == u'Example author'
+-->
+<feed version="0.3" xmlns="http://purl.org/atom/ns#">
+  <title>Example title</title>
+  <subtitle>Example subtitle</subtitle>
+  <link rel="alternate" type="text/html"
+      hreflang="en" href="http://example.org/"/>
+  <author>
+    <name>Example author</name>
+    <email>me@example.com</email>
+    <url>http://example.com/</url>
+  </author>
+</feed>

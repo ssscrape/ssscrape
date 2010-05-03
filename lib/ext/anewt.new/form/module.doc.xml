@@ -1,0 +1,57 @@
+<anewt:module
+	xmlns:anewt="http://anewt.net/ns/2008/04/documentation"
+	id="page"
+	>
+
+	<anewt:title>Form module</anewt:title>
+
+	<anewt:subtitle>Module for working with forms</anewt:subtitle>
+
+	<anewt:classes>
+		<anewt:class>AnewtForm</anewt:class>
+	</anewt:classes>
+
+
+	<anewt:section>
+
+		<anewt:title>Introduction</anewt:title>
+
+		<p>The form module provides several classes to easily work with
+			XHTML forms. Several classes are provided to create a form and its
+			controls, and to validate and process it upon submission. The main
+			concepts used in the form module are <strong>forms</strong>,
+			<strong>fieldsets</strong>, and <strong>controls</strong>.</p>
+
+		<p>A form is represented by the
+			<anewt:classref>AnewtForm</anewt:classref> class. This class is
+			the main FIXME</p>
+
+		<ul>
+			<li>Fieldsets (<anewt:classref>AnewtFormFieldset</anewt:classref>)</li>
+			<li>Controls (such as <anewt:classref>AnewtFormControlText</anewt:classref>)</li>
+		</ul>
+
+
+		<p>The <anewt:classref>AnewtForm</anewt:classref> class represents a
+			single form. Though this class can be instantiated directly,
+			usually a subclass is used instead.</p>
+
+		<!--
+		<anewt:example src="page-basic-usage">
+			<anewt:title>Creating and outputting a simple (empty) page</anewt:title>
+		</anewt:example>
+		-->
+
+		<!--
+		<anewt:properties>
+			<anewt:property name="title">
+				The title of the page
+			</anewt:property>
+		</anewt:properties>
+		-->
+
+	</anewt:section>
+
+</anewt:module>
+
+<!-- vim: set tw=72 : -->

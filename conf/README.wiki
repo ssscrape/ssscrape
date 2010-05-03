@@ -1,0 +1,17 @@
+== Manager ==
+
+The [wiki:Design/Manager Ssscrape manager daemon] will use a simple, intuitive ini-style format configuration file containing:
+
+ * Database configuration
+ * Worker configuration (defaults and worker-specific)
+ * Manager-specific configuration (poll timeouts, file paths, …)
+
+There are two configuration files:
+
+ 1. A default configuration file [source:trunk/manager/conf/default.conf conf/default.conf] with default settings that should not be changed.
+ 2. A local configuration file {{{conf/local.conf}}} to set installation-specific options and to override default values. Note that this local configuration file ''must not'' be placed under version control.
+
+
+== Workers ==
+
+Workers may implement their own configuration solutions. The [wiki:Design/Workers workers page] may contain more information about this.

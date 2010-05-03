@@ -1,0 +1,78 @@
+#!/usr/bin/env python
+
+import sys, os
+
+# first determine the top level directory (Ie. /path/to/ssscrape)
+topdir = os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]), os.pardir, os.pardir))
+
+# then add the lib/ and lib/ext/ paths to sys.path
+sys.path.insert(0, os.path.join(topdir, 'lib'))
+sys.path.insert(0, os.path.join(topdir, 'lib', 'ext'))
+
+import optparse
+
+from twisted.internet import reactor
+from twisted.python import log
+
+if __name__ == '__main__':
+
+    # Handle command line options
+
+    parser = optparse.OptionParser(usage="%prog [-p periodicity] [-H hour] [-m minute] [-r resource] [-a {allow|deny}:hosts] -- TYPE PROGRAM [ARGS...]")
+    parser.add_option(
+            '-p', '--periodicity',
+            dest='periodicity', metavar='TIMESPEC', default='15m',
+            help="Schedule time, defaults to the literal '15m'.")
+    parser.add_option(
+            '-H', '--hour',
+            dest='hour', metavar='HOUR', default=None,
+            help="Select an hour on which the task needs to be scheduled.")
+    parser.add_option(
+            '-m', '--minute',
+            dest='minute', metavar='MINUTE', default=None,
+            help="Select a minute on which the task needs to be scheduled.")
+    parser.add_option(
+            '-r', '--resource',
+            dest='resource_id', metavar='RESOURCE', default=None,
+            help="Select a resource for the task.")
+    parser.add_option(
+            '-a', '--access',
+            dest='hostname', metavar='ACCESS', default=None,
+            help="Allow or deny certain hosts for the task.")
+    (options, args) = parser.parse_args()
+
+
+    # Handle positional arguments
+
+    if len(args) == 2:
+        task_type, program = args
+        program_args = ''
+    elif len(args) == 3:
+        task_type, program, program_args = args
+    elif len(args) > 3:
+        task_type = args.pop(0)
+        program = args.pop(0)
+        program_args = ' '.join(args)
+    else:
+        parser.error('Type and program must be both specified.')
+
+
+    # Parse schedule date
+
+    import ssscrape
+
+    import datetime
+    
+    try:
+        n_seconds = ssscrape.misc.parse_time_string_to_seconds(options.periodicity)
+    except ValueError:
+        parser.error('Invalid time specification: %s' % options.when);
+   
+    d = ssscrape.task_list.add(task_type, program, program_args, n_seconds, options.hour, options.minute, options.resource_id, options.hostname) 
+    d.addErrback(log.err)
+    d.addErrback(reactor.stop)
+    d.addCallback(lambda x: reactor.stop())
+
+    # Run!
+
+    reactor.run()

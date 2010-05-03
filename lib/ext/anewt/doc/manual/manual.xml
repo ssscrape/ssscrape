@@ -1,0 +1,21 @@
+<?xml version="1.0" ?>
+<manual>
+
+	<authors>
+		<author>Wouter Bolsterlee</author>
+	</authors>
+
+	<content>
+
+		<chapter ref="introduction" />
+		<chapter ref="overview" />
+
+		<module ref="core" title="Core module" />
+		<module ref="xhtml" title="XHTML module" />
+		<module ref="page" title="Page module" />
+		<module ref="database" title="Database module" />
+		<module ref="session" title="Session module" />
+		<module ref="form" title="Form module" />
+	</content>
+
+</manual>

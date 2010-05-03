@@ -1,0 +1,103 @@
+#!/usr/bin/env python
+
+import sys, os
+
+# first determine the top level directory (Ie. /path/to/ssscrape)
+topdir = os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]), os.pardir, os.pardir))
+
+# then add the lib/ and lib/ext/ paths to sys.path
+sys.path.insert(0, os.path.join(topdir, 'lib'))
+sys.path.insert(0, os.path.join(topdir, 'lib', 'ext'))
+
+import optparse
+import urllib
+
+import MySQLdb
+import _mysql_exceptions
+
+from twisted.internet import reactor
+from twisted.python import log
+
+import ssscrapeapi
+import ssscrapeapi.feeds
+
+if __name__ == '__main__':
+
+    # Handle command line options
+
+    parser = optparse.OptionParser(usage="%prog -f feed_id [-t task_id] [-p period]")
+    parser.add_option(
+            '-f', '--feed',
+            dest='feed_id', metavar='FEEDID', default=None,
+            help="The feed id for which to refetch empty permalinks.")
+    parser.add_option(
+            '-t', '--task',
+            dest='task_id', metavar='TASKID', default=None,
+            help="The task id for which to fetch empty permalinks.")
+    parser.add_option(
+            '-p', '--period',
+            dest='period', metavar='TIMESPEC', default='1d',
+            help="Schedule time, defaults to the literal '1d'.")
+    (options, args) = parser.parse_args()
+
+    if not options.feed_id:
+        parser.error('Please specify a feed id')
+
+    # Parse schedule date
+
+    import datetime
+
+    try:
+        period_seconds = ssscrapeapi.misc.parse_time_string_to_seconds(options.period)
+    except ValueError:
+        parser.error('Invalid time specification: %s' % options.period);
+
+    # connect to the DB
+    ssscrapeapi.database.connect()
+    ssscrapeapi.database.connect('database')
+
+    # load information about the task
+    if options.task_id:
+        task = ssscrapeapi.Task()
+        task.load(options.task_id)
+    else:
+        task = None
+
+    # load some meta information about the feed
+    metadata = ssscrapeapi.feeds.FeedMetadata(feed_id=options.feed_id)
+    metadata.find()
+    if metadata.has_key('id'):
+        metadata.load(metadata['id'])
+
+    # find all the empty articles in the timespan
+    cursor = ssscrapeapi.database.execute('''SELECT i.id, l.link FROM ssscrape_feed_item i LEFT JOIN ssscrape_feed_item_link l on i.id = l.feed_item_id WHERE i.feed_id = %s AND (i.content_clean IS NULL OR i.content_clean = '') AND l.relation = "alternate" AND l.type = "text/html" AND i.pub_date >= (NOW() - INTERVAL %s SECOND) ORDER BY i.id''', (options.feed_id, period_seconds))
+    for row in cursor.fetchall():
+        feed_item_id = int(row[0])
+        feed_item_link = row[1]
+        # instantiate a new job with the right properties
+        job = ssscrapeapi.Job()
+        job['type'] = ssscrapeapi.config.get_string('feeds', 'default-partial-type')
+        job['program'] = ssscrapeapi.config.get_string('feeds', 'default-partial-program')
+        job['args'] =  "-i %s %s -u '%s'" % (feed_item_id, metadata['partial_args'], 'http://zookma.science.uva.nl/ssscrape/proxy?url=' + urllib.quote(ssscrapeapi.misc.quote_url(feed_item_link)))
+
+        print >>sys.stderr, job['program'], job['args']
+        if task:
+            # if the task was specified, we can copy the hostname conditions
+            job['hostname'] = task['hostname']
+            job['resource_id'] = task['resource_id']
+
+        # now try to find a job that looks like this one
+        job.find()
+        
+        # if we did not find it....
+        if not job.has_key('id'):
+            # then we can schedule the job
+            job['scheduled'] = 'NOW()'
+            job.unescaped = ['scheduled']
+            job.save()
+
+        print "Scheduled job for item %s" % (row[0]) 
+
+    # disconnect from DB
+    ssscrapeapi.database.disconnect('database')
+    ssscrapeapi.database.disconnect()

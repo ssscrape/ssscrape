@@ -1,0 +1,341 @@
+<anewt:module
+	xmlns:anewt="http://anewt.net/ns/2008/04/documentation"
+	id="page"
+	>
+
+	<anewt:title>Page module</anewt:title>
+
+	<anewt:subtitle>Module for building XHTML pages</anewt:subtitle>
+
+	<anewt:classes>
+		<anewt:class>AnewtPage</anewt:class>
+		<anewt:class>AnewtBlankPage</anewt:class>
+	</anewt:classes>
+
+
+	<p>The most common task for a web application is to generate web
+		pages. Anewt provides a convenient, programmable way to build valid
+		XHTML Strict pages. This module provides the
+		<anewt:classref>AnewtPage</anewt:classref> class which allows you to
+		build valid XHTML pages easily.</p>
+
+
+	<anewt:section>
+
+		<anewt:title>Basic usage</anewt:title>
+
+		<p>The <anewt:classref>AnewtPage</anewt:classref> class provides an
+			abstraction of an XHTML document, with many of the standard parts
+			such as the title available as easy-to-use properties. Before
+			going into details, this trivial example shows how to output an
+			empty page:</p>
+
+		<anewt:example src="page-basic-usage">
+			<anewt:title>Creating and outputting a simple (empty) page</anewt:title>
+		</anewt:example>
+
+		<p>In addition to <code>title</code>, several other properties can
+			be set on an <anewt:classref>AnewtPage</anewt:classref>
+			instance:</p>
+
+		<anewt:properties>
+			<anewt:property name="title">
+				The title of the page
+			</anewt:property>
+			<anewt:property name="show-dublin-core">
+				Whether to include Dublin Core metadata. Enabled by default.
+			</anewt:property>
+			<anewt:property name="language">
+				The main language of the page. Defaults to <code>en</code>.
+			</anewt:property>
+			<anewt:property name="description">
+				A description of the page (optional)
+			</anewt:property>
+			<anewt:property name="creator">
+				Creator of the page (optional)
+			</anewt:property>
+			<anewt:property name="date">
+				The date of the page as a AnewtDateTimeAtom instance. Optional, defaults to the current date.
+			</anewt:property>
+			<anewt:property name="generator">
+				The generator string used. Defaults to <code>Almost No Effort
+				Web Toolkit (Anewt)</code>. Set this to <code>null</code> to
+				disable the generator <code>&lt;meta&gt;</code> tag.
+			</anewt:property>
+			<anewt:property name="robots">
+				The value for the robots <code>&lt;meta&gt;</code> tag. Defaults
+				to <code>null</code>, which means no robots
+				<code>&lt;meta&gt;</code> tag will be included. Valid values
+				look like this: <code>index, nofollow</code>.
+			</anewt:property>
+			<anewt:property name="base-uri">
+				The base uri of the page. Defaults to <code>null</code>, which
+				means no <code>&lt;base&gt;</code> element will be included.
+			</anewt:property>
+		</anewt:properties>
+
+	</anewt:section>
+
+
+	<anewt:section>
+
+		<anewt:title>Simple and block-based pages</anewt:title>
+
+		<p><anewt:classref>AnewtPage</anewt:classref> allows you to build
+			two slightly different and mutually exclusive page types: simple
+			pages and block-based pages.</p>
+
+		<p><strong>Simple pages</strong>, as the name suggests, allow you
+			to build simple pages by setting some properties and adding some
+			content, added using the
+			<anewt:functionref>AnewtPage::append()</anewt:functionref>
+			method. When the page is rendered all content is output in a
+			linear fashion. The following code gives an example:</p>
+
+		<anewt:example src="page-simple">
+			<anewt:title>Adding content to a simple page</anewt:title>
+		</anewt:example>
+
+		<p><strong>Block-based pages</strong>, on the other hand, use
+			several blocks which are output as <code>div</code> elements with
+			an id, so they can be easily styled using stylesheets. Therefore
+			you should provide a list of blocks to render using the
+			<code>blocks</code> property. Use the
+			<anewt:functionref>AnewtPage::append_to()</anewt:functionref>
+			method to add content to a specific block, or call
+			<anewt:functionref>AnewtPage::append()</anewt:functionref> to add
+			content to the default block (this only works if you
+			specified a default block by setting the
+			<code>default-block</code> property). When the page is rendered,
+			the blocks are output in the order they are specified in the
+			<code>blocks</code> property.</p>
+
+		<anewt:properties>
+			<anewt:property name="blocks">
+				Array of block names, e.g. <code>array('header', 'content', 'footer')</code>
+			</anewt:property>
+			<anewt:property name="default-block">
+				The name of the default block on this page. This is the block
+				to which content is appended when
+				<anewt:functionref>AnewtPage::append()</anewt:functionref> is
+				called.
+			</anewt:property>
+		</anewt:properties>
+
+		<p>The example below shows how a block-based page can be built:</p>
+
+		<anewt:example src="page-blocks">
+			<anewt:title>Adding content to a block-based page</anewt:title>
+		</anewt:example>
+
+	</anewt:section>
+
+	<anewt:section>
+
+		<anewt:title>Extending the standard page</anewt:title>
+
+		<p>Although <anewt:classref>AnewtPage</anewt:classref> can be used
+			directly, most projects should subclass it for simplicity and code
+			reuse. When subclassing
+			<anewt:classref>AnewtPage</anewt:classref>, you typically set some
+			properties in the constructor of the derived class, e.g. a default
+			title and language. You should also add stylesheet and JavaScript
+			references there. For block-based pages, this also includes the
+			<code>blocks</code> property.</p>
+
+		<anewt:warning><p>Don't forget to call the parent constructor when
+				subclassing <anewt:classref>AnewtPage</anewt:classref>, since
+				the base constructor initializes some required
+				properties.</p></anewt:warning>
+
+		<p>The following example demonstrates how to build your own page
+			with stylesheet and JavaScripts references:</p>
+
+		<anewt:example src="page-stylesheet-javascript">
+			<anewt:title>Adding stylesheets and JavaScripts to a custom page</anewt:title>
+		</anewt:example>
+
+		<anewt:tip><p>Anewt also offers a
+				<anewt:classref>AnewtBlankPage</anewt:classref> class that shows
+				a page that is ‘intentionally left blank’. One of the more
+				typographically aware Anewt authors strongly encourages you to
+				have such a page somewhere on your site to memorize the good old
+				days of paper print! Note that this class is not loaded by
+				default; you can load it using
+				<code>anewt_include('page/blank')</code>. </p></anewt:tip>
+
+	</anewt:section>
+
+	<anewt:section>
+
+		<anewt:title>Providing default content</anewt:title>
+
+		<p>In many cases you want to provide default content to some of
+			the div blocks, e.g. for headers and footers. This can be done
+			by defining a method on your page subclass to generate that
+			block. The function name should be
+			<anewt:functionname>YourPage::build_FOO</anewt:functionname>,
+			where <code>FOO</code> is the name of the block. Note that you
+			can always override the content by using
+			<anewt:functionref>AnewtPage::append_to()</anewt:functionref>
+			and providing custom content for these blocks. When that
+			happens, the build methods are not called at all.</p>
+
+		<p>An example: the list of blocks is header, content, and footer.
+			The content is dynamically filled by the calling code, but the
+			header and footer content are not explicitly provided by the
+			calling code:</p>
+
+		<anewt:example src="page-default-content">
+			<anewt:title>Providing default content for page blocks</anewt:title>
+		</anewt:example>
+
+		<!-- TODO move inline docs from AnewtPage to here? -->
+
+	</anewt:section>
+
+
+	<anewt:section>
+
+		<anewt:title>Page output</anewt:title>
+
+		<p>The output generated by the
+			<anewt:classref>AnewtPage</anewt:classref> class is designed to
+			always produce valid <strong>XHTML 1.0 Strict</strong> output,
+			which is supported by all modern browsers. However, in some
+			cases you may want to change the document type declaration,
+			e.g. to allow for framesets. You may do so using the
+			<code>document-type</code> property:</p>
+
+		<anewt:properties>
+			<anewt:property name="document-type">
+				The DTD to generate in the output (optional). Possible
+				values include these constants:
+				<code>DTD_XHTML_1_0_STRICT</code> (default),
+				<code>DTD_XHTML_1_0_TRANSITIONAL</code>, or
+				<code>DTD_XHTML_1_0_FRAMESET</code>. Alternatively you may
+				provide a string value directly, but this is strongly
+				discouraged.
+				</anewt:property>
+		</anewt:properties>
+
+		<p>The default character encoding for pages is
+			<strong>UTF-8</strong>. You may override it by setting the
+			<code>encoding</code> property:</p>
+
+		<anewt:properties>
+			<anewt:property name="encoding">
+				The character encoding for this page. Defaults to UTF-8.
+			</anewt:property>
+		</anewt:properties>
+
+		<p>For block-based pages, a wrapper <code>div</code> is used by
+			default that wraps all content. This allows for easy styling
+			(e.g. setting an explicit width and centering all content).
+			Several properties influence this behaviour:</p>
+
+		<anewt:properties>
+			<anewt:property name="use-wrapper-div">
+				Whether to use a wrapper div (<code>boolean</code>, defaults
+				to <code>true</code>).
+			</anewt:property>
+			<anewt:property name="wrapper-div-id">
+				The id of the wrapper div. Defaults to <code>wrapper</code>.
+			</anewt:property>
+		</anewt:properties>
+
+	</anewt:section>
+
+
+	<anewt:section>
+
+		<anewt:title>Building valid pages</anewt:title>
+
+		<p>Of course you are responsible yourself for the well-formedness of
+			the content you add to the page, but the XHTML methods and related
+			functionality (see the <anewt:moduleref>xhtml</anewt:moduleref>
+			module) can help you to create valid XHTML constructs easily.
+			For instance, the <anewt:functionref>ax_p()</anewt:functionref>
+			function lets you create a paragraph of text.</p>
+
+		<p>All string content added to the page is escaped by default
+			(wrapped in a <anewt:classref>AnewtXMLDomText</anewt:classref>
+			instance, actually), so you do not need to worry about special
+			characters like <code>&amp;</code> and <code>&lt;</code>
+			appearing in the content you add. In case you have
+			already-formatted snippets of XHTML (e.g. stored in a database,
+			from a text formatting engine, or from a template), you can add
+			it as-is to the page using raw content nodes: wrap the value
+			inside a call to <anewt:functionref>ax_raw()</anewt:functionref>
+			to prevent the string from being escaped.</p>
+
+		<p>A few example lines of code to illustrate the above:</p>
+
+		<anewt:example src="page-valid-content">
+			<anewt:title>Adding well-formed content to a page</anewt:title>
+		</anewt:example>
+
+	</anewt:section>
+
+
+	<anewt:section>
+
+		<anewt:title>Browser Compatibility</anewt:title>
+
+		<p>For maximum compatibility the
+			<anewt:classref>AnewtPage</anewt:classref> class and the
+			<anewt:moduleref>xhtml</anewt:moduleref> module produce compatible
+			output as outlined in the <a
+				href="http://www.w3.org/TR/xhtml1/">XHTML specification</a>. For
+			more information, see these sections from the XHTML
+			specification:</p>
+
+		<ul>
+			<li><a href="http://www.w3.org/TR/xhtml1/#issues">XHTML
+					compatibility issues</a></li>
+			<li><a href="http://www.w3.org/TR/xhtml1/#guidelines">HTML
+					Compatibility Guidelines</a></li>
+		</ul>
+
+		<p>The <anewt:classref>AnewtPage</anewt:classref> class serves its
+			content with a MIME type understood by the user agent. It will
+			only output an XML declaration when desired. The MIME type to use
+			is auto-detected using the <code>HTTP-Accept</code> header of the
+			request:</p>
+
+		<ul>
+			<li>User agents claiming to support XHTML receive a
+				<code>application/xhtml+xml</code> page with both a XML prolog
+				(<code>&lt;?xml … ?></code>) and a <code>DOCTYPE</code>
+				declaration. Example browser: Mozilla Firefox.</li>
+			<li>User agents not claiming to support the
+				<code>application/xhtml+xml</code> MIME type will be served a
+				<code>text/html</code> page instead with just a
+				<code>DOCTYPE</code> declaration to force them into standards
+				compliance mode. For these browsers XML prologs will not be
+				sent. Example browser: Internet Explorer.</li>
+		</ul>
+
+		<p>In almost all cases the output from
+			<anewt:classref>AnewtPage</anewt:classref> will be understood
+			correctly by the browsers. If absolutely necessary, you can set
+			the content-type yourself by setting the
+			<code>content-type</code> property:</p>
+
+		<anewt:properties>
+			<anewt:property name="content-type">
+				The content type. Defaults to autodetection based on the
+				HTTP_ACCEPT header sent by the client.
+			</anewt:property>
+		</anewt:properties>
+
+		<p>The result is that conforming user agents always get served the
+			most strict output possible, without inflicting upon you the
+			problems browser bugs and browser quirks that usually bite you
+			when using XHTML (instead of plain old HTML).</p>
+
+	</anewt:section>
+
+</anewt:module>
+
+<!-- vim: set tw=72 : -->

@@ -1,0 +1,96 @@
+<anewt:chapter
+	xmlns:anewt="http://anewt.net/ns/2008/04/documentation"
+	id="introduction"
+	>
+
+	<anewt:title>Introduction</anewt:title>
+
+	<anewt:section id="what-is-anewt">
+		
+		<anewt:title>What is Anewt?</anewt:title>
+
+		<p>The <strong>Almost No Effort Web Toolkit</strong> is a collection
+			of PHP libraries designed to aid rapid web development.</p>
+
+		<p>Anewt is not a web framework, although nothing prevents you to
+			build one using it. Anewt provides you with all the tools without
+			forcing you to organize your project in a specific way. That means
+			you can use your own preferred directory layout, filenames, etc.
+			This makes Anewt both suited for new projects and for integration
+			in existing projects.</p>
+
+		<p>The modules in Anewt help you quickly create fully
+			standards-compliant dynamic web sites and web applications. It
+			consists of a number of modules which help you work with strict
+			XHTML pages, text formatting, database abstraction and validation,
+			form creation and handling and other web-related things like
+			session control and syndication. Anewt is entirely written in PHP
+			(developed for PHP4, works fine on PHP5).</p>
+
+	</anewt:section>
+
+	<anewt:section id="structure">
+		
+		<anewt:title>Structure of this manual</anewt:title>
+
+		<p>The overview chapter gives a general introduction to Anewt. The
+			basic concepts and the structure of the Anewt package will be
+			explained. This chapter is recommended for all readers.</p>
+
+		<p>The following chapters gives you some advice on how to use Anewt.
+			You are in no way required to follow these guidelines and
+			conventions, but the project structure outlined in these chapters
+			may be of great help to new users.</p>
+
+		<p>The remaining chapters (quite a few) each deal with an Anewt
+			module. The <anewt:moduleref>core</anewt:moduleref> module is used
+			by almost all other modules, so you are highly recommended to read
+			the chapter about it.</p>
+
+		<p>You don't need to read all those chapters to start using Anewt,
+			but since some modules depend on other modules, you will need at
+			least some basic knowledge of the module that is built upon.</p>
+
+	</anewt:section>
+
+	<anewt:section id="feedback-support-contributions">
+		
+		<anewt:title>Feedback, support and contributions</anewt:title>
+
+		<p><strong>Let us know what you think!</strong> We are interested in
+			all comments, complaints and, of course, compliments from our
+			users. User feedback helps us improve Anewt.</p>
+
+		<p><strong>Bugs, issues and feature requests</strong> can be
+			reported in our <a
+				href="https://launchpad.net/products/anewt/+bugs">bug tracking
+				system</a>. Describe your problem clearly and include a small
+			test case if possible.</p>
+			
+		<p>You can also <strong>join our IRC channel</strong>
+			<code>#anewt</code> on OFTC (irc.oftc.net) to have a chat with
+			developers and other users. Just ask your question and wait
+			patiently. We're not always available for chatting right away.</p>
+	
+		<p><strong>Become a contributor!</strong> If you're implementing a
+			cool new feature or fixing an issue, please file a bug for it, so
+			that we we can track development and no work is duplicated.
+			Patches to Anewt can be submitted as attachments to bug reports.
+			If you choose to publish your changes as a public accessible
+			branch, please comment on the bug telling where to find your
+			branch.</p>
+			
+		<p>Before publishing your code, make sure you've read the file
+			<anewt:fileref>HACKING</anewt:fileref> in the top level Anewt
+			directory. It contains information about our code guidelines and
+			conventions. The Anewt source code is intended to be easily
+			understandable, so all functions and methods must be documented
+			(using Doxygen syntax), code must be well formatted and code
+			comments should be written for all non-obvious code
+			constructs.</p>
+
+	</anewt:section>
+
+</anewt:chapter>
+
+<!-- vim: set tw=72 : -->

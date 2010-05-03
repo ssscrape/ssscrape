@@ -1,0 +1,202 @@
+<?php
+/**
+* Valid permissions for this module
+* @return array An array of valid permissions for the ssscrape module
+*/
+
+function ssscrape_perm() {
+    return array("view job queue", "administer Ssscrape");
+}
+
+/**
+* Menu items for this module
+* @return An array of menu items for the ssscrape module
+*/
+
+function ssscrape_menu($may_cache) {
+    $items = array();
+
+    $items[] = array(
+        'path' => 'admin/settings/ssscrape',
+        'title' => t('Ssscrape settings'),
+        'description' => t('Settings for Ssscrape'),
+        'callback' => 'drupal_get_form',
+        'callback arguments' => 'ssscrape_admin',
+        'access' => user_access('administer Ssscrape'),
+        'type' => MENU_NORMAL_ITEM,
+    );
+
+    $items[] = array(
+        'path' => 'jobs',
+        'title' => t('Job queue'),
+        'callback' => 'ssscrape_jobs',
+        'access' => user_access('view job queue'),
+        'type' => MENU_NORMAL_ITEM,
+    );
+
+    $items[] = array(
+        'path' => 'job/view',
+        'title' => t('View job'),
+        'callback' => 'ssscrape_job_view',
+        'access' => user_access('view job queue'),
+        'type' => MENU_CALLBACK,
+    );
+
+    return $items;
+}
+
+/**
+* Settings form for Ssscrape
+* @return A form
+*/
+
+function ssscrape_admin() {
+    $form['ssscrape_maxdisp'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Maximum number of links'),
+        '#default_value' => variable_get('ssscrape_maxdisp', 3),
+        '#size' => 2,
+        '#maxlength' => 2,
+        '#description' => t("The maximum number of links to display in the block.")
+    );
+
+    return system_settings_form($form);
+}
+
+/**
+* View the job queue
+* @return page contents
+*/
+
+function ssscrape_jobs($state = '') {
+    $page_contents = '';
+    $page_contents .= drupal_get_form('ssscrape_form_admin_states', $state);
+
+    $state_where = '';
+
+    if ($_SESSION['ssscrape_state'] != '') {
+        $state_where = "WHERE state = '". $_SESSION['ssscrape_state'] ."'";
+    }
+
+    $result = pager_query("SELECT id,type,program,state,start,end FROM ssscrape_job j $state_where ORDER BY last_update DESC");
+
+    $rows = array();
+    while($job = db_fetch_object($result)) {
+        $row = array(
+            l($job->id, "job/view/". $job->id),
+            $job->type,
+            $job->program,
+            $job->state,
+            $job->start,
+            $job->end,
+        );
+        $rows[] = $row;
+    }
+
+    $page_contents .= theme('table', array(t('ID'), t('Type'), t('Program'), t('State'), t('Start'), t('End')), $rows);
+    $page_contents .= theme('pager');
+
+    return $page_contents;
+}
+
+/**
+* Show details for a single job
+* @return page contents
+*/
+
+function ssscrape_job_view($job_id = 0) {
+    $page_contents = '';
+
+    if ($job_id > 0) {
+        $headers = array(
+            'id' => t('ID'),
+            'type' => t('Type'),
+            'program' => t('Program'),
+            'args' => t('Arguments'),
+            'state' => t('State'),
+            'message' => t('Message'),
+            'output' => t('Output'),
+            'hostname' => t('Hostname'),
+            'process_id' => t('Process ID'),
+            'exit_code' => t('Exit code'),
+            'scheduled' => t('Scheduled'),
+            'start' => t('Start'),
+            'end' => t('End'),
+            'last_update' => t('Last updated'),
+        );
+        $markup = array(
+            'program' => 'pre',
+            'args' => 'pre',
+            'message' => 'pre',
+            'output' => 'pre',
+        );
+        $job = db_fetch_object(db_query("SELECT * FROM ssscrape_job WHERE id = %d", $job_id));
+        foreach($headers as $key => $val) {
+            $page_contents .= '<h3>'. $val .':</h3>';
+            if (array_key_exists($key, $markup)) {
+                $page_contents .= "<". $markup[$key] .">". $job->$key ."</". $markup[$key] .">\n";
+            } else {
+                $page_contents .= '<p>'. $job->$key ."</p>";
+            }
+        }  
+    } else {
+        $page_contents .= '<p>'. t('Invalid Job ID.') .'</p>';
+    }
+
+    return $page_contents;
+}
+
+/**
+* Get a list of job states
+* @return an array of jobs states
+*/
+
+function ssscrape_get_job_states() {
+    $results = db_query("SELECT DISTINCT(state) AS state FROM ssscrape_job");
+
+    $jobstates = array();
+
+    while($result = db_fetch_object($results)) {
+        $jobstates[] = $result->state;
+    }
+
+    return $jobstates;
+}
+
+/**
+* Display a job state selection form
+* @return form array
+*/
+
+function ssscrape_form_admin_states($state = '') {
+    $forms = array();
+    $jobstates = array();
+    $states = ssscrape_get_job_states();
+    foreach ($states as $jstate) {
+        $jobstates[$jstate] = ucfirst($jstate);
+    }
+    $jobstates[''] = t('All');
+    $form['filter'] = array('#type' => 'select', '#title' => t('Select state'), '#options' => $jobstates, '#default_value' => $state);
+    $form['submit'] = array('#type' => 'submit', '#value' => t('Update'));
+    $form['#redirect'] = FALSE;
+
+    return $form;
+}
+
+/**
+* Submit the job state selection form
+* @return nothing
+*/
+
+function ssscrape_form_admin_states_submit($form_id, $form_values) {
+    $_SESSION['ssscrape_state'] = $form_values['filter'];
+}
+
+/**
+* Theme the job state selection form
+* @return nothing
+*/
+
+function theme_ssscrape_form_admin_states($form) {
+  return '<div class="container-inline">'. drupal_render($form) .'</div>';
+}

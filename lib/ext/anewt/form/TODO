@@ -1,0 +1,15 @@
+Some TODO items for the form module
+=========================================
+
+- Support option grouping using optgroup in AnewtFormControlChoice
+
+- Select first non-disabled option in single-select AnewtFormControlChoice
+  instead of just the first one.
+
+- Sensible handling of 'optional' property in multiple-select controls.
+
+- Graphical submit button
+
+- File upload controls
+
+- Render 'class' value also for non-text input controls

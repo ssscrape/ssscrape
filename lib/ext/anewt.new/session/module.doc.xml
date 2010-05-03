@@ -1,0 +1,38 @@
+<anewt:module
+	xmlns:anewt="http://anewt.net/ns/2008/04/documentation"
+	id="session"
+	>
+
+	<anewt:title>Session module</anewt:title>
+
+	<anewt:subtitle>Module for handling sessions</anewt:subtitle>
+
+	<anewt:classes>
+		<anewt:class>AnewtSession</anewt:class>
+	</anewt:classes>
+
+
+	<anewt:section>
+
+		<anewt:title>Overview</anewt:title>
+
+		<p>The session module provides you with an easy way to deal with sessions.
+		PHP offers a really ugly session API, mixing both functions and global
+		variables. Anewt offers a consistent, small wrapper API that hides the
+		internal details and automates some boring (and sometimes subtly annoying)
+		details through the <anewt:classref>AnewtSession</anewt:classref> class,
+		which only provides static methods. This means you cannot create session
+		objects by using the <code>new</code> operator, since only one session can
+		be used at any time.</p>
+
+		<p>The API is quite simple and resembles the API offered by the
+		<anewt:classref>AnewtContainer</anewt:classref> class, but a bit simpler.
+		This simple code snippet illustrates how to use sessions:</p>
+
+		<anewt:example src="session-usage">
+			<anewt:title>Using a session</anewt:title>
+		</anewt:example>
+
+	</anewt:section>
+
+</anewt:module>

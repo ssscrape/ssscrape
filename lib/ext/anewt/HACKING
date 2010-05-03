@@ -1,0 +1,135 @@
+How to contribute
+=================
+
+Patches are welcome. Make sure you open a bug report (see README for web
+addresses) to describe the issues or features your patch addresses. Use
+context patches when attaching a patch to your bug report:
+
+    diff -u file.orig file.new > fix-some-problem.patch
+
+If you're a Bazaar user: bzr diff produces correct results. You're also
+welcome to put a Bazaar branch online, so that we can merge your changes.
+Even more useful are the bzr bundles instead of patches. Type 'bzr help
+bundle' for more information.
+
+
+Coding style
+============
+
+Always use UNIX-style line endings, i.e. only \n, not \r\n.
+
+We use single tabs for indentation. That means tabs. Tabs. TABS! (Yes, this
+file has 4 spaces instead of tabs, but hey, this is not a .php file.)
+
+Class names start with a capital letter:
+
+    class Foo extends Bar
+
+Note about class naming: because of the lack of namespacing in PHP, all newly
+created classes should have an "Anewt" name prefix to avoid collisions with
+built-in PHP classes or classes defined by other libraries. For historical
+reasons some Anewt class names do not start with "Anewt", but that might be
+fixed some day in the future (but it involves heavy API breakage).
+
+
+Method names always use lowercase letters and underscores:
+
+    function do_something($foo, $bar)
+
+
+Variable names use lowercase letters and underscores:
+
+    var $some_data;
+    var $some_other_data;
+
+
+No strange prefixing or suffixing anywhere:
+
+    /* wrong */
+    var $foo_i = 3;
+    var $int_foo_i = 3;
+
+    /* correct */
+    var $foo = 3;
+
+
+Opening braces should be placed on a separate line. For control structures
+(if(), while(), for(), foreach() and switch()) you may also place the opening
+brace at the end of the same line, but only if that improves legibility, e.g.
+for two-line if() statements. For one-line if() statements the braces may be
+omitted altogether, but if you decide to add some code comments, you should
+always add braces for clarity.
+
+    class Sample
+    {
+        function do_something()
+        {
+            if (some_condition()) {  /* The { may be on the next line as well */
+                first();
+                second();
+                third();
+            } else {
+                fourth();
+            }
+        }
+    }
+
+
+No whitespace before parentheses, except for control structures:
+
+    /* wrong */
+    $result = $foo->do_something ($bar);
+    if(some_condition ())
+
+    /* correct */
+    $result = $foo->do_something($bar);
+    if (some_condition())
+    while (some_condition_holds())
+
+
+Use assertions to check for coding errors. Don't use assertions for run-time
+failures that should NOT cause execution to be aborted:
+
+    function first_char($str)
+	{
+        /* Not passing a string is a programming error: */
+        assert('is_string($str)');
+
+        /* Don't use assert() here: */
+        if (strlen($str) == 0):
+            return '';
+
+        return $str[0];
+    }
+
+The code uses Doxygen-style comments, and each class, function, and member
+variable must be documented. Additional comments written inside the code should
+always use the /* ... */ syntax, and never the // or # syntax. Comment example:
+
+	/**
+	  * Frobnicate the passed string value.
+	  *
+	  * \param $bar
+	  *   The value to frobnicate
+	  *
+	  * \return
+	  *    The frobnicated value
+	  */
+	function foo($bar)
+	{
+		/* These are some code comments */
+		return $bar;
+	}
+
+
+Some notes regarding string literals:
+- always use single quotes for literal string values, except if you need tab or
+  newline characters: 'Some words', "Newline needed here!\n". Please consider
+  using the NL, LF, CRLF constants.
+- Don't use variable substitution: "foo $bar" is evil. Use sprintf instead:
+  sprintf('foo %s', $bar)
+
+
+Look at the source for more examples.
+
+Happy hacking!

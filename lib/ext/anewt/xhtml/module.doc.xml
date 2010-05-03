@@ -1,0 +1,249 @@
+<anewt:module
+	xmlns:anewt="http://anewt.net/ns/2008/04/documentation"
+	id="xhtml"
+	>
+
+	<anewt:title>XHTML module</anewt:title>
+
+	<anewt:subtitle>Generate XHTML constructs easily</anewt:subtitle>
+
+	<anewt:classes>
+		<anewt:class>AnewtXHTMLAbbreviation</anewt:class>
+		<anewt:class>AnewtXHTMLAcronym</anewt:class>
+		<anewt:class>AnewtXHTMLAnchor</anewt:class>
+		<anewt:class>AnewtXHTMLBase</anewt:class>
+		<anewt:class>AnewtXHTMLBig</anewt:class>
+		<anewt:class>AnewtXHTMLBlockQuote</anewt:class>
+		<anewt:class>AnewtXHTMLBold</anewt:class>
+		<anewt:class>AnewtXHTMLBreak</anewt:class>
+		<anewt:class>AnewtXHTMLButton</anewt:class>
+		<anewt:class>AnewtXHTMLCitation</anewt:class>
+		<anewt:class>AnewtXHTMLCode</anewt:class>
+		<anewt:class>AnewtXHTMLDefinition</anewt:class>
+		<anewt:class>AnewtXHTMLDefinitionDescription</anewt:class>
+		<anewt:class>AnewtXHTMLDefinitionList</anewt:class>
+		<anewt:class>AnewtXHTMLDefinitionTerm</anewt:class>
+		<anewt:class>AnewtXHTMLDeletion</anewt:class>
+		<anewt:class>AnewtXHTMLDiv</anewt:class>
+		<anewt:class>AnewtXHTMLEmphasis</anewt:class>
+		<anewt:class>AnewtXHTMLFieldset</anewt:class>
+		<anewt:class>AnewtXHTMLForm</anewt:class>
+		<anewt:class>AnewtXHTMLFragment</anewt:class>
+		<anewt:class>AnewtXHTMLHeader1</anewt:class>
+		<anewt:class>AnewtXHTMLHeader2</anewt:class>
+		<anewt:class>AnewtXHTMLHeader3</anewt:class>
+		<anewt:class>AnewtXHTMLHeader4</anewt:class>
+		<anewt:class>AnewtXHTMLHeader5</anewt:class>
+		<anewt:class>AnewtXHTMLHeader6</anewt:class>
+		<anewt:class>AnewtXHTMLImage</anewt:class>
+		<anewt:class>AnewtXHTMLInput</anewt:class>
+		<anewt:class>AnewtXHTMLInsertion</anewt:class>
+		<anewt:class>AnewtXHTMLItalic</anewt:class>
+		<anewt:class>AnewtXHTMLKeyboard</anewt:class>
+		<anewt:class>AnewtXHTMLLabel</anewt:class>
+		<anewt:class>AnewtXHTMLLegend</anewt:class>
+		<anewt:class>AnewtXHTMLLink</anewt:class>
+		<anewt:class>AnewtXHTMLListItem</anewt:class>
+		<anewt:class>AnewtXHTMLMeta</anewt:class>
+		<anewt:class>AnewtXHTMLOption</anewt:class>
+		<anewt:class>AnewtXHTMLOptionGroup</anewt:class>
+		<anewt:class>AnewtXHTMLOrderedList</anewt:class>
+		<anewt:class>AnewtXHTMLParagraph</anewt:class>
+		<anewt:class>AnewtXHTMLPreformatted</anewt:class>
+		<anewt:class>AnewtXHTMLQuote</anewt:class>
+		<anewt:class>AnewtXHTMLRaw</anewt:class>
+		<anewt:class>AnewtXHTMLSample</anewt:class>
+		<anewt:class>AnewtXHTMLScript</anewt:class>
+		<anewt:class>AnewtXHTMLSelect</anewt:class>
+		<anewt:class>AnewtXHTMLSmall</anewt:class>
+		<anewt:class>AnewtXHTMLSpan</anewt:class>
+		<anewt:class>AnewtXHTMLStrike</anewt:class>
+		<anewt:class>AnewtXHTMLStrong</anewt:class>
+		<anewt:class>AnewtXHTMLStyle</anewt:class>
+		<anewt:class>AnewtXHTMLSubscript</anewt:class>
+		<anewt:class>AnewtXHTMLSuperscript</anewt:class>
+		<anewt:class>AnewtXHTMLTable</anewt:class>
+		<anewt:class>AnewtXHTMLTableBody</anewt:class>
+		<anewt:class>AnewtXHTMLTableCell</anewt:class>
+		<anewt:class>AnewtXHTMLTableColumn</anewt:class>
+		<anewt:class>AnewtXHTMLTableColumnGroup</anewt:class>
+		<anewt:class>AnewtXHTMLTableFoot</anewt:class>
+		<anewt:class>AnewtXHTMLTableHead</anewt:class>
+		<anewt:class>AnewtXHTMLTableHeaderCell</anewt:class>
+		<anewt:class>AnewtXHTMLTableRow</anewt:class>
+		<anewt:class>AnewtXHTMLTeletype</anewt:class>
+		<anewt:class>AnewtXHTMLTextarea</anewt:class>
+		<anewt:class>AnewtXHTMLTitle</anewt:class>
+		<anewt:class>AnewtXHTMLUnderline</anewt:class>
+		<anewt:class>AnewtXHTMLUnorderedList</anewt:class>
+		<anewt:class>AnewtXHTMLVariable</anewt:class>
+		<anewt:class>_AnewtXHTMLBlockElement</anewt:class>
+		<anewt:class>_AnewtXHTMLElement</anewt:class>
+		<anewt:class>_AnewtXHTMLHeaderBase</anewt:class>
+		<anewt:class>_AnewtXHTMLInlineElement</anewt:class>
+		<anewt:class>_AnewtXHTMLListBase</anewt:class>
+	</anewt:classes>
+
+
+	<p>The most common task for a web application is to generate web
+		pages. Anewt provides a convenient, programmable way to build valid
+		XHTML Strict constructs. This module provides many classes and
+		convenience methods to build XHTML constructs.</p>
+
+
+	<anewt:section>
+
+		<anewt:title>Basic usage</anewt:title>
+
+		<p>The classes and methods in this module closely resemble the
+			elements available in XHTML. Each class corresponds to a XHTML
+			element, and most XHTML elements have short-hand methods to
+			generate class instances. The API is deliberately kept very
+			simple, and closely matches the XHTML specification, so once
+			you're used to the API, generating HTML should be just as fast as
+			typing XHTML by hand, if not faster. Since this module builds on
+			the classes in the <anewt:moduleref>xml</anewt:moduleref> module,
+			all the XML goodies like output indenting and appending nodes to
+			other nodes are available as well.</p>
+
+		<p>XHTML elements can be created by instantiating their
+			corresponding classes directly, which is quite tiresome to type
+			and quite hard to read, or they can be created by the
+			<code>ax_*()</code> methods offered by this module. Both the
+			constructor methods and the short-hand methods result in class
+			instances (not strings) that can be manipulated afterwards, e.g.
+			you can set attributes such as <code>class</code> or
+			<code>id</code> after creating an element. The XHTML classes have
+			names spelled out in full, e.g.
+			<anewt:classref>AnewtXHTMLParagraph</anewt:classref>. On the other
+			hand, the <code>ax_*()</code> methods use the element name
+			directly after a <code>ax_</code> function name prefix, e.g.
+			<anewt:functionref>ax_p()</anewt:functionref>. This means that
+			writing XHTML using the <code>ax_*()</code> methods is much more
+			concise. See the example below:</p>
+
+		<anewt:example src="xhtml-basic-usage">
+			<anewt:title>Creating a paragraph of text</anewt:title>
+		</anewt:example>
+
+		<p>In exactly the same way, all other XHTML elements can be
+			created.</p>
+
+	</anewt:section>
+
+	<anewt:section>
+
+		<anewt:title>Setting attributes</anewt:title>
+
+		<p>In addition to the basic <code>ax_*()</code> methods, several
+			often-used cases, such as a paragraph of text with a
+			<code>class</code> attribute, or a <code>div</code> block element
+			with an <code>id</code> attribute, can be created with a single
+			function call, e.g. <code>ax_p_class()</code> and
+			<code>ax_div_id()</code>. An example:</p>
+
+		<anewt:example src="xhtml-api-with-attributes">
+			<anewt:title>Generating output with attributes directly</anewt:title>
+		</anewt:example>
+
+	</anewt:section>
+
+	<anewt:section>
+
+		<anewt:title>Complex output</anewt:title>
+
+		<p>Elements can be easily nested:</p>
+
+		<anewt:example src="xhtml-nesting">
+			<anewt:title>Creating nested elements</anewt:title>
+		</anewt:example>
+
+		<p>Alternatively, if you don't want a wrapping element, you can
+			use a XHTML fragment
+			(<anewt:classref>AnewtXHTMLFragment</anewt:classref>) instead.
+			Fragments can be transparently added to other elements or to
+			<anewt:classref>AnewtPage</anewt:classref> instances.</p>
+
+		<anewt:example src="xhtml-fragment">
+			<anewt:title>Building a fragment</anewt:title>
+		</anewt:example>
+
+		<p>Another useful function is
+			<anewt:functionref>ax_sprintf()</anewt:functionref>, which works
+			like <anewt:functionname>sprintf()</anewt:functionname>, but
+			handles XHTML elements, and returns an XHTML element with all
+			content properly escaped:</p>
+
+		<anewt:example src="xhtml-ax-sprintf">
+			<anewt:title>Building complex text output with format specifiers</anewt:title>
+		</anewt:example>
+
+	</anewt:section>
+
+
+	<anewt:section>
+
+		<anewt:title>Output escaping</anewt:title>
+
+		<p>All string content passed to the XHTML methods and class
+			constructors is escaped by default. That means that you never need
+			to worry about calling
+			<anewt:functionname>htmlspecialchars()</anewt:functionname> on
+			your strings to make sure special characters such as
+			<code>&amp;</code> and <code>&gt;</code> don't cause trouble in
+			the generated output.</p>
+
+		<p>In case you want to put a pre-formatted XHTML string inside an
+			XHTML element, you have to use a raw text node. The
+			<anewt:classref>AnewtXHTMLRaw</anewt:classref> class, which can
+			also be created using the
+			<anewt:functionref>ax_raw()</anewt:functionref> function, is used
+			for this. The following example illustrates how to use it:</p>
+
+		<anewt:example src="xhtml-raw-content">
+			<anewt:title>Using raw strings as element content</anewt:title>
+		</anewt:example>
+
+		<anewt:warning><p>Note that the content used as raw text should be a
+				valid XHTML snippet for your page to be valid. Double-check that
+				you did not make any typos or that you don't output untrusted
+				input, since this may lead to cross-site scripting
+				vulnerabilities!</p></anewt:warning>
+
+
+	</anewt:section>
+
+
+	<anewt:section>
+
+		<anewt:title>Generating the final output</anewt:title>
+
+		<p>The <anewt:classref>AnewtPage</anewt:classref> available from the
+			<anewt:moduleref>page</anewt:moduleref> module handles XHTML
+			objects passed to the
+			<anewt:functionref>AnewtPage::append()</anewt:functionref> and
+			<anewt:functionref>AnewtPage::append_to()</anewt:functionref>
+			methods just fine. Actually, many of the internal
+			<anewt:classref>AnewtPage</anewt:classref> code uses functionality
+			offered by the XHTML module internally when building the
+			output.</p>
+
+		<anewt:example src="page-simple">
+			<anewt:title>Adding XHTML elements to a page</anewt:title>
+		</anewt:example>
+
+		<p>Of course it's not required to use the XHTML module in
+			combination with the <anewt:moduleref>page</anewt:moduleref>
+			module. XHTML object instances can be easily rendered to strings
+			using the <anewt:functionref>to_string()</anewt:functionref>
+			method:</p>
+
+		<anewt:example src="xhtml-to-string">
+			<anewt:title>Rendering XHTML objects to a string</anewt:title>
+		</anewt:example>
+
+	</anewt:section>
+
+</anewt:module>
+
+<!-- vim: set tw=72 : -->

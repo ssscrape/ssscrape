@@ -1,0 +1,13 @@
+
+Ssscrape developer's documentation
+----------------------------------
+
+To generate documentation from the source code, you need Doxygen installed 
+on your system, and enviroment variable DX_HOME set to the root of Doxygen
+installation (so that $DX_HOME/bin/doxygen is the Doxygen executable).
+You can download Doxygen from http://www.stack.nl/~dimitri/doxygen/download.html
+
+
+After Doxygen is installed, run "make" in this directory. The documentation
+will be generated in the html/ subdirectory. Point your browser to html/index.html
+to have a look.

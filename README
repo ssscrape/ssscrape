@@ -1,0 +1,201 @@
+Ssscrape v 1.0 README
+
+(c) 2007-2010 ISLA, University of Amsterdam
+
+Contact: jijkoun@uva.nl
+
+
+
+Ssscrape stands for Syndicated and Semi-Structured Content Retrieval and
+Processing Environment. Ssscrape is a framework for crawling and processing
+dynamic web data, such as RSS/Atom feeds.
+
+
+General
+=======
+
+Ssscrape is a system for tracking dynamic online collections of items: RSS
+feeds, blogs, news, podcasts etc. For a set of online data sources, user can
+configure Ssscrape to:
+
+  - periodically check for new information items;
+  - download and store (e.g., in a database) items along with available
+    meta-data;
+  - clean the content (e.g., producing plain text) and perform other
+    application-specific processing (e.g., tagging, duplicate detection,
+    linking) 
+  - monitor activity and report errors
+
+Ssscrape is flexible and easily expandable:
+
+  - new online data sources added simply by specifying URLs, periodicity and
+    specific processing methods
+  - new data processing methods (workers) can easily be added as scripts with a
+    simple API 
+
+
+Terminology
+===========
+
+In Ssscrape, the following modules and entities are defined:
+
+  - Task: a periodic activity added by a user via Sscrape monitor (shell script
+    or web interface); a task is defined by its id, worker, options, type, status
+    (active/inactive), periodicity or (optional) hour/minute/second of execution,
+    actual start time of the latest job (updated by manager), remote resource id
+    (e.g,. hostname for tasks involving fetching web content)
+
+  - Monitor: module for monitoring Ssscrape's activity and reporting errors
+    from command line or through a web interface.
+
+  - Job: one-time activity scheduled for execution by a user (via monitor), by the
+    scheduler or a worker. A job is defined by its id, (optional) task id, worker,
+    options, type, status (pending, running, temporary error), scheduled start
+    time, actual start time, completion time, last update time, worker's output,
+    status message. Completed jobs are stored to the job logs.
+
+  - Scheduler: a process that checks which periodic tasks are ready for
+    execution and schedules corresponding jobs; there is a single scheduler for
+    a Ssscrape instance.
+
+  - Manager: a process that selects and executes scheduled jobs based on
+    available resources; there can be multiple managers (running on one or
+    multiple hosts) for a single Ssscrape instance: they will be serving the
+    same job queue.
+
+  - Worker: an executable used by a manager to execute a job.
+
+  - Feed: a dynamic online data source (RSS/Atom Feed, blog, web page with user
+    comments etc.) that can be viewed as providing a list of items.  
+
+For more details on tasks, jobs, feeds, items, see database table definitions
+in files database/*.sql.
+
+The following section describes the operation of Ssscrape modules.
+
+
+Scheduler
+=========
+
+Scheduler is a separate process that schedules new jobs for execution, based on
+the task table of Ssscrape.  The frequency of a periodic task is specified when
+the task is created, but can be changed at any time by worker and/or monitor.
+The scheduler checks the task table periodically to see if there are tasks for
+which new jobs should be scheduled.  The scheduler schedules a new job for a
+given task when:
+
+  - there are no pending or running jobs for that task in the job queue;
+  - the interval since the last time a job for the task was executed is more
+    than the task period.
+
+Scheduler makes sure there is at most one job per task scheduled at any moment.
+
+
+Manager
+=======
+
+Ssscrape follows a manager/worker architecture.  A manager runs as a separate
+Unix process that selects and executes jobs from the job queue.  A job is
+executed by spawning a new Unix process: this guarantees stability of the
+system even when workers crash.  Manager can run multiple jobs in parallel;
+config parameters limit the number of jobs that can run simultaneously, per job
+type (e.g., fetching, cleaning, indexing, duplicate detection etc.).  Manager
+keeps track of execution state of jobs (e.g., running, pending, completed,
+failed) and process ids. This information is available through a monitor.  The
+manager terminates a job if it exceeds the running time limit, set per job
+type.  When a job is finished, manager logs the results; job logs can be
+examined via a monitor.
+
+
+Monitor
+=======
+
+New periodic tasks can be added, removed, suspended (i.e., made temporarily
+inactive), resumed via a web interface or from a command line.  Monitor checks
+that the managers are up and running and reports problems, e.g., when a job was
+accepted by a manager but never reported as completed/failed.  Monitor provides
+basic statistics for failure analysis: the number of completed and failed jobs,
+execution times, the number of collected items, etc.
+
+
+Workers
+=======
+
+All jobs accepted by a manager are actually carried out by workers.  Worker
+executables can be implemented in any programming language, as long as they
+follow API of the manager:
+
+  - A worker is started as a process, and command line options (present in the
+    job description) are passed along when execution starts.
+  - A worker is informed of the job id through an environment variable SSSCRAPE_JOB_ID.
+  - A worker can retrieve job information or update the job status using an API (currently
+    available only in python)
+
+On exit, a worker returns an exit code:
+  - 0: success
+  - 1: temporary failure (job should be re-run later)
+  - 2: permanent failure (job has failed)
+
+Worker can log additional information via API (python).  Workers can also use
+API to schedule new jobs for execution. (An example: an online news article
+fetching worker that wants to collect user comments for the article may want to
+schedule fetching comments 12, 24 and 48 hours after fetching an article,
+resulting in 3 new jobs).
+
+Most data fetching tasks can be performed by the feed worker (see below) with
+proper configuration.
+
+
+Feed worker
+===========
+
+This is a generic worker that can collect online data (i.e., from RSS/Atom feed
+or from permalinks therein).  The data collecting worker can only be used with
+a specific plugin that defines the exact behavior of the worker at specific
+processing stages. Plugins for most common fetching tasks are provided and can
+be easily extended, if needed.
+
+The feed worker performs the following sequence of steps (plugins provide
+implementation of individual steps):
+
+  - open: initialize the worker
+  - fetch the raw content at the URL
+  - fetchclean: clean the fetched content
+  - parse the cleaned content into a feed info and a list of items
+  - filter out items from the list which should be disregarded for further processing
+  - clean each remaining item in the list
+  - process each item in some way
+  - storefeed: store the collected data, e.g., in a database
+  - store each processed item, e.g., in a database
+  - close: clean up the worker
+
+
+Existing plugins for the feed worker are listed below.
+
+
+Feed worker plugins
+===================
+
+  - Default plugin: 
+     * provides fetchclean() method that converts text data to UTF-8.
+     * provides clean() method that produces plain text of items (removes HTML
+       tags and entities, produces UTF-8 text)
+
+  - URL plugin provides the functionality of the Default plugin, plus:
+     * fetch() method to fetch the content at a URL
+
+  - Feed plugin allows to process RSS/Atom at the most basic level:
+     * it parses title, description and link at the feed and feed item levels
+
+  - Full Content feed plugin provides the functionality of the Feed plugin, plus:
+     * it stores extracted information in a database
+
+  - Permalink scraping plugin can extract content from a web page (e.g., following
+    a feed item permalink).
+     * it gets a feed id and an item id as input parameters
+     * it fetches the content (typically, HTML) of the page
+     * it extracts the text content
+
+Feeds on which feed worker is running with full content plugin can be configured in
+such a way, that the plugin will schedule permalink fetching jobs for all items
+found in the feed. 

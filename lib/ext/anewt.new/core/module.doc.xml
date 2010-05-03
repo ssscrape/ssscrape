@@ -1,0 +1,289 @@
+<anewt:module
+	xmlns:anewt="http://anewt.net/ns/2008/04/documentation"
+	id="core"
+	>
+
+	<anewt:title>Core module</anewt:title>
+
+	<anewt:subtitle>Core functions and classes</anewt:subtitle>
+
+	<anewt:classes>
+		<anewt:class>AnewtException</anewt:class>
+		<anewt:class>AnewtRequest</anewt:class>
+		<anewt:class>AnewtURL</anewt:class>
+		<anewt:class>AnewtContainer</anewt:class>
+	</anewt:classes>
+
+
+	<p>The core module contains all basic routines offered by Anewt.
+		This module is loaded by default upon when Anewt is initialized.
+		Most functions are related to strings and arrays. The widely used
+		<anewt:classref>AnewtContainer</anewt:classref> object is in the
+		core module as well. Additionally, some other useful functions are
+		provided. This chapter only covers the basic functionality offered
+		by the core module; see the API documentation and the source code
+		(quite readable and pretty well documented, really) for a full
+		reference.</p>
+
+	<anewt:section>
+
+		<anewt:title>String functions</anewt:title>
+
+		<p>PHP itself offers a lot of string utility functions, but some
+			<strong>commonly used string logic routines</strong> are not
+			implemented as simple, separarate functions. Often, this leads to
+			duplication of (often simple but boring) micro-routines. A good
+			example of this is the
+			<anewt:functionref>str_contains()</anewt:functionref>
+			function that checks whether a string contains a given substring.
+			Of course you could also have used
+			<anewt:functionname>strpos()</anewt:functionname>
+			directly, but since this function can return both integers and
+			boolean <code>false</code>, some care has to be taken every
+			time you need this functionality. That's why Anewt provides you
+			with a <anewt:functionref>str_contains()</anewt:functionref> function that hides
+			these tiny details from view, so that you can concentrate on the
+			meaning of your own code, instead of fiddling with PHP internals.
+			A second example of this is
+			<anewt:functionref>str_is_whitespace()</anewt:functionref>.
+			Of course you could've used <code>(strlen(trim($str)) == 0)</code>,
+			but once again: using meaningful functions keeps your code
+			maintainable.</p>
+
+		<p>Several functions are provided to deal with <strong>string
+				prefixes and suffixes</strong>. The names speak for
+			themselves: <anewt:functionref>str_has_prefix()</anewt:functionref>,
+			<anewt:functionref>str_has_whitespace_prefix()</anewt:functionref>,
+			<anewt:functionref>str_has_suffix()</anewt:functionref>,
+			<anewt:functionref>str_has_whitespace_suffix()</anewt:functionref>,
+			<anewt:functionref>str_strip_suffix()</anewt:functionref>, and
+			<anewt:functionref>str_strip_prefix()</anewt:functionref>. See the API reference for
+			more information.</p>
+
+		<p>A useful <strong>string truncation</strong> routine,
+			<anewt:functionref>str_truncate()</anewt:functionref>, is provided to cut off
+			strings at a given length. This is very useful if you want to
+			display overview pages with only a certain number of characters
+			instead of the whole bunch of text.</p>
+		
+		<p>Some other functions let you deal with arrays of strings
+			easily:
+			<anewt:functionref>str_first_non_white()</anewt:functionref> and
+			<anewt:functionref>str_all_non_white()</anewt:functionref>. Once again, the names
+			speak for themselves.</p>
+
+	</anewt:section>
+
+
+	<anewt:section>
+
+		<anewt:title>Array functions</anewt:title>
+
+		<p>The array functions offered by Anewt are written in the same
+			spirit as the string functions outlined in the previous section.
+			PHP itself has a lot of array related functions. Anewt tries to
+			fill in the missing pieces to make arrays a pleasure to deal
+			with.</p>
+
+		<p>PHP makes no difference between lists and hashes. Lists are
+			simply lists of values (called numerical arrays in PHP), while
+			hashes (also known as dictionaries or hash tables, called
+			associative arrays in PHP) contain key/value pairs. Lists in PHP
+			are implemented as hashes with numerical keys, while hashes use
+			string keys. The values can be of any type. The built-in
+			<anewt:functionname>is_array()</anewt:functionname> cannot be used to differentiate
+			between these types. Anewt offers
+			<anewt:functionref>is_numeric_array()</anewt:functionref> and
+			<anewt:functionref>is_assoc_array()</anewt:functionref> functions to do this for
+			you.</p>
+
+		<anewt:warning>
+			
+			<p>PHP allows you to mix lists and hashes by using both
+				integer and string keys in the same array. You are strongly
+				discouraged to do this. It makes your code a
+				mess!</p>
+		
+		</anewt:warning>
+
+		<p>The function
+			<anewt:functionref>array_get_default()</anewt:functionref> is
+			useful to get a value from an array, providing a default value if
+			the given key was not present in the array. Use this function to
+			to get values from arrays with optional configuration data (e.g.
+			config files). This saves you from a lot of checking code, as the
+			example below shows: </p>
+
+		<anewt:example src="core-array-get-default">
+			<anewt:title>Retrieving data (providing default values) from arrays</anewt:title>
+		</anewt:example>
+
+		<p>The function
+			<anewt:functionref>array_set_default()</anewt:functionref> is
+			similar to
+			<anewt:functionref>array_get_default()</anewt:functionref>, setting
+			values in arrays if no value was set before:</p>
+
+		<anewt:example src="core-array-set-default">
+			<anewt:title>Setting default values in arrays</anewt:title>
+		</anewt:example>
+
+		<p>Anewt also provides a method to nicely format an array as a
+			string: <anewt:functionref>array_format()</anewt:functionref>. Other routines allow
+			you to retrieve certain data types from arrays:
+			<anewt:functionref>array_get_int()</anewt:functionref> and
+			<anewt:functionref>array_get_bool()</anewt:functionref>. Several other methods are
+			provided, but not described in this section. See the API reference
+			for more information.</p>
+
+	</anewt:section>
+
+
+	<anewt:section>
+
+		<anewt:title>The <anewt:classref>AnewtContainer</anewt:classref> object</anewt:title>
+
+		<p>The <anewt:classref>AnewtContainer</anewt:classref> class is one
+		of the most useful classes provided by Anewt. It allows you to
+		implement <strong>flexible and extensible data objects</strong>. The
+		<anewt:classref>AnewtContainer</anewt:classref> class is intended to
+		be extended by your own classes implementing your application logic.
+		Your objects get the data handling functionality offered by the base
+		<anewt:classref>AnewtContainer</anewt:classref> class for free.</p>
+
+		<p>The <anewt:classref>AnewtContainer</anewt:classref> object is
+		basically <strong>a wrapper around a hash</strong> (associative
+		array) and can hold any data you provide, while adding the
+		possibility to add very fine-grained control over which data can be
+		kept in the object. This way you can easily start coding a fully
+		functional class and add the necessary validation and output logic
+		later. As long as you use your object in a standard way, calling
+		code won't need any changes in case you decide to change the
+		internal workings of your data object.</p>
+
+		<p>The <anewt:classref>AnewtContainer</anewt:classref> object can be
+		used to create clever (or nasty) hacks to manipulate data. Many
+		other Anewt modules (such as the the page and forms modules) heavily
+		use the <anewt:classref>AnewtContainer</anewt:classref>
+		functionality.</p>
+
+		<anewt:section>
+
+			<anewt:title>Storing your data: getters and setters</anewt:title>
+
+			<p>You can implement <strong>getter and setter methods</strong> to
+			control which data can be retrieved from your object and which
+			data can be stored in it. Note that you don't need to write getter
+			and setter methods for each variable you want to store in the
+			object: that's what the
+			<anewt:classref>AnewtContainer</anewt:classref> class does for
+			you. The
+			<anewt:functionref>AnewtContainer::get()</anewt:functionref> and
+			<anewt:functionref>AnewtContainer::set()</anewt:functionref>
+			functions accept any key/value pair, but call into your own
+			functions if you have implemented those. Getter functions should
+			be named <code>get_foo</code>, where <code>foo</code> is the key
+			provided to the
+			<anewt:functionref>AnewtContainer::get()</anewt:functionref>
+			function. The same idea goes for setter functions. Instead of
+			calling the methods directly, you can also get and set the values
+			by accessing those as instance properties. The example below shows
+			some basic <anewt:classref>AnewtContainer</anewt:classref>
+			usage:</p>
+
+			<anewt:example src="core-container-getters-and-setters">
+				<anewt:title>Basic container object usage with getter and setter methods</anewt:title>
+			</anewt:example>
+
+			<p>As you can see from the example, the
+			<anewt:classref>AnewtContainer</anewt:classref> class allows you
+			to retrieve dynamically generated data from your objects, e.g. by
+			performing some calculations with other data in the object. The
+			setter method makes sure no invalid data can be set on your
+			object.</p>
+
+			<p>For your convenience, a
+			<anewt:functionref>AnewtContainer::seed()</anewt:functionref>
+			function is provided to fill the
+			<anewt:classref>AnewtContainer</anewt:classref> with data from an
+			associative array. This is very useful to store the results of a
+			database query: <code>$obj->seed($row_data)</code> is all you need
+			to do.</p>
+
+			<p>All magic methods offered by the
+			<anewt:classref>AnewtContainer</anewt:classref> class have
+			<strong>non-magic equivalents</strong> with the same name starting
+			with an underscore, e.g.
+			<anewt:functionref>AnewtContainer::_get()</anewt:functionref>,
+			<anewt:functionref>AnewtContainer::set()</anewt:functionref>, and
+			<anewt:functionref>AnewtContainer::_seed()</anewt:functionref>.
+			These methods do not do any magic, but just store or retrieve data
+			on the object without calling into getter and setter methods. This
+			is considerably faster, but does not offer you as much
+			flexibility.</p>
+
+		</anewt:section>
+
+		<anewt:section>
+
+			<anewt:title>Simple caching</anewt:title>
+
+			<p>If your getter methods do computationally expensive operations,
+			like querying data from a database or doing some heavy
+			calculations, each <code>$obj->get('foo')</code> call will cause a
+			lot of overhead. In some cases it might be worth using a
+			<strong>simple caching mechanism</strong>: the dynamically
+			generated value is stored in the container and used on subsequent
+			<code>$obj->get('foo')</code> calls. To use caching, you append an
+			underscore to your getter method's name, so that it becomes
+			<code>get_foo_()</code> instead of <code>get_foo()</code>. See
+			also the example below:</p>
+
+			<anewt:example src="core-container-caching">
+				<anewt:title>Using simple caching in data objects</anewt:title>
+			</anewt:example>
+
+		</anewt:section>
+
+	</anewt:section>
+
+	<anewt:section>
+
+		<anewt:title>The <anewt:classref>AnewtRequest</anewt:classref> class</anewt:title>
+
+		<p>The <anewt:classref>AnewtRequest</anewt:classref> class provides
+		several static methods to retrieve information about the current
+		request. The relative and canonical (full) URL's for the current
+		request can be retrieved using the
+		<anewt:functionref>AnewtRequest::relative_url()</anewt:functionref>
+		and
+		<anewt:functionref>AnewtRequest::canonical_url()</anewt:functionref>
+		methods. Furthermore, the request type can easily be determined by
+		calling the
+		<anewt:functionref>AnewtRequest::method()</anewt:functionref>,
+		<anewt:functionref>AnewtRequest::is_get()</anewt:functionref> and
+		<anewt:functionref>AnewtRequest::is_post()</anewt:functionref>
+		methods. In addition, several methods to extract GET, POST or cookie
+		data (with type-safety) are available. </p>
+
+		<anewt:example src="core-request">
+			<anewt:title>Retrieving request information</anewt:title>
+		</anewt:example>
+
+	</anewt:section>
+
+	<anewt:section>
+
+		<anewt:title>Miscellaneous</anewt:title>
+
+		<p>TODO: redirect()</p>
+
+		<p>TODO: constants</p>
+
+		<p>TODO: mkenum</p>
+
+	</anewt:section>
+
+</anewt:module>
+
+<!-- vim: set tw=72 : -->

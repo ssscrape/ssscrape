@@ -1,0 +1,480 @@
+/*
+ * Stylesheet for the Anewt documentation.
+ * (c) 2006--2008  Wouter Bolsterlee <uws@xs4all.nl>
+ *
+ * The layout described in this file is copyrighted and
+ * may only be used for Anewt related documentation. If
+ * you want to use this layout for other purposes, prior
+ * permission from the author is required.
+ */
+
+
+/*
+ * Color codes from the Tango color scheme:
+ *
+ *   Butter        #fce94f   #edd400   #c4a000
+ *   Orange        #fcaf3e   #f57900   #ce5c00
+ *   Chocolate     #e9b96e   #c17d11   #8f5902
+ *   Chameleon     #8ae234   #73d216   #4e9a06
+ *   Sky Blue      #729fcf   #3465a4   #204a87
+ *   Plum          #ad7fa8   #75507b   #5c3566
+ *   Scarlet Red   #ef2929   #cc0000   #a40000
+ *
+ *   Aluminium     #eeeeec   #d3d7cf   #babdb6
+ *                 #888a85   #555753   #2e3436
+ *
+ */
+
+
+/* Defaults */
+
+html {
+ background-color: #eeeeec;
+ color: #2e3436;
+ font-family: Arial, "Helvetica", sans-serif;
+ font-size: 10pt;
+ padding: 0;
+ margin: 0;
+}
+
+body {
+}
+
+p,
+div,
+ul,
+ol,
+dl,
+h1,
+h2,
+h3,
+pre {
+ margin: 0;
+ padding: 0;
+}
+
+/* Main blocks */
+
+div#wrapper {
+ margin: 0 auto;
+ width: 800px;
+}
+
+div#header,
+div#body {
+ background-color: white;
+ border: 1px solid #babdb6;
+}
+
+/* Header */
+
+div#header {
+ text-align: center;
+}
+
+div#header p.navigation {
+ padding: 1em;
+}
+
+div#header p.navigation a {
+ margin-left: 1em;
+ margin-right: 1em;
+}
+
+/* Body */
+
+div#body {
+ background-image: url('anewt-64x64.png');
+ background-position: center 1em;
+ background-repeat: no-repeat;
+ border-top-width: 0;
+ padding: 2em;
+ padding-top: 84px;
+}
+
+
+/* Text */
+
+p,
+ol,
+ul,
+li,
+dl,
+dt,
+dd {
+ margin-top: 0;
+ margin-bottom: .5em;
+ line-height: 120%;
+}
+
+p.intro {
+ font-weight: bold;
+}
+
+/* Hyperlinks */
+
+a:link,
+a:active,
+a:hover,
+a:visited {
+ color: #3465a4;
+ text-decoration: none;
+ border-bottom: 1px dotted #3465a4;
+}
+
+a:hover {
+ border-bottom-style: solid;
+}
+
+a:visited {
+ color: #555753;
+ border-bottom-color: #555753;
+}
+
+a.permalink:link,
+a.permalink:active,
+a.permalink:hover,
+a.permalink:visited {
+ border-bottom: none;
+ text-decoration: none;
+ font-size: smaller;
+ color: #babdb6;
+ margin-left: .5em;
+ padding-left: 1em;
+ padding-right: 1em;
+ visibility: hidden;
+}
+
+*:hover > a.permalink {
+ visibility: visible;
+}
+
+
+/* Admonitions */
+
+div.admonition {
+ background-position: 10px 15px;
+ background-repeat: no-repeat;
+ border-color: #2e3436;
+ border-style: solid;
+ border-width: 0 0 0 10px;
+ margin-bottom: 1em;
+ margin-top: 1em;
+ padding-bottom: 1em;
+ padding-left: 3em;
+ padding-top: 1em;
+}
+
+div.warning {
+ background-image: url('icons/status/dialog-warning.png');
+ border-color: #a40000;
+}
+
+div.note {
+ background-image: url('icons/emblems/emblem-important.png');
+ border-color: #f57900;
+}
+
+div.tip {
+ background-image: url('icons/status/dialog-information.png');
+ border-color: #729fcf;
+}
+
+
+/* Headings */
+
+h1,
+h2,
+h3,
+h4 {
+ clear: both;
+ color: #4e9a06;
+ font-family: "Trebuchet MS", sans-serif;
+ font-weight: normal;
+ margin-bottom: .2em;
+ padding-top: 1em;
+}
+
+h1 {
+ color: #3465a4;
+ padding-top: .5em;
+ padding-bottom: .5em;
+ font-size: 4em;
+ font-weight: bold;
+}
+
+h2 {
+ font-size: 2em;
+}
+
+h3 {
+ font-size: 1.5em;
+}
+
+h4 {
+ font-size: 1em;
+ font-weight: bold;
+}
+
+
+
+/* Lists */
+
+ul, ol {
+ list-style-type: square;
+ list-style-position: outside;
+ text-indent: 0;
+ margin: 0;
+ margin-left: 1em;
+ padding: 0;
+}
+
+ul li ul,
+ol li ol {
+ margin-left: 1em;
+}
+
+dl {
+}
+
+dl dt {
+}
+
+dl dd {
+ margin-left: 2em;
+}
+
+
+/* Code */
+
+div.example {
+ margin: 1em 3em 2em;
+}
+
+div.example p.caption {
+ margin-top: .5em;
+ margin-bottom: .5em;
+ text-align: center;
+ font-weight: normal;
+}
+
+div.example p.caption span.numbering {
+ font-weight: bold;
+}
+
+code,
+code.classname,
+code.varname,
+code.function {
+ color: #204a87;
+ font-size: .9em;
+}
+
+div.example pre {
+ background-color: #d3d7cf;
+ border-color: #babdb6;
+ border-style: solid;
+ border-width: 1px 1px 1px 10px;
+ font-size: .9em;
+ line-height: 120%;
+ overflow: auto;
+ padding: 1em;
+}
+
+pre span {
+ color: yellow; /* Highlight unstyled types for now */
+}
+
+pre span.kw1,
+pre span.kw2,
+pre span.kw3 {
+ color: #3465a4;
+}
+
+pre span.kw1,
+pre span.kw2,
+pre span.kw3 {
+ font-weight: bold;
+}
+
+pre span.st0 {
+ color: #ce5c00;
+ font-style: italic;
+}
+
+pre span.es0 {
+ color: #f57900;
+}
+
+pre span.nu0 {
+ color: #ce5c00;
+}
+
+pre span.br0 {
+ color: #2e3436;
+}
+
+pre span.co1,
+pre span.coMULTI {
+ color: #888a85;
+}
+
+pre span.re0 {
+ color: #3465a4;
+ color: #4e9a06;
+}
+
+pre span.me1,
+pre span.me2 {
+ color: #3465a4;
+}
+
+
+/* Title */
+
+div.title {
+ text-align: center;
+ margin-bottom: 5em;
+ color: #3465a4;
+}
+
+div.title h1 {
+ font-size: 5em;
+ margin-top: 1em;
+ margin-bottom: .5em;
+}
+
+div.title p.subtitle {
+ font-size: 2em;
+ margin-top: 0;
+ margin-bottom: 1em;
+}
+
+div.title ul.authorlist {
+ list-style-type: none;
+ margin-bottom: 1em;
+ font-size: 1.5em;
+}
+
+
+/* Table of contents */
+
+div.toc {
+ background-color: #729fcf;
+ -moz-border-radius: .7em;
+ padding: .8em 1em;
+ margin: 1em 0;
+}
+
+div.toc h1,
+div.toc h2 {
+ font-size: 2em;
+ margin: 0;
+ padding-bottom: .5em;
+ padding-top: .2em;
+}
+
+div.toc h2 {
+ font-size: 1.2em;
+}
+
+div.toc ol,
+div.toc ul {
+ padding: 0;
+ margin: 0;
+ list-style-type: none;
+}
+
+div.toc li {
+ font-weight: bold;
+}
+
+div.toc li ul {
+ list-style-type: circle;
+ list-style-position: inside;
+}
+
+div.toc li a:link,
+div.toc li a:hover,
+div.toc li a:visited,
+div.toc li a:hover {
+ color: #2e3436;
+ text-decoration: none;
+ border-bottom: none;
+}
+
+div.toc li li {
+ margin-left: 1.5em;
+ font-weight: normal;
+}
+
+div.chapter-toc {
+ background-color: #73d216;
+}
+
+div.chapter-toc h2 {
+ color: #2e3436;
+ font-weight: bold;
+}
+
+div.chapter-toc ul {
+ list-style-type: circle;
+ list-style-position: inside;
+}
+
+div.chapter-toc li {
+ font-weight: normal;
+}
+
+p.toclink {
+ background-image: url('icons/actions/go-previous.png');
+ background-position: center left;
+ background-repeat: no-repeat;
+ margin-bottom: 1em;
+ margin-top: 1em;
+ padding-bottom: 2px;
+ padding-left: 26px;
+ padding-top: 2px;
+}
+
+p.toclink a {
+ color: #555753;
+}
+
+
+/* Class member listings */
+
+div.class-member {
+ margin-top: .5em;
+ padding: .5em;
+ padding-bottom: 0;
+ border: 1px solid #babdb6;
+ background-color: #eeeeec;
+}
+
+div.class-member h3,
+div.class-member h4 {
+ font-size: 10pt;
+ padding-bottom: 0;
+ padding-top: 0;
+ margin-top: .2em;
+ margin-bottom: 0;
+}
+
+div.class-member p a:link,
+div.class-member p a:visited,
+div.class-member p a:active,
+div.class-member p a:hover
+{
+}
+
+div.class-member div.class-member-detail {
+}
+
+/* Footer */
+
+div.footer {
+ text-align: center;
+ color: #555753;
+ font-size: .8em;
+}

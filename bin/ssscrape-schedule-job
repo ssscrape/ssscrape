@@ -1,0 +1,81 @@
+#!/usr/bin/env python
+
+import sys, os
+
+# first determine the top level directory (Ie. /path/to/ssscrape)
+topdir = os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]), os.pardir, os.pardir))
+
+# then add the lib/ and lib/ext/ paths to sys.path
+sys.path.insert(0, os.path.join(topdir, 'lib'))
+sys.path.insert(0, os.path.join(topdir, 'lib', 'ext'))
+
+import optparse
+
+from twisted.internet import reactor
+from twisted.python import log
+
+if __name__ == '__main__':
+
+    # Handle command line options
+
+    parser = optparse.OptionParser(usage="%prog [-s WHEN] -- TYPE PROGRAM [ARGS...]")
+    parser.add_option(
+            '-s', '--schedule-at',
+            dest='when', metavar='TIMESPEC', default='NOW',
+            help="Schedule time, defaults to the literal 'NOW'. Use +TIMESPEC to schedule in the future, e.g. '+15m'")
+    parser.add_option(
+            '-t', '--task',
+            dest='task_id', metavar='TID', default=None,
+            help="Set job's task id to TID")
+    parser.add_option(
+            '-r', '--resource',
+            dest='resource_id', metavar='RID', default=None,
+            help="Set job's resource id to RID")
+    parser.add_option(
+            '-H', '--hostname',
+            dest='hostname', metavar='HOST', default=None,
+            help="Set job's host to HOST")
+
+    (options, args) = parser.parse_args()
+
+
+    # Handle positional arguments
+
+    if len(args) == 2:
+        job_type, program = args
+        program_args = ''
+    elif len(args) == 3:
+        job_type, program, program_args = args
+    elif len(args) > 3:
+        job_type = args.pop(0)
+        program = args.pop(0)
+        program_args = ' '.join(args)
+    else:
+        parser.error('Type and program must be both specified.')
+
+
+    # Parse schedule date
+
+    import ssscrape
+
+    import datetime
+    if options.when.lower() == 'now':
+        n_seconds = 0
+    else:
+        if not options.when.startswith('+'):
+            parser.error('Invalid time specification: time should be "NOW" or start with a + sign')
+
+        try:
+            n_seconds = ssscrape.misc.parse_time_string_to_seconds(options.when[1:])
+        except ValueError:
+            parser.error('Invalid time specification: %s' % options.when);
+            
+
+    ssscrape.job_queue.add(job_type, program, program_args, n_seconds, options.resource_id, options.task_id, options.hostname) \
+    .addErrback(log.err) \
+    .addErrback(reactor.stop) \
+    .addCallback(lambda x: reactor.stop())
+
+    # Run!
+
+    reactor.run()

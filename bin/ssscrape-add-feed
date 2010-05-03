@@ -1,0 +1,110 @@
+#!/usr/bin/env python
+
+import sys, os
+import datetime
+import optparse
+
+
+# first determine the top level directory (Ie. /path/to/ssscrape)
+topdir = os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]), os.pardir, os.pardir))
+
+# then add the lib/ and lib/ext/ paths to sys.path
+sys.path.insert(0, os.path.join(topdir, 'lib'))
+sys.path.insert(0, os.path.join(topdir, 'lib', 'ext'))
+
+from twisted.internet import reactor
+from twisted.python import log
+
+import ssscrape
+import ssscrapeapi
+import ssscrapeapi.feeds
+
+def add_task(task_type, program, program_args, n_seconds, hour, minute, resource_id, hostname):
+    if task_type is None:
+        task_type = ssscrape.config.get_string('feeds', 'default-type', 'fetch')
+    if program is None:
+        program = ssscrape.config.get_string('feeds', 'default-program', '')
+
+    d = ssscrape.task_list.add(task_type, program, program_args, n_seconds, hour, minute, resource_id, hostname) 
+    d.addErrback(log.err)
+    d.addErrback(reactor.stop)
+    d.addCallback(lambda x: reactor.stop())
+    return d
+
+if __name__ == '__main__':
+
+    # Handle command line options
+
+    parser = optparse.OptionParser(usage="%prog [-h] [options] URL")
+    parser.add_option(
+            '-p', '--periodicity',
+            dest='periodicity', metavar='TIMESPEC', default='15m',
+            help="Feed fetching interval, defaults to '15m' (= every 15 minutes).")
+    parser.add_option(
+            '-t', '--type',
+            dest='type', metavar='TYPE', default=None,
+            help="Task type: fetch, peilendfetch, permalink, comments,... (default: %s)" % (ssscrape.config.get_string('feeds', 'default-type', 'fetch'),))
+    parser.add_option(
+            '-x', '--program',
+            dest='program', metavar='PROGRAM', default=None,
+            help="Program for fetching the feed (default: %s)" % (ssscrape.config.get_string('feeds', 'default-program', ''),))
+    parser.add_option(
+            '-H', '--hour',
+            dest='hour', metavar='HOUR', default=None,
+            help="Hour on which the task needs to be scheduled.")
+    parser.add_option(
+            '-m', '--minute',
+            dest='minute', metavar='MINUTE', default=None,
+            help="Minute on which the task needs to be scheduled.")
+    parser.add_option(
+            '-k', '--kind',
+            dest='kind', metavar='KIND', default='full',
+            help="Kind of feed: full (no need to fetch permalinks) or partial (permalinks should be fetched); default: full")
+    parser.add_option(
+            '-a', '--args',
+            dest='partial_args', metavar='ARGS', default=None,
+            help="Additional arguments for the permalink scraper when working with partial content feeds.")
+    parser.add_option(
+            '-d', '--destination',
+            dest='hostname', metavar='DESTINATION', default=None,
+            help="Specification of hosts where the task should be executed: (allow:|deny:|)HOSTNAME")
+    parser.add_option(
+            '-c', '--categories',
+            dest='tags', metavar='CATEGORIES', default=None,
+            help="Assigns tags to the feed; multiple tags should be comma-separated")
+    (options, args) = parser.parse_args()
+
+
+    # Handle positional arguments
+
+    if len(args) == 1:
+        feed_url = args[0]
+    else:
+        parser.error('A feed URL must be specified.')
+
+
+    # Parse schedule date
+
+    try:
+        n_seconds = ssscrape.misc.parse_time_string_to_seconds(options.periodicity)
+    except ValueError:
+        parser.error('Invalid time specification: %s' % options.when);
+
+    # connect to feeds database
+    ssscrapeapi.database.connect()
+ 
+    # insert metadata
+    m = ssscrapeapi.feeds.FeedMetadata(url=feed_url, kind=options.kind, partial_args=options.partial_args, tags=options.tags)
+    m.save()
+
+    # disconnect from the feeds database
+    ssscrapeapi.database.disconnect()
+
+    # get resource id
+    resource_name = ssscrape.resource_util.url2resource(feed_url)
+    d = ssscrape.resource_util.add(resource_name)
+    d.addCallback(lambda x: add_task(options.type, options.program, "-u '%s'" % (feed_url), n_seconds, options.hour, options.minute, x, options.hostname))
+
+    # Run!
+
+    reactor.run()

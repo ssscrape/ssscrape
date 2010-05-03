@@ -1,0 +1,117 @@
+<anewt:chapter
+	xmlns:anewt="http://anewt.net/ns/2008/04/documentation"
+	id="overview"
+	>
+
+	<anewt:title>Anewt overview</anewt:title>
+
+	<p>This chapter gives an overview of Anewt, explaining the basic
+		structure and the modular architecture and how to use Anewt in your
+		own projects.</p>
+
+	<anewt:section id="basic-structure">
+		
+		<anewt:title>Basic structure</anewt:title>
+
+		<p>Anewt is a <strong>package of several modules</strong>, each
+			providing specific functionality, bundled together with some glue
+			code. Some modules depend on other modules, but you usually don't
+			have to worry about this. Dependencies will be automatically
+			pulled in by the module requiring it.</p>
+
+		<p>Each module may contain multiple files, classes and functions.
+			Each filename ends with a <anewt:fileref>.lib.php</anewt:fileref>
+			suffix. Most likely the classes in a module depend on each other.
+			For instance, the <anewt:classref>DB</anewt:classref> class
+			depends on the <anewt:classref>PreparedQuery</anewt:classref> and
+			<anewt:classref>ResultSet</anewt:classref> classes.</p>
+
+	</anewt:section>
+
+	<anewt:section id="bootstrapping">
+		
+		<anewt:title>Bootstrapping Anewt</anewt:title>
+
+		<p>To use Anewt in your code, you should include the file
+			<anewt:fileref>anewt.lib.php</anewt:fileref>. You don't need to
+			fiddle with include paths, directory layouts or do other tricks.
+			As you can see, <strong>almost no effort:</strong></p>
+
+		<anewt:example src="overview-bootstrapping">
+			<anewt:title>Initializing Anewt</anewt:title> </anewt:example>
+
+		<anewt:tip>
+			
+			<p>Keep the Anewt libraries in a directory outside your
+				<code>DocumentRoot</code>. The same goes for your own include
+				files and libraries. This way you don't expose unneeded stuff to
+				the world, so that malicious people and search engines cannot
+				visit the places you don't want them to have access to.</p>
+
+		</anewt:tip>
+
+		<p>Initializing Anewt is <strong>extremely non-intrusive</strong>.
+			You can continue to work with your code exactly like you did
+			before, except for one thing: <strong>if needed, GET, POST and
+				cookie values are unquoted</strong>.	Since the value of this
+			<anewt:fileref>php.ini</anewt:fileref> setting differs wildly on
+			many hosting setups and you want to make sure you're using a sane
+			environment, deobfuscating these input variables is extremely
+			important. The initialization routines apply
+			<anewt:functionref>stripslashes()</anewt:functionref> recursively
+			on the the <code>$_GET</code>, <code>$_POST</code>,
+			<code>$_COOKIE</code> variables, but only if
+			<code>magic_quotes_gpc</code> was turned on in your PHP
+			configuration. Furthermore,
+			<code>set_magic_quotes_runtime(0)</code> is called to make PHP not
+			screw up data resulting from some I/O functions. No thanks PHP, we
+			know perfectly well which data needs escaping!</p>
+
+		<anewt:tip>
+			
+			<p>Initialize Anewt as soon as possible by putting the
+				<code>require_once '/path/to/anewt/anewt.lib.php'</code> call at
+				the top of your initialization files.</p>
+		
+		</anewt:tip>
+
+	</anewt:section>
+
+	<anewt:section id="loading-modules">
+			
+		<anewt:title>Loading modules</anewt:title>
+
+		<p>Loading an Anewt module means making the functionality the module
+			provides available to your code. In practice this means that the
+			classes in the module are loaded and maybe some initialization
+			routines are performed, such as defining some constants or
+			detecting some environment settings and acting upon them. After
+			the module is loaded and your code can start using the
+			functionality.</p>
+
+		<p>To load a module, the
+			<anewt:functionref>anewt_include()</anewt:functionref> function is
+			used. You can pass one or multiple module names as parameters to
+			this function.</p>
+
+		<anewt:example src="overview-loading-modules"> <anewt:title>Loading
+				Anewt modules</anewt:title> </anewt:example>
+
+		<!-- FIXME: write about loading the main module first before loading
+		submodules! -->
+
+		<p>Not all modules provide all their functionality (classes,
+			functions) after loading them using the
+			<anewt:functionref>anewt_include()</anewt:functionref> function.
+			<strong>Some modules contain submodules</strong>. These can be
+			loaded by specifiying the submodule name after a backslash:
+			<code>anewt_include('modulename/submodulename')</code>, as can be
+			seen in the example above. Not loading all functionality offered
+			by a module means less overhead for your application. Why load
+			classes you're not even using?</p>
+
+	</anewt:section>
+
+</anewt:chapter>
+
+<!-- vim: set tw=72 : -->

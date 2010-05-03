@@ -1,0 +1,136 @@
+#!/usr/bin/env python
+
+import sys, os
+
+# first determine the top level directory (Ie. /path/to/ssscrape)
+topdir = os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]), os.pardir, os.pardir))
+
+# then add the lib/ and lib/ext/ paths to sys.path
+sys.path.insert(0, os.path.join(topdir, 'lib'))
+sys.path.insert(0, os.path.join(topdir, 'lib', 'ext'))
+
+import optparse
+
+from twisted.internet import reactor
+from twisted.python import log
+
+def handle_counts(counts):
+    table_width = 40
+    for type in counts.keys():
+        print "Job states for type \"%s\"" % (type)
+        print "-" * table_width
+        for state in counts[type]:
+            print "%-20s : %8d" % (state, counts[type][state])
+        print "-" * table_width
+    reactor.stop()
+
+def handle_task_counts(counts):
+    table_width = 40
+    for task in counts.keys():
+        print "States for task %s" % (task)
+        print "=" * table_width
+        for state in ssscrape.Job.STATES:
+            state_name = ssscrape.Job.STATES[state]
+            try:
+                state_count = counts[task][state_name]
+            except KeyError:
+                state_count = 0
+            print "%-20s : %8d" % (state_name, state_count)
+        print "-" * table_width
+        print
+    reactor.stop()
+
+def handle_feed_counts(counts):
+    table_width = 60
+    prev_tags = ''
+    print "Feed tags        \tDate      \t#feeds \t#items\t#items with clean content"
+    for row in counts:
+        if row[0] != prev_tags:
+            print '-' * table_width
+            prev_tags = row[0]
+        print "%s\t%s\t%s\t%s\t%s" % (row[0], row[1], row[2], row[3], row[4])
+    print '-' * table_width
+    reactor.stop()
+
+def job_counts(mon_type):
+    ssscrape.monitor.jobs_count_state_by_types('', (mon_type == 'logs')) \
+    .addErrback(log.err) \
+    .addErrback(reactor.stop) \
+    .addCallback(lambda x: handle_counts(x))
+
+def task_counts(job_type = ''):
+    ssscrape.monitor.tasks_count_state_by_types(job_type) \
+    .addErrback(log.err) \
+    .addErrback(reactor.stop) \
+    .addCallback(lambda x: handle_task_counts(x))
+
+def feed_counts(mon_type, tag, period):
+    ssscrape.monitor.feed_statistics(tag, period) \
+    .addErrback(log.err) \
+    .addErrback(reactor.stop) \
+    .addCallback(lambda x: handle_feed_counts(x))
+
+if __name__ == '__main__':
+
+    # Handle command line options
+
+    usage_msg = "%prog { jobs | logs | tasks | feeds }"
+    parser = optparse.OptionParser(usage=usage_msg)
+    parser.add_option(
+            '-p', '--period',
+            dest='period', metavar='TIMESPEC', default='1w',
+            help="reporting period (default: '1w', i.e., one week)")
+    parser.add_option(
+            '-t', '--tag',
+            dest='tag', metavar='TAGNAME', default='',
+            help="print report only for feeds with this tag")
+
+    #parser.add_option(
+    #        '-s', '--schedule-at',
+    #        dest='when', metavar='TIMESPEC', default='NOW',
+    #        help="Schedule time, defaults to the literal 'NOW'. Use +TIMESPEC to schedule in the future, e.g. '+15m'")
+
+    (options, args) = parser.parse_args()
+ 
+    if len(args) > 0:
+         mon_type = args[0]
+         try:
+             mon_what = args[1]
+         except IndexError:
+             mon_what = None
+    else:
+        parser.error('monitor type must be specified')
+
+    # Handle positional arguments
+
+    #if len(args) == 2:
+    #    job_type, program = args
+    #    program_args = ''
+    #elif len(args) == 3:
+    #    job_type, program, program_args = args
+    #elif len(args) > 3:
+    #    job_type = args.pop(0)
+    #    program = args.pop(0)
+    #    program_args = ' '.join(args)
+    #else:
+    #    parser.error('Type and program must be both specified.')
+
+
+    # Parse schedule date
+
+    import ssscrape
+
+    if mon_type == 'jobs':
+        job_counts(mon_type)
+    elif mon_type == 'logs':
+        job_counts(mon_type)
+    elif mon_type == 'tasks':
+        task_counts(mon_what)
+    elif mon_type == 'feeds':
+        feed_counts(mon_type, options.tag, options.period)
+    else:
+        parser.error('Invalid monitor type')
+
+    # Run!
+
+    reactor.run()

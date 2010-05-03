@@ -1,0 +1,58 @@
+Block formatting:
+- footnotes (are these used at all?)
+- block quotes, i.e. bq
+- block code, i.e. bc
+
+
+
+Inline formatting:
+- no implementation yet
+- hyperlinks, eg. "This is a link(Link title)":/target
+- images, eg. !This is a link(Link title)!:/target
+- linked images
+- acronyms
+- span, eg. %(date) Jan 15, 1983%
+- entities
+- inline elements:
+  - _emphasis_
+  - __italic__
+  - *strong*
+  - **bold**
+  - ??cite??
+  - -deletions-
+  - +insertions+
+  - ^superscript^
+  - ~subscript~
+- ability to disable textile formatting, eg. ==notextile==
+
+
+Lists:
+- nested lists
+- styling: #(simple) first item
+  - should this affect <ul>/<ol> or just one <li>? Maybe two modifiers?
+- block splitting is broken if line folding is turned off
+
+
+Modifiers:
+- Allow use of e.g. ((( and ))) declarations at the end of a modifier block.
+  The number of parentheses translated to the number of ems to set padding-left
+  and padding-right to, respectively.
+
+
+Tables:
+- no implementation yet
+
+
+Lockdown:
+- enable/disable class
+- enable/disable id
+- enable/disable style
+- enable/disable headers
+- enable/disable block quotes
+- enable/disable images
+- enable/disable inline markup except for emph and strong
+- enable/disable hyperlinks
+- enable/disable code
+- enable/disable alignments
+- enable/disable tables
+- enable/disable ==raw html code==

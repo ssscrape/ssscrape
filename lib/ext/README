@@ -1,0 +1,9 @@
+This directory should contain external dependencies, e.g. twisted and
+feedparser and such.
+
+The scripts in bin/ should add this directory (and the one above) to the
+standard include path by issuing something like:
+
+  import sys, os
+  sys.path.insert(0, os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]), os.pardir, os.pardir)))
+  sys.path.insert(0, os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]), os.pardir, os.pardir, 'ext')))

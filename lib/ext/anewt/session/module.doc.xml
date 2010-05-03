@@ -1,0 +1,63 @@
+<anewt:module
+	xmlns:anewt="http://anewt.net/ns/2008/04/documentation"
+	id="session"
+	>
+
+	<anewt:title>Session module</anewt:title>
+
+	<anewt:subtitle>Module for handling sessions</anewt:subtitle>
+
+	<anewt:classes>
+		<anewt:class>Session</anewt:class>
+	</anewt:classes>
+
+
+	<anewt:section>
+
+		<anewt:title>Overview</anewt:title>
+
+		<p>The session module provides you with an easy way to deal with sessions.
+			PHP offers a really ugly session API, mixing both functions and global
+			variables. Anewt offers a consistent, small wrapper API that hides the
+			internal details and automates some boring (and sometimes subtly annoying)
+			details through the <anewt:classref>Session</anewt:classref> class, which
+			only provides static methods. This means you cannot create session objects
+			by using the <code>new</code> operator, since only one session can be used
+			at any time.</p>
+
+		<p>The API is quite simple and resembles the API offered by the
+			<anewt:classref>Container</anewt:classref> class, but a bit simpler:</p>
+
+		<dl>
+
+			<dt><code>Session::init($name, $timeout)</code></dt>
+			<dd>Initialize the session with the given name. The timeout value is
+				optional.</dd>
+
+			<dt><code>Session::destroy()</code></dt>
+			<dd>Destroy the session and all data associated to it.</dd>
+
+			<dt><code>Session::get($name)</code></dt>
+			<dd>Retrieve the value specified by the given name from the session data.</dd>
+
+			<dt><code>Session::set($name, $value)</code></dt>
+			<dd>Store a name/value pair in the session.</dd>
+
+			<dt><code>Session::delete($name)</code></dt>
+			<dt><code>Session::del($name)</code></dt>
+			<dd>Remove a name/value pair from the session data.</dd>
+
+			<dt><code>Session::is_set($name)</code></dt>
+			<dd>Check if name/value pair is available in the session data.</dd>
+
+		</dl>
+
+		<p>A simple code snippet to illustrate how to use sessions:</p>
+
+		<anewt:example src="session-usage">
+			<anewt:title>Using a session</anewt:title>
+		</anewt:example>
+
+	</anewt:section>
+
+</anewt:module>

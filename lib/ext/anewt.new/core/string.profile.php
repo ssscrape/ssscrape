@@ -1,0 +1,144 @@
+<?php
+
+error_reporting(E_ALL);
+require_once '../anewt.lib.php';
+
+function str_has_prefix2($str, $prefix) {
+	assert('is_string($str)');
+	assert('is_string($prefix)');
+
+	return (bool) preg_match(
+			'/^' . preg_quote($prefix) . '/',
+			$str);
+}
+
+$str = 'dit is een een simpele test';
+$prefix = 'dit is';
+
+$str = '
+qwertyui;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+';
+$prefix = '
+qwertyui;ljhdsf;ljhdsa;lfihsajfkldsajf;lksajdfkljdsafdsalhfwalrhflrwahfrwaflawhrlfhrwa;l
+adjlahdf';
+
+$num_iterations = 1 * 1000  * 1000;
+$print_dot_for_each = 100000;
+
+$start_time = time();
+for ($i = 0; $i < $num_iterations; $i++) {
+	if (($i%$print_dot_for_each) == 0) echo '.';
+	$result = str_has_prefix($str, $prefix);
+}
+$end_time = time();
+echo "\nElapsed time for str_has_prefix: ", $end_time - $start_time, "\n";
+
+$start_time = time();
+for ($i = 0; $i < $num_iterations; $i++) {
+	if (($i%$print_dot_for_each) == 0) echo '.';
+	$result = str_has_prefix2($str, $prefix);
+}
+$end_time = time();
+echo "\nElapsed time for str_has_prefix2: ", $end_time - $start_time, "\n";
+
+?>

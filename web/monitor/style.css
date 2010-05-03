@@ -1,0 +1,218 @@
+
+body, table {
+    font-family: Verdana;
+    font-size: 10px;
+}
+
+textarea {
+    width: 100%;
+    height: 100px;
+    font-size: 10px;
+}
+
+#footer {
+    background-color: #3263A1;
+    padding: 0px 2px;
+    color: white;
+}
+
+a {
+    text-decoration: none;
+    color: navy;
+}
+
+a:hover {
+    border-bottom: dotted 1px navy;
+}
+
+#tablist {
+    padding: 3px 0;
+    margin-left: 0;
+    margin-bottom: 0;
+    margin-top: 0.1em;
+    font-weight: bold;
+    border-bottom: 1px solid #3263A1;
+}
+
+#tablist li {
+    list-style: none;
+    display: inline;
+    margin: 0;
+}
+
+#tablist li a {
+    text-decoration: none;
+    padding: 3px 0.5em;
+    margin-right: 3px;
+    border: 1px solid #3263A1;
+    border-bottom: none;
+    background: white;
+}
+
+#tablist li a:link, #tablist li a:visited {
+  color: navy;
+}
+
+#tablist li a:hover {
+    color: black;
+    background: #7E9CC4;
+    border-color: navy;
+}
+
+#tablist li a.current {
+    background: #7E9CC4;
+}
+
+/* subtablist */
+#subtablist {
+    padding: 3px 0;
+    margin-left: 0;
+    margin-bottom: 0;
+    margin-top: 0.1em;
+    font-weight: bold;
+    border-top: 1px solid #3263A1;
+}
+
+#subtablist li {
+    list-style: none;
+    display: inline;
+    margin: 0;
+}
+
+#subtablist li a {
+    text-decoration: none;
+    padding: 3px 0.5em;
+    margin-right: 3px;
+    border: 1px solid #3263A1;
+    background: white;
+}
+
+#subtablist li a:link, #tablist li a:visited {
+  color: navy;
+}
+
+#subtablist li a:hover {
+    color: black;
+    background: #7E9CC4;
+    border-color: navy;
+}
+
+#subtablist li a.current {
+    background: #7E9CC4;
+}
+
+/* header 2 */
+#content h2 {
+    color: white;
+    background-color: #3263A1;
+    padding: 0px 2px;
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+
+.bg0 {
+    background-color: #FFFFFF;
+}
+
+.bg1 {
+    background-color: #F0F0F0;
+}
+
+table.results  {
+    border-spacing: 1px 1px;
+}
+
+table.results th {
+    font-weight: bold;
+}
+
+table.results th.ordered {
+    font-weight: bold;
+}
+
+table.results td, th {
+    padding: 2px 3px;
+}
+
+table.results td.error {
+    background-color: #FFB0B0;
+}
+
+td.number {
+    text-align: right;
+}
+
+table.results tr.footer {
+    background-color: #7E9CC4;
+}
+
+tr.first-row-in-group td {
+    margin-top: -1px;
+    border-top: dotted 1px #7E9CC4;
+}
+
+/* see http://meyerweb.com/eric/css/edge/popups/demo.html for details on 'expand' */
+
+a.expand {
+    color: black;
+}
+
+a.expand span {
+    display: none;
+}
+
+a.expand:hover {
+    background-color: #7E9CC4;
+}
+a.expand:hover span {
+    display: block;
+    position: fixed; 
+    bottom: 10px; 
+    left: 10px; 
+    width: auto; 
+    max-width: 750px;
+    max-height: 650px;
+    border: solid 3px #7E9CC4;
+    padding: 2px 2px;
+    background: #F0F0F0;
+    overflow: auto;
+}
+
+td img {
+    margin: -3px 0px;
+}
+
+div.form-control {
+    color: gray;
+}
+div.form-control input {
+    margin-left: 5px;
+    margin-top: 2px;
+    color: black;
+}
+div.form-control input.button-submit {
+    margin-left: 155px;
+    margin-top: 10px;
+}
+label.form-control {
+    display: block;
+    float: left;
+    text-align: right;
+    width: 150px;
+    padding-top: 1.5ex;
+    color: black;
+    font-weight: bold;
+}
+
+label.choice {
+    padding-top: 1.5ex;
+    color: black;
+}
+
+label.choice input {
+    margin-top: 7px;
+}
+
+fieldset {
+    margin-top: 10px;
+}

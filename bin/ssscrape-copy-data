@@ -1,0 +1,249 @@
+#!/usr/bin/env python
+
+import sys, os
+import re
+
+# first determine the top level directory (Ie. /path/to/ssscrape)
+topdir = os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]), os.pardir, os.pardir))
+
+# then add the lib/ and lib/ext/ paths to sys.path
+sys.path.insert(0, os.path.join(topdir, 'lib'))
+sys.path.insert(0, os.path.join(topdir, 'lib', 'ext'))
+
+import optparse
+import MySQLdb
+import _mysql_exceptions
+
+from twisted.internet import reactor
+from twisted.python import log
+
+import ssscrapeapi
+import ssscrapeapi.feeds
+
+def connect(source_control_section, source_feed_section):
+    # connect to the DB
+    ssscrapeapi.database.connect()
+    ssscrapeapi.database.connect('database')
+    ssscrapeapi.database.connect(source_control_section)
+    ssscrapeapi.database.connect(source_feed_section)
+
+def disconnect(source_control_section, source_feed_section):
+    # disconnect from DB
+    ssscrapeapi.database.disconnect(source_feed_section)
+    ssscrapeapi.database.disconnect(source_control_section)
+    ssscrapeapi.database.disconnect('database')
+    ssscrapeapi.database.disconnect()
+
+def make_instance(item_class, config_section='database-workers'):
+   item = item_class()
+   item.config_section = config_section
+   return item
+
+def copy_instance(item, config_section='database-workers'):
+    item.config_section = config_section
+    item.find()
+    #if not item.has_key('id'):
+    item.save()
+    return item['id']
+
+if __name__ == '__main__':
+
+    # Handle command line options
+
+    parser = optparse.OptionParser(usage="%prog -j job_id -s source")
+    parser.add_option(
+            '-j', '--job',
+            dest='job_id', metavar='JOBID', default=None,
+            help="The job id to rerun.")
+    parser.add_option(
+            '-s', '--source',
+            dest='source', metavar='SOURCE', default=None,
+            help="The source of the job.")
+    (options, args) = parser.parse_args()
+
+    # check parameters
+    if not options.job_id:
+        parser.error('Please specify a job id')
+
+    if not options.source:
+        parser.error('Please specify a source')
+
+    # check if we have the right sections
+    source_control_section = options.source + '-database'
+    source_feed_section = options.source + '-database-workers' 
+    if not ssscrapeapi.config.has_section(source_control_section) or not ssscrapeapi.config.has_section(source_feed_section):
+        parser.error('The source specified has no corresponding sections in the configuration file.')
+
+    # connect to the DB
+    connect(source_control_section, source_feed_section)
+
+    # load the (external) job
+    job = make_instance(ssscrapeapi.Job, source_control_section)
+    try:
+        job.load(options.job_id)
+    except TypeError:
+        # a TypeError means that the job is in the log. load it from there.
+        job.table = 'ssscrape_job_log'
+        job.load(options.job_id)
+        job.table = 'ssscrape_job'
+
+
+    # if the job has an associated task, load it first
+    if job['task_id']:
+        task = make_instance(ssscrapeapi.Task, source_control_section)
+        task.load(job['task_id'])
+        ext_task_id = job['task_id']
+    else:
+        task = None
+        ext_task_id = None
+
+    # find out if the job, or task uses a resource. job resources take precendence,
+    # otherwise, they are assumed the same.
+    ext_resource_id = None    
+    if job['resource_id']:
+        ext_resource_id = job['resource_id']
+    elif task and task['resource_id']:
+        ext_resource_id = task['resource_id']
+
+    # if an (external) resource is used, load it and copy it
+    if ext_resource_id:
+        resource = make_instance(ssscrapeapi.Resource, source_control_section)
+        resource.load(job['resource_id'])
+        del resource['id']
+        del resource['latest_run']
+        resource_id = copy_instance(resource, 'database')
+        print "Copied resource id %s from %s to resource id %s" % (ext_resource_id, options.source, resource_id)
+    else:
+        resource_id = None
+
+
+    # now we can copy the feed tables, once we know the item id
+    m = re.search(u'-i (\d+)', job['args'], re.U)
+    if m:
+        item_id = int(m.group(1))
+    else:
+        item_id = None
+
+    if item_id:
+        # try to import peilend module
+        item_class = ssscrapeapi.feeds.FeedItem
+        try:
+            import peilend
+            item_class = peilend.FeedItem
+        except ModuleError:
+            pass
+
+        # load the item
+        item = make_instance(item_class, source_feed_section)
+        item.load(item_id)
+
+        # load the feed
+        ext_feed_id = item['feed_id']
+        feed = make_instance(ssscrapeapi.feeds.Feed, source_feed_section)
+        feed.load(ext_feed_id)
+        feed2 = make_instance(ssscrapeapi.feeds.Feed)
+        feed2['url'] = feed['url']
+        feed_id = feed2.find()
+        if feed_id > 0:
+            feed['id'] = feed_id
+        else:
+            del feed['id']
+        feed.unescaped = ['pub_date', 'mod_date']
+        feed['pub_date'] = 'NOW()'
+        del feed['mod_date']
+        feed_id = copy_instance(feed)
+        print "Copied feed id %s from %s to feed id %s" % (ext_feed_id, options.source, feed_id)
+
+        # load the metadata
+        metadata = make_instance(ssscrapeapi.feeds.FeedMetadata, source_feed_section)
+        metadata['url'] = feed['url'] 
+        ext_metadata_id = metadata.find()
+        metadata.load(ext_metadata_id)
+        metadata2 = make_instance(ssscrapeapi.feeds.FeedMetadata)
+        metadata2['url'] = feed['url']
+        metadata_id = metadata2.find()
+        if metadata_id > 0:
+            metadata['id'] = metadata_id
+        else:
+            del metadata['id']
+        metadata['feed_id'] = feed_id 
+        metadata_id = copy_instance(metadata)
+        print "Copied metadata id %s from %s to metadata id %s" % (ext_metadata_id, options.source, metadata_id)
+
+        # now the feed links ...
+        ssscrapeapi.database.execute('''DELETE FROM ssscrape_feed_link WHERE feed_id = %s''', (feed_id))
+        cursor = ssscrapeapi.database.execute('''SELECT id FROM ssscrape_feed_link WHERE feed_id = %s''', (ext_feed_id), source_feed_section)
+        for row in cursor.fetchall():
+            link = make_instance(ssscrapeapi.feeds.FeedLink, source_feed_section)
+            link.load(int(row[0]))
+            del link['id']
+            link['feed_id'] = feed_id
+            link_id = copy_instance(link)
+            print "Copied feed link id %s from %s to feed link id %s" % (row[0], options.source, link_id)
+
+        # and then the feed item
+        item2 = make_instance(item_class)
+        item2['feed_id'] = feed_id
+        item2['guid'] = item['guid']
+        feed_item_id = item2.find()
+        if feed_item_id > 0:
+            item['id']  = feed_item_id
+        else:
+            del item['id']
+        item['feed_id'] = feed_id
+        item.unescaped = []
+        feed_item_id = copy_instance(item)
+        print "Copied feed item id %s from %s to feed item id %s" % (item_id, options.source, feed_item_id)
+
+        # and finally the feed item links
+        ssscrapeapi.database.execute('''DELETE FROM ssscrape_feed_item_link WHERE feed_item_id = %s''', (feed_item_id))
+        cursor = ssscrapeapi.database.execute('''SELECT id FROM ssscrape_feed_item_link WHERE feed_item_id = %s''', (item_id), source_feed_section)
+        for row in cursor.fetchall():
+            link = make_instance(ssscrapeapi.feeds.FeedItemLink, source_feed_section)
+            link.load(int(row[0]))
+            del link['id']
+            link['feed_item_id'] = feed_item_id
+            link_id = copy_instance(link)
+            print "Copied item link id %s from %s to item link id %s" % (row[0], options.source, link_id)
+
+        # we now need to mangle the new item id in the args
+        new_args = re.sub('-i (\d+)', "-i %s" % (feed_item_id), job['args'])
+    else:
+        new_args = job['args']
+
+    # now copy the task
+    if ext_task_id:
+        #del task['id']
+        #del task['latest_run']
+        task2 = make_instance(ssscrapeapi.Task, 'database')
+        for fld in ['program', 'type', 'hostname', 'state', 'autoperiodicity', 'periodicity', 'hour', 'minute', 'second']:
+            task2[fld] = task[fld]
+        task2['args'] = new_args
+        task2['resource_id'] = resource_id
+        task_id = task2.find()
+        if task_id > 0:
+            task['id'] = task_id
+        else:
+            del task['id']
+        task['resource_id'] = resource_id 
+        task_id = copy_instance(task, 'database')
+        print "Copied task id %s from %s to task id %s" % (ext_task_id, options.source, task_id)
+    else:
+        task_id = None
+
+    # now copy the job entry
+    job['resource_id'] = resource_id
+    job['task_id'] = task_id
+    job['args'] = new_args
+    job['hostname'] = None
+    job['state'] = 'pending'
+    for job_field in ['id', 'message', 'output', 'scheduled', 'start', 'end', 'last_update', 'process_id', 'exit_code', 'attempts']:
+        del job[job_field]
+    job.find()
+    job['scheduled'] = 'NOW()'
+    job.unescaped = ['scheduled']
+    #job.save()
+    job_id = copy_instance(job, 'database')
+    print "Copied job id %s from %s to job id %s" % (options.job_id, options.source, job['id'])
+    print "Now you can rerun the job by doing: ./ssscrape-rerun-job -j %s" % (job_id)
+    disconnect(source_control_section, source_feed_section)

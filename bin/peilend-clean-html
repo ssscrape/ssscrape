@@ -1,0 +1,73 @@
+#!/usr/bin/env python
+
+import sys, os
+
+# first determine the top level directory (Ie. /path/to/ssscrape)
+topdir = os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]), os.pardir, os.pardir))
+
+# then add the lib/ and lib/ext/ paths to sys.path
+sys.path.insert(0, os.path.join(topdir, 'lib'))
+sys.path.insert(0, os.path.join(topdir, 'lib', 'ext'))
+
+import optparse
+import MySQLdb
+import _mysql_exceptions
+import HTMLParser
+
+from twisted.internet import reactor
+from twisted.python import log
+
+import ssscrapeapi
+import ssscrapeapi.feeds
+import peilend
+
+if __name__ == '__main__':
+
+    # Handle command line options
+
+    parser = optparse.OptionParser(usage="%prog -f feed_id [-t task_id] [-p period]")
+    parser.add_option(
+            '-p', '--period',
+            dest='period', metavar='TIMESPEC', default='1d',
+            help="Schedule time, defaults to the literal '1d'.")
+    (options, args) = parser.parse_args()
+
+    # Parse schedule date
+
+    import datetime
+
+    try:
+        period_seconds = ssscrapeapi.misc.parse_time_string_to_seconds(options.period)
+    except ValueError:
+        parser.error('Invalid time specification: %s' % options.period);
+
+    # connect to the DB
+    ssscrapeapi.database.connect()
+    ssscrapeapi.database.connect('database')
+
+    # find all the non-empty articles in the timespan
+    i = 0
+    cursor = ssscrapeapi.database.execute('''SELECT id FROM ssscrape_feed_item WHERE (content_clean IS  NOT NULL AND content_clean != '') AND pub_date >= (NOW() - INTERVAL %s SECOND)''', (period_seconds))
+    for row in cursor.fetchall():
+        feed_item_id = int(row[0])
+        item = peilend.FeedItem()
+        item.load(feed_item_id)
+        try:
+            stripped = peilend.strip(item['content_clean'])
+        except HTMLParser.HTMLParseError:
+            stripped = item['content_clean']
+        if stripped != item['content_clean']:
+            #print "=" * 40
+            #print item['content_clean'].encode('utf-8', 'replace')
+            #print "=" * 40
+            #print peilend.strip(item['content_clean']).encode('utf-8', 'replace')
+            item2 = peilend.FeedItem()
+            item2['id'] = feed_item_id
+            item2['content_clean'] = stripped
+            item2.save()
+        i = i + 1
+        if (i % 1000) == 0:
+            print "."
+    # disconnect from DB
+    ssscrapeapi.database.disconnect('database')
+    ssscrapeapi.database.disconnect()

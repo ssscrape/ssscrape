@@ -1,0 +1,44 @@
+Maintainer
+==========
+
+Wouter Bolsterlee <uws@xs4all.nl>
+- Lead developer of most modules
+- Project maintainer
+
+
+Contributors
+============
+
+Berend van Berkum <berend@dotmpe.com>
+- Page module
+- XHTML module
+
+Erik Hensema <erik@controlxs.nl>
+- Fixes in various modules
+
+Daniel de Jong <djong@ortec.nl>:
+- Forms module
+- Database module (MSSQL backend)
+
+Floris Kruisselbrink <floris+dev@vloris.nl>
+- XHTML module
+- Various enhancements to other modules
+
+Marijn Kruisselbrink <m.kruisselbrink@student.tue.nl>
+- Database module (MSSQL and SQLite backends)
+
+Jasper Looije <jasper@jamu.nl>
+- Database module
+- Forms module
+- RSS module
+- Various enhancements to other modules
+
+Tijmen Ruizendaal <tijmen.ruizendaal@gmail.com>
+- Forms module
+
+Sander van Schouwenburg <sander@controlxs.nl>
+- Contributions to many modules
+
+Michiel Sikkes <michiel.sikkes@gmail.com>
+- Forms module
+- Various enhancements to other modules

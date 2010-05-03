@@ -1,0 +1,16 @@
+<!--
+Description: item guid
+Expect:      (entries[0]['geo']['lat'] == '52.682067') and (entries[0]['geo']['lng'] == '4.696215')
+-->
+<rss version="2.0" xmlns:geo="http://www.w3.org/2003/01/geo/wgs84_pos#" xmlns:georss="http://www.georss.org/georss">
+<channel>
+<title>Sample image</title>
+<link>http://example.org/link</link>
+<description>Sample description</description>
+<item>
+<guid>http://guid.example.com/</guid>
+<description>Test description</description>
+<georss:point>52.682067 4.696215</georss:point>
+</item>
+</channel>
+</rss>

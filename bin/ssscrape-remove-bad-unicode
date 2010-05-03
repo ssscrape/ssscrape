@@ -1,0 +1,44 @@
+#!/usr/bin/env python
+
+import sys, os
+
+# first determine the top level directory (Ie. /path/to/ssscrape)
+topdir = os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]), os.pardir, os.pardir))
+
+# then add the lib/ and lib/ext/ paths to sys.path
+sys.path.insert(0, os.path.join(topdir, 'lib'))
+sys.path.insert(0, os.path.join(topdir, 'lib', 'ext'))
+
+import optparse
+import MySQLdb
+import _mysql_exceptions
+
+from twisted.internet import reactor
+from twisted.python import log
+
+import ssscrapeapi
+import ssscrapeapi.feeds
+import peilend
+
+if __name__ == '__main__':
+
+    # connect to the DB
+    ssscrapeapi.database.connect()
+    ssscrapeapi.database.connect('database')
+
+    # find all the empty articles in the timespan
+    cursor = ssscrapeapi.database.execute('''SELECT id FROM ssscrape_feed_item WHERE (content_clean IS NOT NULL AND content_clean != '') ORDER BY id''')
+    item_count = 0
+    for row in cursor.fetchall():
+        item_count = item_count + 1
+        if item_count % 1000 == 0:
+            print >>sys.stderr, '.'
+        item = peilend.FeedItem()
+        item.load(int(row[0]))
+        good_content = peilend.util.clean_utf8_string(item['content_clean'])
+        if good_content != item['content_clean']:
+            item['content_clean'] = good_content
+            item.save()
+    # disconnect from DB
+    ssscrapeapi.database.disconnect('database')
+    ssscrapeapi.database.disconnect()

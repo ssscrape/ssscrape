@@ -1,0 +1,100 @@
+Basic HOWTO for Ssscrape
+
+Valentin Jijkoun <jijkoun@uva.nl>
+
+(c) 2007-2010 ISLA, University of Amsterdam
+
+
+Getting Ssscrape
+================
+
+Check http://ilps.science.uva.nl/resources/ssscrape
+
+
+Requirements
+============
+
+ - Python 2.4 or higher
+ - Apache/PHP (for web monitor)
+
+Installing Ssscrape
+===================
+
+ - Installing 3rd-party libraries into Ssscrape/lib/ext directory.
+   The following libraries have to be installed:
+    * BeautifulSoup (for HTML parsing): http://www.crummy.com/software/BeautifulSoup/
+    * Universal feed parser (for RSS/Atom feed parsing): http://feedparser.org/
+    * anewt (for web interface for monitor): https://launchpad.net/anewt
+    * chardet (Universal encoding detector): http://chardet.feedparser.org/
+    * twisted (for parallelizing database access): http://twistedmatrix.com/trac/
+
+ - Adjusting config file.
+   Copy conf/local.conf.sample to conf/local.conf and adjust parameters for your setup.
+   The most important parameters are MySQL database credentials. In the current 
+   implementation both database should reside on one host and share the same username
+   and password. Do not change the names of the databases in local.conf.
+
+ - Creating database tables.
+   Ssscrape uses two databases: 'ssscrapecontrol' (defined in the [database] section
+   of the config file) and 'ssscrape' (defined in the [database-workers] section).
+   To initialize tables in these databases:
+    * Execute SQL statements in Ssscrape/database/database-schema-control.sql for the
+      'ssscrapecontrol' database;
+    * Execute SQL statements in Ssscrape/database/database-schema-feeds.sql for the
+      'ssscrape' database.
+
+ - Configuring web server (Apache)
+   Set up your web server so that Ssscrape's monitor is accessible through a browser. 
+   For example, the following should be added to the Apache config file:
+
+    Alias /ssscrape /PATH/TO/SSSCRAPE/web
+    <Directory "/PATH/TO/SSSCRAPE/web/monitor">
+            Options All
+            AllowOverride All
+            Order allow,deny
+            Allow from all
+            AuthType Basic
+            AuthName "Password Required"
+            AuthUserFile /PATH/TO/SSSCRAPE/web/.htpasswd
+            Require valid-user
+    </Directory>
+
+   You should setup /PATH/TO/SSSCRAPE/web/.htaccess and /PATH/TO/SSSCRAPE/web/.htpasswd  
+   so that access to Ssscrape monitor is protected.
+
+   Check the monitor is accessible via browser.
+
+
+Starting Ssscrape daemons
+=========================
+
+Run the following command to start Ssscrape scheduler:
+
+  $ ./bin/ssscrape-keep-alive scheduler
+
+Run the following command to start Ssscrape monitor:
+
+  $ ./bin/ssscrape-keep-alive 
+
+Multiple monitors can be started on multiple hosts, if they are configured identically.
+
+You may want to add the two commands above to your crontab, so that it checks regularly
+and restarts processes if they, for some reason, crash.
+
+
+Adding new feeds to Ssscrape
+============================
+
+Run the script bin/ssscrape-add-feed from the root directory of a (properly 
+configured) Ssscrape installation. Use -h to get an overview of options.
+Alternatively, use "Create new feed" link on the "Feeds" tab in the monitor.
+
+Check the status of your feeds via web monitor (e.g., by specifying one of 
+the tags assigned when adding the feeds).
+
+If the scheduler and the manager(s) are running, you will see the data collected
+from your feeds in the monitor. You can also access the data directly from 
+the database (check out SQL queries at the bottom of monitor's pages).
+
+
+

@@ -1,0 +1,36 @@
+Documentation
+=============
+
+The manual is written by hand as a complete developer's reference.
+The API documentation is extracted from the source code.
+
+
+Manual
+======
+
+The manual is a book written for developers. It covers the concepts used
+in Anewt, descriptions of the modules and contains lots of examples.
+
+The manual is written in Docbook markup and transformed to XHTML pages
+(styled with CSS) using custom XSLT. The XHTML files are automatically
+generated and should therefore not be edited. Changes will get lost!
+
+The icons (and also the colorscheme) used in the manual are the ones
+from the Tango Desktop Project (http://tango-project.org/). They're not
+included with Anewt. Get them yourself en put them in the manual/icons/
+directory.
+
+All example code snippets are in seperate files in the examples/
+subdirectory. The .php files are highlighted by GeSHi (Generic Syntax
+Highlighter, http://qbnz.com/highlighter/). Run "make" in the examples
+directory to generate the .xml files from the .php files using the small
+highlight script. For this to work you will need to put the GeSHi source
+code in the examples/geshi/ directory.
+
+
+Doxygen
+=======
+
+The Doxygen documenation is generated automatically from the source
+files. It covers all classes, methods and parameters and is intended as
+an API reference for developers.

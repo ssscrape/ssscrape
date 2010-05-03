@@ -1,0 +1,41 @@
+#
+# Ssscrape local configuration.
+#
+# Copy this file to local.conf and adjust (at the very least) the database settings.
+#
+
+# Database for storing internal control structures
+[database]
+hostname=
+database=ssscrapecontrol
+username=
+password=
+
+# Database for storing collected data (feeds, items, etc.)
+[database-workers]
+hostname=
+database=ssscrape
+username=
+password=
+
+# Database used by the monitor (should be same as in [database-workers])
+[database-web]
+hostname=
+database=ssscrape
+username=
+password=
+
+# Manager configuration
+[manager]
+worker-directory = FULL PATH TO THE Ssscrape/workers/ DIRECTORY
+
+# Configuration for the feed fetching worker (jobs with type=fetch)
+[worker-fetch]
+auto-reschedule-max-attempts = 2
+reschedule-after = 10m
+auto-reschedule-after-temporary-error = True
+auto-reschedule-after-kill = False
+
+[monitor]
+web-root= FULL PATH TO THE Ssscrape/web/monitor/ DIRECTORY
+

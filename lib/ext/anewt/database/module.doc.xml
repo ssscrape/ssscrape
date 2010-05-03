@@ -1,0 +1,595 @@
+<anewt:module
+	xmlns:anewt="http://anewt.net/ns/2008/04/documentation"
+	id="database"
+	>
+
+	<anewt:title>Database module</anewt:title>
+
+	<p>The database module provides a convenient way to communicate
+		with databases. Key features are a convenient <strong>object
+			oriented API</strong>, <strong>full data type safety and
+			validation</strong>, and <strong>support for multiple database
+			engines</strong>.</p>
+
+	<p>The database module provides you with a consistent API that abstracts
+		the engine-specific functions in PHP, while retaining the full power the
+		individual database engines have to offer.</p>
+
+	<p>This chapter explains the basic concepts and contains some
+		examples to help you getting started. Refer to the API documentation
+		for a more in-depth description of the available objects and
+		methods.</p>
+
+
+	<anewt:section>
+		
+		<anewt:title>Database support</anewt:title>
+
+		<p>Anewt's database module can communicate with several database
+			engines. Anewt currently supports the following databases:</p>
+
+		<ul>
+			<li>MySQL</li>
+			<li>PostgreSQL</li>
+			<li>MS SQL Server</li>
+			<li>SQLite</li>
+		</ul>
+
+		<p>The database module uses a pluggable backend architecture to support
+			different database engines. All database specific functionality is
+			implemented in these backends. This not only includes the raw API calls
+			like <anewt:functionname>mysql_query()</anewt:functionname> and
+			<anewt:functionname>pg_fetch_assoc()</anewt:functionname>, but also quoting of user supplied
+			values and type conversion of data returned by the database
+			engine.</p>
+
+		<p>In short, Anewt abstracts the boring details like connection to the
+			database, executing queries, fetching resulting data and checking data
+			types, but Anewt will never try to be smart with the SQL you provide. It
+			also won't hide custom or specific database functionality your database
+			offers. Relational databases are just too complex and too powerful to be
+			wrapped in a simple abstraction layer.</p>
+
+		<p>You may argue that, given the maturity and standarization of the SQL
+			language, switching to another database engine is a trivial task. While
+			it may look reasonable at first sight, database portability is not to be
+			taken lightly. Most databases have very specific functionality that
+			cannot easily be ported to other databases. Just changing the connection
+			parameters is not enough to switch to another database engine! Support
+			for foreign key constraints, subqueries, triggers, views, indices and
+			sequences differs drastically between databases. Last but not least all
+			major database engines support many non-portable SQL functions and data
+			types. Not using the power your database offers is naive at best and just
+			plain stupid for real world applications. Therefore the Anewt database
+			module won't try to be smart about things the programmer knows
+			better.</p>
+
+	</anewt:section>
+
+
+	<anewt:section>
+		
+		<anewt:title>Initialization</anewt:title>
+
+		<p>First of all you will need to establish a connection to the
+			database. You are likely to do this from a initialization file
+			that you include in each file of your project. For maximum
+			flexibility you can keep the <code>$db_settings</code>
+			connection parameters in a separate config file. This is useful
+			for version control and deployment, allowing you to use different
+			settings for each machine your applications runs on. Note that the
+			<code>$db_settings</code> variable is deleted after the
+			connection has been made. This is not really needed, but a good
+			idea since it makes sure your database password can never be
+			accessed from other parts of your code.</p>
+			
+		<p>An example initialization may look like this:</p>
+
+		<anewt:example src="database-initialization">
+			<anewt:title>Initializing the database module</anewt:title>
+		</anewt:example>
+
+		<p>The first line load the database module, the following lines
+			construct a new <anewt:classref>DB</anewt:classref> instance that connects
+			to the database engine.</p>
+
+		<p>If you want to use a singleton database instance (see the
+			section about object oriented applications below), the
+			initialization step looks like this:</p>
+
+		<anewt:example src="database-initialization-singleton">
+			<anewt:title>Initializing a singleton database
+				instance</anewt:title>
+		</anewt:example>
+
+
+	</anewt:section>
+
+
+	<anewt:section>
+		
+		<anewt:title>Interacting with the database</anewt:title>
+
+		<p>Now that we have established a connection, we can retrieve
+			data from the database. To accomplish  this, we prepare a query
+			and execute it. The data from the rows in the result set are
+			simply printed. More information about prepared queries and result
+			sets can be found in the next section.</p>
+
+		<anewt:example src="database-simple-1">
+			<anewt:title>Simple data retrieval</anewt:title>
+		</anewt:example>
+
+		<p>Prepared queries support special placeholder markers that can
+			later be filled in with user data. You need to provide the data
+			type for the value that will be substituted for the placeholder.
+			Anewt takes care of all data validation and quoting, so you don't
+			need to fiddle with functions like
+			<anewt:functionname>addslashes()</anewt:functionname>
+			or <anewt:functionname>mysql_escape_string()</anewt:functionname> to make your queries
+			correct.</p>
+
+		<anewt:example src="database-simple-2">
+			<anewt:title>Providing query parameters</anewt:title>
+		</anewt:example>
+
+		<p> Anewt knows how to deal with many other data types. Read on
+			to the section on type safety for more information. </p>
+
+		<p>To retrieve the number of rows in a resultset, use the
+			<anewt:functionref>count()</anewt:functionref> method on a
+			<anewt:classref>ResultSet</anewt:classref> instance. To see how many rows
+			are affected by a query, use
+			<anewt:functionref>count_affected()</anewt:functionref>
+			(if supported by the backend).</p>
+
+		<anewt:example src="database-count">
+			<anewt:title>Getting the number of result rows</anewt:title>
+		</anewt:example>
+
+	</anewt:section>
+
+
+	<anewt:section>
+		
+		<anewt:title>Prepared queries and result sets</anewt:title>
+
+		<p>As you might have seen in the examples above, Anewt uses these steps
+			to fetch data from the database:</p>
+
+		<ul>
+			<li>Prepare a query using placeholders</li>
+			<li>Execute the query, providing parameters for the
+				placeholders</li>
+			<li>Retrieve the resulting records</li>
+		</ul>
+
+		<p>The Anewt database module contains a couple of classes:
+			<anewt:classref>DB</anewt:classref>,
+			<anewt:classref>PreparedQuery</anewt:classref>,
+			<anewt:classref>ResultSet</anewt:classref>, and
+			<anewt:classref>SQLTemplate</anewt:classref>. A
+			<anewt:classref>DB</anewt:classref>
+			instance represents a database connection. It takes care of the
+			initial connection setup phase and provides you with the
+			<anewt:functionref>prepare()</anewt:functionref> method that allows you to create a
+			new <anewt:classref>PreparedQuery</anewt:classref> instance. You should
+			never create a <anewt:classref>PreparedQuery</anewt:classref> instance by
+			directly calling its constructor: always use the
+			<code>$db->prepare()</code> method! This is needed because
+			prepared queries are tightly linked to the database connection and
+			should be setup carefully to use the correct quoting and execution
+			functions. Finally, the
+			<anewt:classref>SQLTemplate</anewt:classref> class
+			takes care of variable checking and placeholder substitution. Most
+			likely you won't have to deal with this class directly. Instead
+			you'll use the type safety it provides using the
+			<anewt:classref>PreparedQuery</anewt:classref> class.</p>
+
+		<p><anewt:classref>PreparedQuery</anewt:classref> instances can be executed by
+			calling their <code>execute()</code> method. To execute the actual SQL
+			query, you should provide valid values for the placeholders (if any). You
+			can provide multiple parameters to the <code>execute</code> method, or
+			you can provide a single array holding the values. Which method
+			you should use depends on your code. The result is exactly the
+			same.</p>
+
+		<anewt:example src="database-prepared-query">
+			<anewt:title>Executing a prepared query with
+				parameters</anewt:title>
+		</anewt:example>
+
+		<p>The result of a <code>$pq->execute()</code> is a
+			<anewt:classref>ResultSet</anewt:classref> instance. This object is used to
+			retrieve the resulting rows. Note that only certain types of SQL
+			queries may return a <anewt:classref>ResultSet</anewt:classref>
+			(<code>SELECT</code> queries do, <code>UPDATE</code> queries
+			don't). Fetching the row data can be done using these three
+			functions:</p>
+
+		<ul>
+			<li><anewt:functionref>fetch()</anewt:functionref> returns one single row from
+				the set</li>
+			<li><anewt:functionref>fetch_all()</anewt:functionref> returns all rows in the
+				set as an array</li>
+			<li><anewt:functionref>fetch_many($howmany)</anewt:functionref> returns an array
+				of <code>$howmany</code> rows</li>
+		</ul>
+
+		<p>The actual rows are associative arrays with the column name
+			(or alias) as the key and the actual data as the value. Anewt does
+			not support numeric arrays or numeric indices for result rows.
+			This is deliberate since it encourages you to write unmaintainable
+			and non-verbose code, so please don't ask for it.</p>
+
+	</anewt:section>
+
+	<anewt:section>
+		
+		<anewt:title>Type safety</anewt:title>
+
+		<p>One of the strengths of the Anewt database module is
+			<strong>type safety</strong>. This means that every variable
+			related to the database, both input and output, has an explicit
+			type. Although beginning programmers might think explicit types
+			cause more frustration than it's worth, Anewt forces you take the
+			safe route and makes sure SQL security is not something to take
+			care of when it's too late. You'll learn to appreciate it,
+			really.</p>
+
+		<p>First of all, some background information. PHP supports
+			<strong>type juggling</strong> (automatic conversion between
+			types), but this often yields unpredictable and unwanted results.
+			An example is the automatic conversion of a string to the integer
+			value 0 if it's used in an integer context. That means that
+			<code>'some text' + 5</code> results in the integer value
+			<code>5</code> instead of an error stating that strings and
+			numbers cannot be added together. Another example: <code>min('some
+			text', 5, true)</code> yields the string <code>'some
+			text'</code>. This is extremely non-obvious, given the
+			different types of the operands passed to the
+			<anewt:functionname>min()</anewt:functionname> function. When variables are silently
+			converted to other types, programming mistakes can slip in
+			unnoticed. This may cause an invalid state in your databases, or
+			even cause your application to be compromised by malicious users,
+			because a corrupted data model may cause unexpected
+			results.</p>
+
+		<p>The above code snippets show that implicit variable conversion
+			can lead to unpredictable and therefore possibly unsafe
+			applications. A second problem that needs to be tackled in a
+			database application is: how to deal with user supplied input? A
+			commonly known vulnerability that takes advantage of unsafe user
+			input handling is called <strong>SQL injection</strong>. This
+			problem is caused by unsufficient user input sanitizing and
+			escaping, causing malformed queries to be executed. Those
+			malformed queries can do harmful things, like bypass login
+			mechanisms, steal data or corrupt the database.</p>
+		
+		<p>Building SQL queries from user input can be done in a couple
+			of ways, of which <strong>variable substitution</strong> and
+			<strong>string concatenation</strong> are the most obvious.
+			Although variable substitution makes your code look
+			straight-forward and easy to read, it introduces huge security
+			problems caused by the lack of variable escaping. With string
+			concatenation, it's possible to escape values by adding function
+			calls around each variable, but this is error-prone (you're likely
+			to forget this at least once in your program) and makes it
+			impossible to reuse queries. String concatenation also leads to an
+			unreadable mess of quotes, dots and spaces.</p>
+
+		<anewt:warning>
+			
+			<p>Never use <strong>variable substitution</strong> or
+				<strong>string concatenation</strong> to include user input or
+				other variables in your SQL strings.</p>
+		
+		</anewt:warning>
+
+		<p>This document won't go into details about the ways in which
+			SQL injection and other SQL vulnerabilities can cause your
+			application to be compromised. We just show two examples below of
+			the techniques to avoid:</p>
+			
+		<anewt:example src="database-incorrect">
+			<anewt:title>Incorrect ways to construct SQL queries</anewt:title>
+		</anewt:example>
+
+		<p>To overcome the problems outlined above, the Anewt database
+			module requires you to specify placeholders with explicit data
+			types for all the values in SQL queries. All SQL strings sent to
+			the database must pass a mandatory type checking phase,
+			implemented in the <anewt:classref>SQLTemplate</anewt:classref> class. When
+			preparing a query to be executed, special placeholders mark the
+			places where your variables will be filled in. Each placeholder
+			looks like <code>?type?</code>, where the type can be one of
+			the data types from the listing below:</p>
+
+		<dl>
+
+				<dt><code>bool</code></dt>
+				<dt><code>boolean</code></dt>
+				<dd>
+						for boolean values
+						(<code>true</code> or <code>false</code>)
+				</dd>
+
+				<dt><code>i</code></dt>
+				<dt><code>int</code></dt>
+				<dt><code>integer</code></dt>
+				<dd>
+						for integer numbers
+						(eg. <code>12345</code> or <code>-10133</code>)
+				</dd>
+
+				<dt><code>f</code></dt>
+				<dt><code>float</code></dt>
+				<dt><code>double</code></dt>
+				<dd>
+						for floating point numbers
+						(eg. <code>1.41</code> or <code>3.14</code>)
+				</dd>
+
+				<dt><code>s</code></dt>
+				<dt><code>str</code></dt>
+				<dt><code>string</code></dt>
+				<dt><code>varchar</code></dt>
+				<dd>
+						for strings
+						(eg. <code>John Doe</code> or <code>"Quotes" ain't
+							funny</code>)
+				</dd>
+
+				<dt><code>date</code></dt>
+				<dt><code>datetime</code></dt>
+				<dt><code>time</code></dt>
+				<dt><code>timestamp</code></dt>
+				<dd>
+						for date and time values
+						(strings like <code>2006-03-14</code> or
+						<code>1983-01-15 18:30:00</code>, but preferabely
+						<anewt:classref>DateTimeAtom</anewt:classref> instances)
+				</dd>
+
+		</dl>
+
+		<p>If the type check fails, an error is thrown and
+			<strong>script execution immediately stops</strong>. Yes,
+			Anewt is extremely strict about this: incorrect placeholder values
+			will not pass through unnoticed, since the cause of the failed
+			check is either a programming error or a malicious user trying to
+			do nasty things. This means that you, as the programmer, have to
+			make sure each variable is of the correct type before trying to
+			substitute it into the SQL query template.</p>
+
+		<anewt:example src="database-invalid-values">
+			<anewt:title>Supplying invalid SQL values</anewt:title>
+		</anewt:example>
+
+		<p>Most placeholder types accept PHP strings as values for
+			non-string placeholders, in addition to the corresponding native
+			PHP type. For instance, if you supply the string
+			<code>'12'</code> for an integer placeholder, the string
+			will converted to a number and the result will be the same as if
+			you supplied the integer value <code>12</code>. Note that
+			this totally different from PHP's own implicit type juggling: it
+			only works if your string looks likes the expected type! So, if
+			you supply <code>'John'</code> for an integer placeholder, a
+			fatal error occurs, whereas casting to an integer in PHP would
+			cause the string to be converted to the integer value
+			<code>0</code>, which is not what you want.</p>
+
+		<anewt:example src="database-string-conversion">
+			<anewt:title>Supplying string values for non-string
+				placeholders</anewt:title>
+		</anewt:example>
+
+		<p>In addition to the types outline above, three additional data
+			types are supported. However, you should not use those for
+			user-supplied data. Only use them for your own internal purposes.
+			Dynamically named table and column names are generally not a good
+			idea, unless you really know what you're doing. You're even less
+			likely to need raw values. The values supplied are substituted in
+			the query template without any checks applied, bypassing all
+			security precautions.</p>
+
+		<dl>
+
+				<dt><code>col</code></dt>
+				<dt><code>column</code></dt>
+				<dd>
+						for column names
+						(string values, just some basic escaping done)
+				</dd>
+
+				<dt><code>table</code></dt>
+				<dd>
+						for table names
+						(string values, just some basic escaping done)
+				</dd>
+
+				<dt><code>r</code></dt>
+				<dt><code>raw</code></dt>
+				<dd>
+						for literal values
+						(any value, no checking or escaping)
+				</dd>
+
+		</dl>
+
+		<anewt:warning>
+			
+			<p><strong>Never use <code>raw</code> for user-supplied
+					data.</strong> If you do use it for user data, this has the
+				same effect as not having input checking at all, thus leaving
+				your application vulnerable for SQL exploits. Use with extreme
+				care!</p>
+		
+		</anewt:warning>
+
+		<p>In most cases, the type checking and query validation will be
+			done for you by the <anewt:classref>PreparedQuery</anewt:classref> class.
+			However, if you're building complex queries or doing other SQL
+			magic, you can use <anewt:classref>SQLTemplate</anewt:classref> directly.
+			Using this class without a
+			<anewt:classref>PreparedQuery</anewt:classref>
+			instance allows you to do variable escaping using the placeholder
+			syntax outlined above without actually issuing the query to the
+			database engine. Usage of
+			<anewt:classref>SQLTemplate</anewt:classref> is
+			pretty straight-forward, but since this is an advanced topic, this
+			manual won't go into detail about it. Look at the API
+			documentation for the exact usage. The
+			<anewt:classref>AutoRecord</anewt:classref> source code also provides lots
+			of examples to learn from.</p>
+
+	</anewt:section>
+
+
+	<anewt:section>
+		
+		<anewt:title>Type conversion</anewt:title>
+
+		<p>Now that you know all about database input and data  types,
+			it's time to look into <strong>database output</strong>.
+			Values in resulting rows from a query are automatically casted to
+			an appropriate PHP type. For most simple types the conversion is
+			pretty straightforward: <code>VARCHAR</code> columns become
+			strings, <code>INT</code> columns become PHP integers. Guess
+			how <code>FLOAT</code> and <code>BOOLEAN</code>
+			(PostgreSQL) columns end up. Exactly. All unsupported column types
+			are just the strings as returned by the lower level database
+			specific row fetching functions.. </p>
+
+		<p>A special case are date and time columns. Those are converted
+			to <anewt:classref>DateTimeAtom</anewt:classref> instances (simple objects
+			that represent a timestamp). The
+			<anewt:classref>DateTime</anewt:classref>
+			class provides static methods format these objects into strings.
+			Simple example: <code>print DateTime::date($row['last_modification'])</code>.
+			Read the chapter about the <code>DateTime</code> module for
+			more information on how to handle dates and times.</p>
+
+		<anewt:note>
+			
+			<p>Not all database backends support automatic type conversion.
+				PostgreSQL and MySQL do, but SQLite does not (it has no concept
+				of column types). Unsupported types are always strings, so for
+				unsupported database engines all row values are strings.</p>
+		
+		</anewt:note>
+
+	</anewt:section>
+
+	<anewt:section>
+		
+		<anewt:title>Convenience methods</anewt:title>
+
+		<p>The three steps required to fetch data from a database table
+			(prepare, execute, fetch) allow for maximum flexibility. However,
+			most of the time you don't need this flexibility, but just want to
+			get some data without too much hassle. To overcome this, three
+			convenience methods are provided for the three most common cases.
+			You don't have to use these methods, but for the simple cases it
+			makes your code shorter and a bit easier to read.</p>
+
+		<p>The first one is
+			<anewt:functionref>prepare_execute_fetch()</anewt:functionref>.
+			It allows you to quickly fetch a single row from the database. The
+			second one is
+			<anewt:functionref>prepare_execute_fetch_all()</anewt:functionref>,
+			which allows you to fetch all rows returned by a given query. The
+			last one is <anewt:functionref>prepare_execute()</anewt:functionref>, which is
+			useful for queries not returing result rows, eg. insert or update
+			queries.</p>
+
+		<p>All three convenience methods accept multiple parameters. The
+			first one is the SQL template, all following values are the values
+			used for parameter substitution.</p>
+
+		<anewt:example src="database-convenience">
+			<anewt:title>Database convenience methods</anewt:title>
+		</anewt:example>
+
+		<p>See the API documentation for more information about these
+			methods.</p>
+
+	</anewt:section>
+
+	<anewt:section>
+		
+		<anewt:title>Databases in object-oriented applications</anewt:title>
+
+		<p>Although Anewt supports more than one simultaneous connection
+			(just instantiate multiple <anewt:classref>DB</anewt:classref> objects),
+			most applications only use one database connection. If you're
+			building an application the object-oriented way (objects with
+			application logic and such) and your objects need to access the
+			database, you have to make the <anewt:classref>DB</anewt:classref> instance
+			available to these objects. Several solutions are possible:</p>
+
+		<p>The first solution is to <strong>pass a reference</strong>
+			to the database instance to each instance of your class and store
+			it in the instance.</p>
+
+		<anewt:example src="database-passing-instance">
+			<anewt:title>Passing the database instance as a
+				parameter</anewt:title>
+		</anewt:example>
+
+		<p>The second solution is to use a <strong>global database
+				instance</strong>. Using global variables is generally not a
+			good idea.</p>
+
+		<anewt:example src="database-global-instance">
+			<anewt:title>Using a global database instance</anewt:title>
+		</anewt:example>
+
+		<p>The third and most elegant solution is to use the
+			<strong>singleton design pattern</strong> and treat the
+			database instance as a singleton object. The PHP language is a bit
+			limited (although it's gotten slightly better in PHP5), so we have
+			to do some tricks to make it work. First of all, the database
+			initialization step has to be changed. Instead of creating a new
+			instance by using the <anewt:classref>DB</anewt:classref> constructor, we
+			use the static class method <anewt:functionref>&amp;DB::get_instance($type,
+				$settings)</anewt:functionref> to setup the database connection. You do
+			this just once; each subsequent call to the
+			<anewt:functionref>&amp;DB::get_instance()</anewt:functionref> method should have no
+			parameters. See the section about initialization for more
+			information about initializing a database.</p>
+
+		<anewt:example src="database-singleton">
+			<anewt:title>Using a singleton database instance</anewt:title>
+		</anewt:example>
+
+		<p>As you can see, you just use <code>$db =
+				&amp;DB::get_instance()</code> whenever you need the database
+			object anywhere in your code.</p>
+
+	</anewt:section>
+
+	<anewt:section>
+		
+		<anewt:title>Transactions</anewt:title>
+
+		<p>The <anewt:classref>DB</anewt:classref> class provides three simple
+			methods to begin, commit or rollback a transaction:</p>
+
+		<ul>
+			<li><anewt:functionref>DB::transaction_begin()</anewt:functionref></li>
+			<li><anewt:functionref>DB::transaction_commit()</anewt:functionref></li>
+			<li><anewt:functionref>DB::transaction_rollback()</anewt:functionref></li>
+		</ul>
+
+		<p>Note that transaction support depends on the database you're
+			using. PostgreSQL supports transactions by default, but MySQL does
+			not (at least not in all versions). Don't rely on the above
+			methods if you're not sure whether your database supports
+			them.</p>
+	
+	</anewt:section>
+
+</anewt:module>
+
+<!-- vim: set tw=72 : -->

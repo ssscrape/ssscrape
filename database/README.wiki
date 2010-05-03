@@ -1,0 +1,116 @@
+﻿﻿﻿﻿
+= Ssscrape database schemas =
+
+The database schemas used in Ssscrape are split over several directories, each part containing a separate part of the complete (extensible) database schema. Each directory has a Makefile for simple dumping, creating, dropping and restoring the database schema and its contents. You should add a {{{database.conf}}} file based on {{{database.conf-sample}}} with the hostname, database and credentials in each directory (or symlink to a shared one if you're using a single database) in order to use these {{{Makefile}}}s.
+
+The {{{Makefile}}} itself contains some useful information as well on how to use it.
+
+== Permissions ==
+
+Regarding permissions, it is advisable to have multiple database users for the Ssscrape system:
+
+ * A manager user that can access and modify the {{{ssscrape_job}}} table
+ * A worker user that can only insert new jobs and update the {{{status_message}}} column in the {{{ssscrape_job}}} table.
+ * A scheduler user that can only insert new jobs {{{ssscrape_job}}} table
+
+Example {{{GRANT}}} commands:
+
+{{{
+GRANT ALL PRIVILEGES ON `project_db`.`ssscrape_job` TO 'project_ssscrape_manager'@'%';
+GRANT UPDATE (`status_message`) ON `project_db`.`ssscrape_job` TO 'project_ssscrape_worker'@'%';
+GRANT INSERT ON `project_db`.`ssscrape_job` TO 'project_ssscrape_scheduler'@'%';
+}}}
+
+== Control schema ==
+
+The directory {{{control/}}} contains the tables used by the Ssscrape manager and scheduler to control the jobs, processes, and so on.
+
+
+=== Job Queue table ===
+The job queue is implemented as a !MySQL database table: {{{ssscrape_job}}}. The latest schema definition is here: source:/trunk/database/database-schema.sql.
+
+The fields will be explained below:
+
+ * the {{{id}}} is just a primary key column, bearing no special meaning
+ * the {{{type}}} column holds the type of the worker script, e.g. {{{clean}}} or {{{fetch}}} (used for process pools)
+ * the {{{program}}} column holds the name of the worker script
+ * the {{{args}}} column contains the worker script parameters, e.g. some ids or urls
+ * the {{{state}}} column contains a formal job state
+ * the {{{message}}} column contains human-readable status string updateable by the workers, e.g. "fetching foo"
+ * the {{{output}}} column will contain the data the process ouputs to {{{stdout}}} and {{{stderr}}}
+ * the {{{hostname}}} column contains the hostname of the host running the worker process
+ * the {{{process_id}}} column contains the pid of the worker process
+ * the {{{exit_code}}} keeps the exit code of the process or the exit signal number if negative
+ * the {{{completed}}} column is a boolean flag indicating whether this job is completed
+ * the {{{scheduled}}} column indicates when the job is supposed to be run, i.e. it will not be executed before this time
+ * the {{{start}}} column denotes the start date of the job, or NULL if not started
+ * the {{{end}}} column denotes the end date of the job, or NULL if not completed
+ * the {{{last_update}}} column is an automatically updated timestamp indicating when the job data was last touched
+ * An index on {{{status}}} is added to quickly select jobs waiting for execution, i.e. {{{WHERE status = 'pending'}}}.
+ * The combination of {{{hostname}}} and {{{process_id}}} is unique at all times
+
+Special care must be taken when working with this table. The main problem to be solved is how to reliably select the job to execute next, without the risk of another thread/process doing the same thing at the same time, causing race conditions and possibly data corruption. Since there may be multiple managers (running on multiple machines) checking the queue for jobs, this is a realistic problem.
+
+The queue system will be implemented in !MySQL using ''table locks''. The main idea is that:
+
+ * the manager locks the !MySQL table,
+ * selects the first job to be executed (matching certain criteria),
+ * marks the job as executing, then
+ * immediately unlocks the table.
+
+So, the basic sequence should be to first lock the table, so that only the current thread can access the table. Select the job to be executed next and claim it by updating the row. Now that we're done, release the table locks so that other threads (including other manager instances) can access it. In pseudo-SQL code:
+
+{{{
+LOCK TABLES `ssscrape_job` WRITE;
+SELECT ... FROM `ssscrape_job` WHERE `status` = 'pending' AND `type` = 'fetch';
+UPDATE TABLE `ssscrape_job` SET `start` = NOW(), `hostname` = 'foo', `status` = 'Manager claimed job';
+UNLOCK TABLES;
+}}}
+
+After the worked has completed the job succesfully, the manager marks the job as finished, i.e. something along the lines of:
+
+{{{
+UPDATE TABLE `ssscrape_job` SET `status` = 'completed', end = NOW();
+}}}
+
+Note that for single update queries table locks are not needed. See the !MySQL manual for [http://dev.mysql.com/doc/refman/5.0/en/lock-tables.html LOCK TABLES] for more information about table locking.
+
+=== Job log table ===
+
+Once jobs have been completed successfully, or resulted in a permanent error, the entry is moved to the {{{ssscrape_job_log}}} table. The structure of this table is exactly the same as the {{{ssscrape_job}}} table.
+
+=== Task table ===
+
+Description of the task table to come here.
+
+=== Resource table ===
+
+Description of the resource table to come here.
+
+== Feeds schema == 
+
+The directory {{{feeds/}}} contains the tables used to store feeds, feed items, enclosures and all other information present in web feeds. These tables are most likely manipulated by the feed fetching worker.
+
+Description of the feed tables to come here.
+
+=== Feed item table ===
+
+||'''column'''||'''meaning'''||'''remarks'''||
+|| id         || unique id   ||             ||
+|| feed_id    || pointer to feed || ||
+|| guid       || [http://feedparser.org/docs/reference-entry-id.html globally unique identifier] || not all items have guids ||
+|| title      || [http://feedparser.org/docs/reference-entry-title.html item title] || can have HTML (?) ||
+|| summary    || [http://feedparser.org/docs/reference-entry-summary.html item summary], or [http://feedparser.org/docs/reference-entry-content.html item content] || whichever comes first, may contain HTML ||
+|| content    || [http://feedparser.org/docs/reference-entry-content.html item content] || May contain HTML ||
+|| content_clean || text only version of content || content stripped of HTML tags. Note: does not happen automatically. ||
+|| comments_url || [http://feedparser.org/docs/reference-entry-comments.html item comments page] || can be null, use feed_item_link table if this is empty. || 
+|| pub_date || [http://feedparser.org/docs/reference-entry-published.html the publishing date of the item] || falls back to current time if unspecified ||
+|| mod_date || last modification of entry. Not taken from feed. ||
+|| copyright || [http://feedparser.org/docs/reference-entry-license.html the item's license] || ||
+|| language || [http://feedparser.org/docs/reference-feed-language.html the language of the item] || usually same as feed level language ||
+
+
+
+== !MultiMatch schema ==
+
+A few !MultiMatch-specific database tables and views are in the {{{multimatch/}}} directory.

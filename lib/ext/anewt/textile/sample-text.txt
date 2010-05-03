@@ -1,0 +1,193 @@
+h1. Textile test page
+
+p. This file contains a lot of Textile markup, both valid and invalid.
+
+
+h1. Headers
+
+h2{color:green}. This is a green title
+
+h3. This is a subhead
+
+h4. And another one
+
+h5. Yet another one
+
+h6. Okay, this is the last one
+
+
+h1. Basic text
+
+p{color:red}. This is some text of dubious character. Isn't the use of "quotes" just lazy writing -- and theft of 'intellectual property' besides? I think the time has come to see a block quote.
+
+bq[nl]. A simple block quote with a language specified.
+
+p(#foo){color:green}.. This is green text with a continuation marker and a id value. The style should be preserved...
+
+...so that this text should be green..
+
+This line does not change anything, so it should be green as well.
+
+p. Back to normal.
+
+
+h1. Modifiers
+
+h2. Basic modifiers
+
+p. No modifiers
+
+p(class). Class only
+
+p(#simple-id). Id only
+
+p(class#class-and-id). Class and id
+
+p{color:green}. Style only.
+
+p(class){color:green}. Class and style
+
+p(#id-style){color:green}. Id and style
+
+p(class#class-id-style){color:green}. Class, id and style
+
+p(class#class-id-style-lang)[nl_NL]{color:green}. Class, id, style and lang
+
+h2. Alignment modifiers
+
+p<. This paragraph is left-aligned.
+
+p=. This paragraph is centered.
+
+p>. This paragraph is right-aligned.
+
+p{color: red}<>. This paragraph is justified and red.
+
+p(. This paragraph has 1em padding at the left.
+
+p(()). This paragraph has 2em padding at both sides.
+
+p(((. This paragraph has 3em padding at the left.
+
+h2. Malformed modifier parts
+
+p(-) Invalid class name
+
+p(#-) Invalid id.
+
+p(-#-) Invalid class name and invalid id.
+
+h2. Empty modifier parts
+
+p. There are quite a few combination possible with empty modifier parts. None
+of the paragraphs below should show have any modifiers applied to them.
+
+p(). Bogus modifier (empty class)
+
+p{}. Bogus modifier (empty style)
+
+p[]. Bogus modifier (empty lang)
+
+p(){}. Bogus modifier (empty class and style)
+
+p(){}. Bogus modifier (empty class and lang)
+
+p[]{}. Bogus modifier (empty style and lang)
+
+p()[]{}. Bogus modifier (empty style, class, and lang)
+
+
+h1(#inline-markup). Inline markup
+
+This should show some _emphasized text_.
+
+Here is some *strongly emphasized text*.
+
+Some more *strongly emphasized text* as well, *42* is a strong number, and real **bold** is possible as well.
+
+Of course __real italics__ can be used as well.
+
+This strange *invalid **nesting* may not cause errors, and this _*isn't valid either*_
+
+This line *triggered a **bug** _*in some old code but should not be a problem anymore*._
+
+Ok now that we're done with emphasis, lets's use some ~subscripted~ text.
+
+And ^superscript^, of course. a^2^ + b^2^ = c^2^. Q.e.d. A stray superscript marker should just be ignored:^
+
+h1. Complex examples
+
+. This is some tricky text starting with a full stop and a space. The
+start of this paragraph should not be mistakenly interpreted as a
+modifier block.
+
+h2()[nl]{color:red}>. Right aligned red header in Dutch.
+
+
+h1. Lists
+
+This should not be a list:
+
+# Looks like an item
+# And another one
+but this line spoils the fun
+
+Simple unordered list:
+
+* First item
+* Second item
+* Third item
+
+Ordered list with custom color
+
+#{color:blue} This should be blue
+# Item 2
+# Item 3
+
+Multi-level list:
+
+# one
+## aye
+## bee
+## see
+# two
+## x
+## y
+# three
+
+Mixed list:
+
+* Point one
+* Point two
+## Step 1
+## Step 2
+## Step 3
+* Point three
+** Sub point 1
+** Sub point 2
+
+
+h1. Hyperlinks
+
+Well, that went well. How about we insert an <a href="/" title="watch out">old-fashioned hypertext link</a>? Will the quote marks in the tags get messed up? No!
+
+"This is a link (optional title)":http://www.textism.com
+
+
+h1. Images
+
+!/common/textist.gif(optional alt text)!
+
+Some more text of dubious character. Here is a noisome string of CAPITAL letters. Here is something we want to _emphasize_. 
+That was a linebreak. And something to indicate *strength*. Of course I could use <em>my own HTML tags</em> if I <strong>felt</strong> like it.
+
+
+h1. Coding
+
+This <code>is some code, "isn't it"</code>. Watch those quote marks! Now for some preformatted text:
+
+This isn't code.
+
+
+So you see, my friends:
+

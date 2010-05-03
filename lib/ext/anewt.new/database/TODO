@@ -1,0 +1,5 @@
+
+- Debugging facilities
+- Counting number of executed queries
+- setup_from_config() or something like that
+- Make short function descriptions use infinitive verb

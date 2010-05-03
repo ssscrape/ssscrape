@@ -1,0 +1,28 @@
+#!/usr/bin/php -q
+<?php
+
+error_reporting(E_ALL);
+
+require_once '../../../anewt.lib.php';
+require_once '/usr/share/php-geshi/geshi.php';
+
+$filename = $_SERVER['argv'][1];
+$source = file_get_contents($filename);
+$source = trim($source);
+$source = str_strip_prefix($source, '<?php');
+$source = str_strip_suffix($source, '?>');
+$source = trim($source);
+
+$geshi = new GeSHi($source, 'php');
+
+$geshi->enable_classes();
+
+$result = $geshi->parse_code();
+$result = str_replace('&nbsp;', ' ', $result);
+$result = str_replace("\t", '    ', $result);
+
+print $result;
+
+exit(0);
+
+?>
