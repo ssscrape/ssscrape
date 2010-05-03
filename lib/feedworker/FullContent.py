@@ -929,9 +929,11 @@ class FullContentPlugin(feedworker.CommonPlugins.FeedPlugin):
         This routine stores a single item into the database.'''
 
         #print >>sys.stderr, "Storing item %s ..." % (item['guid'])
-        is_new = not item.has_key('id')
-
-        #print >>sys.stderr, "* Storing item info ..."
+        
+        # cheap way to determine if we have a new item
+        old_items_new = self.items_new
+        
+        #print >>sys.stderr, "* Storing item info ..."        
         self.save_item_info(collection, item)
         #print >>sys.stderr, "* Storing item author ..."
         self.save_item_author(collection, item)
@@ -944,6 +946,13 @@ class FullContentPlugin(feedworker.CommonPlugins.FeedPlugin):
         #print >>sys.stderr, "* Storing item enclosure info ..."
         self._saveItemEnclosures(collection, item)
 
+        # check if the item is new or not
+        is_new = (self.items_new > old_items_new)
+        if is_new:
+            print >>sys.stderr, "We got a new item!"
+        else:
+            print >>sys.stderr, "We got an already existing item!"  
+        
         # check if we need to refetch updated items or not
         must_refetch = ssscrapeapi.config.get_bool('feeds', 'default-partial-update-refetch', False)
         
