@@ -36,8 +36,8 @@ class Id3TagReader:
                 except AttributeError:
                     self.http_status = r.code
                 self.http_url = r.geturl() # may be a redirect
-                if self.http_staus >= 400: return # return if not found or something
-                max_file_size = ssscrapeapi.config.get_int('id3', 'max-size', 20480)
+                if self.http_status >= 400: return # return if not found or something
+                max_file_size = ssscrapeapi.config.get_int('id3', 'max-size', 40960)
                 cur_file_size = 0
                 chunk_size = 1
                 buf_file_size = 4096

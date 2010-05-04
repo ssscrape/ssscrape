@@ -53,8 +53,12 @@ def main(argv=None):
         print >> sys.stderr, sys.argv[0].split("/")[-1] + ": " + str(err.msg)
         print >> sys.stderr, "\t for help use --help"
         return 2
-    id3 = shuffler.Id3TagReader()
-    id3.fetch(url)
+    id3Reader = shuffler.Id3TagReader()
+    id3 = id3Reader.fetch(url)
+    if id3:
+        genreReader = shuffler.LastFMGenreReader()
+        tags = genreReader.fetch(id3['artist'][0], id3['title'][0])
+        print >>sys.stderr, tags
 
 # fixup paths
 topdir = os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]), os.pardir, os.pardir))
