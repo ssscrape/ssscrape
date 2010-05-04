@@ -1,0 +1,2 @@
+from shuffler.ShufflerFullContent import ShufflerFullContentPlugin
+from shuffler.ShufflerFullContent import ShufflerPermalinkParser
