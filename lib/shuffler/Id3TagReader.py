@@ -31,21 +31,22 @@ class Id3TagReader:
                 t = tempfile.NamedTemporaryFile()
                 print >>sys.stderr, "Created temp file %s .." % (t.name)
                 # shutil.copyfileobj(r, t, SHUFFLER_MAX_FILE_SIZE)
+                try:
+                    self.http_status = r.status # HTTP status
+                except AttributeError:
+                    self.http_status = r.code
+                self.http_url = r.geturl() # may be a redirect
+                if self.http_staus >= 400: return # return if not found or something
                 max_file_size = ssscrapeapi.config.get_int('id3', 'max-size', 20480)
                 cur_file_size = 0
                 chunk_size = 1
-                buf_file_size = 1024
+                buf_file_size = 4096
                 while ((chunk_size > 0) and (cur_file_size < max_file_size)):
                     chunk = r.read(buf_file_size)
                     if not chunk: break
                     chunk_size = len(chunk)
                     cur_file_size += chunk_size
                     t.write(chunk)
-                try:
-                    self.http_status = r.status # HTTP status
-                except AttributeError:
-                    self.http_status = r.code
-                self.http_url = r.geturl() # may be a redirect
                 os.system("ls -l %s" % (t.name))
                 # FIXME: we could try to get the ID3 tag incrementally?
                 audio = MP3(t.name, ID3=EasyID3)
