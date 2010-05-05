@@ -18,7 +18,7 @@ import feedworker.urn
 import beanstalkc
 import anyjson
 
-class Id3TagReader:
+class Id3MetadataReader:
     def fetch(self, orig_url):
         r = None
         try:
@@ -52,7 +52,10 @@ class Id3TagReader:
                 audio = MP3(t.name, ID3=EasyID3)
                 print >>sys.stderr, audio
                 #audio.pprint()
-                return audio
+                return {
+                    'artist' : audio['artist'][0],
+                    'title': audio['title'][0]
+                }
             except EOFError, e:
                 pass # means that thee ID3 information is larger than we fetched
             except httplib.BadStatusLine, e:

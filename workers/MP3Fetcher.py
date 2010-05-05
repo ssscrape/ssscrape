@@ -53,11 +53,11 @@ def main(argv=None):
         print >> sys.stderr, sys.argv[0].split("/")[-1] + ": " + str(err.msg)
         print >> sys.stderr, "\t for help use --help"
         return 2
-    id3Reader = shuffler.Id3TagReader()
+    id3Reader = shuffler.Id3MetadataReader()
     id3 = id3Reader.fetch(url)
     if id3:
         genreReader = shuffler.LastFMGenreReader()
-        tags = genreReader.fetch(id3['artist'][0], id3['title'][0])
+        tags = genreReader.fetch(id3['artist'], id3['title'])
         print >>sys.stderr, tags
 
 # fixup paths
