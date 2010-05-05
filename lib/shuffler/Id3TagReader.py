@@ -18,6 +18,15 @@ import feedworker.urn
 import beanstalkc
 import anyjson
 
+class Id3MetadataReaderException(Exception):
+    def __init__(self, msg):
+        self.msg = msg
+
+class Id3MetadataReaderHTTPError(Id3MetadataReaderException):
+    def __init__(self, status):
+        self.status = status
+        Id3MetadataReaderException.__init__(self, "HTTP Error %d" % (status))
+
 class Id3MetadataReader:
     def fetch(self, orig_url):
         r = None
@@ -36,7 +45,8 @@ class Id3MetadataReader:
                 except AttributeError:
                     self.http_status = r.code
                 self.http_url = r.geturl() # may be a redirect
-                if self.http_status >= 400: return # return if not found or something
+                if self.http_status >= 400:
+                     raise Id3MetadataReaderHTTPError(self.http_status)
                 max_file_size = ssscrapeapi.config.get_int('id3', 'max-size', 40960)
                 cur_file_size = 0
                 chunk_size = 1
@@ -57,6 +67,8 @@ class Id3MetadataReader:
                         'artist' : audio['artist'][0],
                         'title': audio['title'][0]
                     }
+            except urllib2.HTTPError, e:
+                raise Id3MetadataReaderHTTPError(e.code)                
             except EOFError, e:
                 pass # means that thee ID3 information is larger than we fetched
             except httplib.BadStatusLine, e:

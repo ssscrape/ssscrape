@@ -32,7 +32,11 @@ class Usage(Exception):
 
 def getMetadata(url, anchorText, id3Reader):
     anchorReader = None
-    metadata = id3Reader.fetch(url)
+    try:
+        metadata = id3Reader.fetch(url)
+    except shuffler.Id3MetadataReaderHTTPError, e:
+        print >>sys.stderr, e.status
+        return
     if (not metadata) and anchorText:
         anchorReader = shuffler.AnchorMetadataReader()
         meatdata = anchorReader.fetch(anchorText)
