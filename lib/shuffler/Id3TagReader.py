@@ -47,15 +47,16 @@ class Id3MetadataReader:
                     chunk_size = len(chunk)
                     cur_file_size += chunk_size
                     t.write(chunk)
-                os.system("ls -l %s" % (t.name))
+                # os.system("ls -l %s" % (t.name))
                 # FIXME: we could try to get the ID3 tag incrementally?
                 audio = MP3(t.name, ID3=EasyID3)
                 print >>sys.stderr, audio
                 #audio.pprint()
-                return {
-                    'artist' : audio['artist'][0],
-                    'title': audio['title'][0]
-                }
+                if audio.has_key('artist') and audio.has_key('title'):
+                    return {
+                        'artist' : audio['artist'][0],
+                        'title': audio['title'][0]
+                    }
             except EOFError, e:
                 pass # means that thee ID3 information is larger than we fetched
             except httplib.BadStatusLine, e:

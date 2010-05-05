@@ -33,15 +33,20 @@ class LastFMGenreReader:
         #print >>sys.stderr, "Getting last.fm data for artist %s and track %s" % (artist, title)
         
         # get the track first and find out the top tags
-        track = network.get_track(artist, title)
-        #print >>sys.stderr, track
         top_tags = None
-        top_tags = track.get_top_tags()
+        try:
+            track = network.get_track(artist, title)
+            #print >>sys.stderr, track
+            top_tags = track.get_top_tags()
+        except pylast.WSError, e:
+            pass
         
         # if there were no top tags for the track, then find out top tags for the artist
         if ((not top_tags) or (len(top_tags) <= 0)):
-            artist = network.get_artist(artist)
-            top_tags = artist.get_top_tags()
-        
+            try:
+                artist = network.get_artist(artist)
+                top_tags = artist.get_top_tags()
+            except pylast.WSError, e:
+                pass
         # return the top tags
         return top_tags

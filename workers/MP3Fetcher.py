@@ -30,6 +30,17 @@ class Usage(Exception):
         self.msg = msg
 
 
+def getMetadata(url, anchorText, id3Reader):
+    anchorReader = None
+    metadata = id3Reader.fetch(url)
+    if (not metadata) and anchorText:
+        anchorReader = shuffler.AnchorMetadataReader()
+        meatdata = anchorReader.fetch(anchorText)
+    if not metadata:
+        filenameReader = shuffler.FilenameMetadataReader()
+        metadata = filenameReader.fetch(url, anchorReader)
+    return metadata     
+
 def main(argv=None):
     if argv is None:
         argv = sys.argv
@@ -54,10 +65,11 @@ def main(argv=None):
         print >> sys.stderr, "\t for help use --help"
         return 2
     id3Reader = shuffler.Id3MetadataReader()
-    id3 = id3Reader.fetch(url)
-    if id3:
+    metadata = getMetadata(url, None, id3Reader)
+    if metadata:
+        print >>sys.stderr, metadata
         genreReader = shuffler.LastFMGenreReader()
-        tags = genreReader.fetch(id3['artist'], id3['title'])
+        tags = genreReader.fetch(metadata['artist'], metadata['title'])
         print >>sys.stderr, tags
 
 # fixup paths
