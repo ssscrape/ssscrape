@@ -32,11 +32,7 @@ class Usage(Exception):
 
 def getMetadata(url, anchorText, id3Reader):
     anchorReader = None
-    try:
-        metadata = id3Reader.fetch(url)
-    except shuffler.Id3MetadataReaderHTTPError, e:
-        print >>sys.stderr, e.status
-        return
+    metadata = id3Reader.fetch(url)
     if (not metadata) and anchorText:
         anchorReader = shuffler.AnchorMetadataReader()
         meatdata = anchorReader.fetch(anchorText)
@@ -69,13 +65,15 @@ def main(argv=None):
         print >> sys.stderr, "\t for help use --help"
         return 2
     id3Reader = shuffler.Id3MetadataReader()
-    metadata = getMetadata(url, None, id3Reader)
-    if metadata:
-        print >>sys.stderr, metadata
-        genreReader = shuffler.LastFMGenreReader()
-        tags = genreReader.fetch(metadata['artist'], metadata['title'])
-        print >>sys.stderr, tags
-
+    try:
+        metadata = getMetadata(url, None, id3Reader)
+        if metadata:
+            print >>sys.stderr, metadata
+            genreReader = shuffler.LastFMGenreReader()
+            tags = genreReader.fetch(metadata['artist'], metadata['title'])
+            print >>sys.stderr, tags
+    except shuffler.Id3MetadataReaderHTTPError, e:
+        print >>sys.stderr, e.status
 # fixup paths
 topdir = os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]), os.pardir, os.pardir))
 
