@@ -45,3 +45,37 @@ class FilenameMetadataReader:
             if not anchorReader:
                 anchorReader = AnchorMetadataReader()
             return anchorReader.fetch(realFilename)
+
+def getBeanstalkInstance(tube='tracks'):
+    # print "Initiating beanstalk connection ..."
+    configs = {
+      'development': {
+        'host': 'localhost',
+        'port': 11300
+      },
+      'preproduction': {
+        'host': 'localhost',
+        'port': 11300
+      },
+      'production': {
+        'host': 'localhost',
+        'port': 11300
+      },
+    }
+    environment = 'development' # ssscrapeapi.config.get_string('twones', 'environment', 'production') #os.getenv('CAKEPHP_ENV')
+    # print environment, configs[environment]['host'], configs[environment]['port']
+    beanstalk = beanstalkc.Connection(host=configs[environment]['host'], port=configs[environment]['port'])
+    beanstalk.use(tube)
+    return beanstalk
+
+def sendScrapedLink(permalink, url, site_url, artist, title, tags, created, beanstalk):
+    json_obj = anyjson.serialize({
+      'permalink': link,
+      'location': url,
+      'artist': artist,
+      'title': title,
+      'tags': tags,
+      'created': created,
+      'site_url': site_url
+    })
+    beanstalk.put(json_obj)

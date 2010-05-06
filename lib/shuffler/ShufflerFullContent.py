@@ -1,46 +1,34 @@
 __doc__ = '''Twones specific content saver plugin'''
 
+import sys
 import os
 import re
 
 import ssscrapeapi
+
+import shuffler
 
 import feedworker
 import feedworker.urn
 import beanstalkc
 import anyjson
 
-def getBeanstalkInstance(tube='tracks'):
-    # print "Initiating beanstalk connection ..."
-    configs = {
-      'development': {
-        'host': 'localhost',
-        'port': 11300
-      },
-      'preproduction': {
-        'host': 'localhost',
-        'port': 11300
-      },
-      'production': {
-        'host': 'localhost',
-        'port': 11300
-      },
-    }
-    environment = 'development' # ssscrapeapi.config.get_string('twones', 'environment', 'production') #os.getenv('CAKEPHP_ENV')
-    # print environment, configs[environment]['host'], configs[environment]['port']
-    beanstalk = beanstalkc.Connection(host=configs[environment]['host'], port=configs[environment]['port'])
-    beanstalk.use(tube)
-    return beanstalk
-
-def sendScrapedLink(link, url, service_url, anchor_text, created, beanstalk):
-    json_obj = anyjson.serialize({
-      'link': link,
-      'web_link': url,
-      'service_url': service_url,
-      'anchor_text': anchor_text,
-      'created': created
-    })
-    beanstalk.put(json_obj)
+def scheduleTrack(track, job):
+    job['type'] = ssscrapeapi.config.get_string('id3', 'default-type', 'id3')
+    job['program'] = ssscrapeapi.config.get_string('id3', 'default-program', 'MP3Fetcher.py')
+    job['args'] = "-t %s" % (track['id'])
+    # Set resource id based on the URL of the permalink    
+    resource = ssscrapeapi.Resource()
+    resource['name'] = ssscrapeapi.misc.url2resource(track['location'])
+    resource_id = resource.find()
+    if resource_id <= 0:
+        resource.save()
+    job['resource_id'] = resource['id']
+    id = job.find()
+    if id <= 0:
+        job['scheduled'] = 'NOW()'
+        job.unescaped = ['scheduled']
+        job.save()
 
 class ShufflerPermalinkParser(feedworker.PermalinkScraper):
   def scrape(self, collection):
@@ -66,7 +54,18 @@ class ShufflerPermalinkParser(feedworker.PermalinkScraper):
           anchor_text = ''.join(link.findAll(text=True))
           link =  link['href']
           # print link, self.feedUrl, service_url, post_title.encode('ascii', 'ignore'), str(item['pub_date'])
-          sendScrapedLink(link, self.feedUrl, service_url, anchor_text, str(item['pub_date']), beanstalk)
+          track = shuffler.Track(feed_item_id=item['id'], location=link)
+          track_id = track.find()
+          if track_id > 0:
+              continue # assume it's saved correctly
+          track['posted'] = item['pub_date']
+          track['permalink'] = url
+          track['anchor'] = anchor_text
+          #print >>sys.stderr, track
+          track.save()  
+          job = self.instantiate('job')
+          scheduleTrack(track, job)
+          #sendScrapedLink(link, self.feedUrl, service_url, anchor_text, str(item['pub_date']), beanstalk)
       
       # close beanstalk connection
       beanstalk.close()
@@ -117,13 +116,25 @@ class ShufflerFullContentPlugin(feedworker.FullContent.FullContentPlugin):
                 for link in collection['links'].itervalues():
                     if link.has_key('relation') and link['relation'] == 'alternate' and link.has_key('link'):
                         service_url = link['link']
-                        break     
-            sendScrapedLink(enclosure['link'], url, service_url, None, item['pub_date'], self.beanstalk)
+                        break
+            print >>sys.stderr, "Creating track object for %s ..." % (enclosure['link'])
+            track = shuffler.Track(feed_item_id=item['id'], location=enclosure['link'])
+            track_id = track.find()
+            if track_id > 0:
+                return # assume it's saved correctly
+            track['posted'] = item['pub_date']
+            track['permalink'] = url
+            #print >>sys.stderr, track
+            track.save()  
+            job = self.instantiate('job')
+            scheduleTrack(track, job)
+            #sendScrapedLink(enclosure['link'], url, service_url, None, item['pub_date'], self.beanstalk)
 
     def pre_store(self):
-        self.beanstalk = getBeanstalkInstance()
-
+        #self.beanstalk = getBeanstalkInstance()
+        pass
+    
     def post_store(self):
         # print "Destroying beanstalk connection ..."
-        self.beanstalk.close()
+        #self.beanstalk.close()
         feedworker.FullContent.FullContentPlugin.post_store(self)
