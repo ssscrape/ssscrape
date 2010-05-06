@@ -48,5 +48,10 @@ class LastFMGenreReader:
                 top_tags = artist.get_top_tags()
             except pylast.WSError, e:
                 pass
+        
+        tag_list = None
+        min_confidence = ssscrapeapi.config.get_int('lastfm', 'min-tag-confidence', 50)
+        if top_tags:
+            tag_list = [tag['item']  for tag in top_tags if int(tag['weight']) >= min_confidence]
         # return the top tags
-        return top_tags
+        return tag_list
