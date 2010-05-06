@@ -14,6 +14,7 @@ class Track(ssscrapeapi.TableObject):
         self.table = 'shuffler_track'
         self.fields = [
 	        'feed_item_id',
+	        'site_url',
 	        'permalink',
             'location',
             'anchor',

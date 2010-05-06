@@ -60,6 +60,7 @@ class ShufflerPermalinkParser(feedworker.PermalinkScraper):
               continue # assume it's saved correctly
           track['posted'] = item['pub_date']
           track['permalink'] = url
+          track['site_url'] = service_url
           track['anchor'] = anchor_text
           #print >>sys.stderr, track
           track.save()  
@@ -124,6 +125,7 @@ class ShufflerFullContentPlugin(feedworker.FullContent.FullContentPlugin):
                 return # assume it's saved correctly
             track['posted'] = item['pub_date']
             track['permalink'] = url
+            track['site_url'] = service_url
             #print >>sys.stderr, track
             track.save()  
             job = self.instantiate('job')

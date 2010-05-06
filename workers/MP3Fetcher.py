@@ -12,7 +12,6 @@ import os
 import re
 import getopt
 
-
 help_message = '''
 Can have the following parameters:
 
@@ -42,11 +41,12 @@ def getMetadata(url, anchorText, id3Reader):
     return metadata     
 
 def main(argv=None):
+    url = None
     if argv is None:
         argv = sys.argv
     try:
         try:
-            opts, args = getopt.getopt(argv[1:], "ho:vu:", ["help", "output=", "url="])
+            opts, args = getopt.getopt(argv[1:], "ho:vu:t:", ["help", "output=", "url=", "track="])
         except getopt.error, msg:
             raise Usage(msg)
         
@@ -59,11 +59,24 @@ def main(argv=None):
             if option in ("-o", "--output"):
                 output = value
             if option in ("-u", "--url"):
-                url = value     
+                url = value
+            if option in ("-t", "--track"):
+                track_id = value
     except Usage, err:
         print >> sys.stderr, sys.argv[0].split("/")[-1] + ": " + str(err.msg)
         print >> sys.stderr, "\t for help use --help"
         return 2
+    ssscrapeapi.database.connect()
+    if url:
+        track = shuffler.Track(location=url)
+        track_id = track.find()
+        if track_id <= 0:
+            return 1 # no valid url
+    else:
+        track = shuffler.Track()
+        track.load(track_id)
+    print >>sys.stderr, track
+    url = track['location']
     id3Reader = shuffler.Id3MetadataReader()
     try:
         metadata = getMetadata(url, None, id3Reader)
@@ -81,6 +94,7 @@ topdir = os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]), os.pardir, 
 sys.path.insert(0, os.path.join(topdir, 'lib'))
 sys.path.insert(0, os.path.join(topdir, 'lib', 'ext'))
 
+import ssscrapeapi
 import shuffler
 
 if __name__ == "__main__":
