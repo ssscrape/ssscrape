@@ -23,8 +23,10 @@ import beanstalkc
 import anyjson
 
 class AnchorMetadataReader:
-    def fetch(self, anchor_text):
+    def fetch(self, anchor_text, title_only = False):
         hasSplitter = re.search(r'[\s_]*(\-|\:\:?|_\-_|' + u'\2013' + '|' + u'\2014' + ')[\s_]*', anchor_text, re.U)
+        artist = ''
+        title = ''
         if hasSplitter:
             splitter = hasSplitter.group(1)
             [artist, title] = anchor_text.split(splitter, 1)
@@ -32,10 +34,16 @@ class AnchorMetadataReader:
             artist = re.sub(r'["\'_]*$', '', artist)
             title = re.sub(r'^["\'_]*', '', title)
             title = re.sub(r'["\'_]*$', '', title)
-            return {
-                'artist': artist.strip(),
-                'title': title.strip()
-            }
+        else :
+            if title_only:
+                title = re.sub(r'["\'_]*', '', anchor_text)
+            else:
+                return
+        return {
+            'artist': artist.strip(),
+            'title': title.strip()
+        }
+            
 
 class FilenameMetadataReader:
     def fetch(self, filename, anchorReader = None):
@@ -44,7 +52,7 @@ class FilenameMetadataReader:
             realFilename = hasFilename.group(1)
             if not anchorReader:
                 anchorReader = AnchorMetadataReader()
-            return anchorReader.fetch(realFilename)
+            return anchorReader.fetch(realFilename, True)
 
 def getBeanstalkInstance(tube='tracks'):
     # print "Initiating beanstalk connection ..."

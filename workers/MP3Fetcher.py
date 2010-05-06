@@ -32,9 +32,9 @@ class Usage(Exception):
 def getMetadata(url, anchorText, id3Reader):
     anchorReader = None
     metadata = id3Reader.fetch(url)
+    anchorReader = shuffler.AnchorMetadataReader()
     if (not metadata) and anchorText:
-        anchorReader = shuffler.AnchorMetadataReader()
-        meatdata = anchorReader.fetch(anchorText)
+        metadata = anchorReader.fetch(anchorText)
     if not metadata:
         filenameReader = shuffler.FilenameMetadataReader()
         metadata = filenameReader.fetch(url, anchorReader)
@@ -84,6 +84,8 @@ def main(argv=None):
             genreReader = shuffler.LastFMGenreReader()
             tags = genreReader.fetch(metadata['artist'], metadata['title'])
             #print >>sys.stderr, tags
+            track['artist'] = metadata['artist']
+            track['title'] = metadata['title']
             track['tags'] = ','.join(tags)
     except shuffler.Id3MetadataReaderHTTPError, e:
         print >>sys.stderr, e.status
