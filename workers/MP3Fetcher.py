@@ -86,7 +86,8 @@ def main(argv=None):
             #print >>sys.stderr, tags
             track['artist'] = metadata['artist']
             track['title'] = metadata['title']
-            track['tags'] = ','.join(tags)
+            if tags:
+                track['tags'] = ','.join(tags)
             print >>sys.stderr, track
             beanstalk = shuffler.utils.getBeanstalkInstance()
             shuffler.utils.sendScrapedLink(track, beanstalk)

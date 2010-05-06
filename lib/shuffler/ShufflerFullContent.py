@@ -31,10 +31,7 @@ def scheduleTrack(track, job):
         job.save()
 
 class ShufflerPermalinkParser(feedworker.PermalinkScraper):
-  def scrape(self, collection):
-      # intantiate beanstalk connection
-      beanstalk = getBeanstalkInstance()
-      
+  def scrape(self, collection):      
       # load info about feed item
       item = self.instantiate('feed_item')
       item.load(self.feed_item_id)
@@ -67,10 +64,7 @@ class ShufflerPermalinkParser(feedworker.PermalinkScraper):
           job = self.instantiate('job')
           scheduleTrack(track, job)
           #sendScrapedLink(link, self.feedUrl, service_url, anchor_text, str(item['pub_date']), beanstalk)
-      
-      # close beanstalk connection
-      beanstalk.close()
-      
+            
       collection['items'] = []
 
 class ShufflerFullContentPlugin(feedworker.FullContent.FullContentPlugin):
