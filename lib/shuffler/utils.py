@@ -68,14 +68,16 @@ def getBeanstalkInstance(tube='tracks'):
     beanstalk.use(tube)
     return beanstalk
 
-def sendScrapedLink(permalink, url, site_url, artist, title, tags, created, beanstalk):
+def sendScrapedLink(track, beanstalk=None):
     json_obj = anyjson.serialize({
-      'permalink': link,
-      'location': url,
-      'artist': artist,
-      'title': title,
-      'tags': tags,
-      'created': created,
-      'site_url': site_url
+      'permalink': track['permalink'],
+      'location': track['location'],
+      'artist': track.get('artist', u''),
+      'title': track.get('title', u''),
+      'tags': track.get('tags', u'all'),
+      'created': track['posted'].isoformat(),
+      'site_url': track['site_url']
     })
-    beanstalk.put(json_obj)
+    print >>sys.stderr, json_obj
+    if beanstalk:
+        beanstalk.put(json_obj)

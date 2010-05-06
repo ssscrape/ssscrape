@@ -52,6 +52,6 @@ class LastFMGenreReader:
         tag_list = None
         min_confidence = ssscrapeapi.config.get_int('lastfm', 'min-tag-confidence', 50)
         if top_tags:
-            tag_list = [tag['item']  for tag in top_tags if int(tag['weight']) >= min_confidence]
+            tag_list = [tag['item'].name for tag in top_tags if int(tag['weight']) >= min_confidence]
         # return the top tags
         return tag_list

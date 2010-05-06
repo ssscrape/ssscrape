@@ -75,7 +75,6 @@ def main(argv=None):
     else:
         track = shuffler.Track()
         track.load(track_id)
-    print >>sys.stderr, track
     url = track['location']
     id3Reader = shuffler.Id3MetadataReader()
     try:
@@ -84,9 +83,15 @@ def main(argv=None):
             print >>sys.stderr, metadata
             genreReader = shuffler.LastFMGenreReader()
             tags = genreReader.fetch(metadata['artist'], metadata['title'])
-            print >>sys.stderr, tags
+            #print >>sys.stderr, tags
+            track['tags'] = ','.join(tags)
     except shuffler.Id3MetadataReaderHTTPError, e:
         print >>sys.stderr, e.status
+    
+    print >>sys.stderr, track
+    beanstalk = shuffler.utils.getBeanstalkInstance()
+    shuffler.utils.sendScrapedLink(track, beanstalk)
+    beanstalk.close()
 # fixup paths
 topdir = os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]), os.pardir, os.pardir))
 
