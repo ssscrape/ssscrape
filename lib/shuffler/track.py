@@ -18,7 +18,8 @@ class Track(ssscrapeapi.TableObject):
 	        'permalink',
             'location',
             'anchor',
-            'posted'
+            'posted',
+            'sent'
         ]
         self.unescaped = [
 #            'posted',

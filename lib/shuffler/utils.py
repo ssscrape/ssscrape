@@ -88,4 +88,6 @@ def sendScrapedLink(track, beanstalk=None):
     })
     print >>sys.stderr, json_obj
     if beanstalk:
+        track['sent'] = 'NOW()'
+        track.save()
         beanstalk.put(json_obj)
