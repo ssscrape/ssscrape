@@ -82,7 +82,7 @@ def sendScrapedLink(track, beanstalk=None):
       'location': track['location'],
       'artist': track.get('artist', u''),
       'title': track.get('title', u''),
-      'tags': track.get('tags', u'all'),
+      'tags': track.get('tags', u''),
       'created': track['posted'].isoformat(),
       'site_url': track['site_url']
     })
