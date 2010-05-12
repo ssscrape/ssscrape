@@ -77,16 +77,18 @@ def getBeanstalkInstance(tube='tracks'):
     return beanstalk
 
 def sendScrapedLink(track, beanstalk=None):
-    json_obj = anyjson.serialize({
+    track_fields = {
       'permalink': track['permalink'],
       'location': track['location'],
       'artist': track.get('artist', u''),
       'title': track.get('title', u''),
       'tags': track.get('tags', u''),
       'created': track['posted'].isoformat(),
-      'site_url': track['site_url'],
-      'image': track.get('image', u'')
-    })
+      'site_url': track['site_url']
+    }
+    if 'image' in track:
+        track_fields['image'] = track['image']
+    json_obj = anyjson.serialize(track_fields)
     print >>sys.stderr, json_obj
     if beanstalk:
         track['sent'] = 'NOW()'
