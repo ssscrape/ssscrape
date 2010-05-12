@@ -34,10 +34,12 @@ class LastFMGenreReader:
         
         # get the track first and find out the top tags
         top_tags = None
+        image_url = None
         try:
             track = network.get_track(artist, title)
             #print >>sys.stderr, track
             top_tags = track.get_top_tags()
+            image_url = track.artist.get_cover_image(pylast.COVER_MEDIUM)
         except pylast.WSError, e:
             pass
         
@@ -46,6 +48,7 @@ class LastFMGenreReader:
             try:
                 artist = network.get_artist(artist)
                 top_tags = artist.get_top_tags()
+                image_url = artist.get_cover_image(pylast.COVER_MEDIUM)
             except pylast.WSError, e:
                 pass
         
@@ -54,4 +57,4 @@ class LastFMGenreReader:
         if top_tags:
             tag_list = [tag['item'].name for tag in top_tags if int(tag['weight']) >= min_confidence]
         # return the top tags
-        return tag_list
+        return (image_url, tag_list)

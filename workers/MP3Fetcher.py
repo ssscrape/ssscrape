@@ -82,12 +82,14 @@ def main(argv=None):
         if metadata:
             print >>sys.stderr, metadata
             genreReader = shuffler.LastFMGenreReader()
-            tags = genreReader.fetch(metadata['artist'], metadata['title'])
+            (image_url, tags) = genreReader.fetch(metadata['artist'], metadata['title'])
             #print >>sys.stderr, tags
             track['artist'] = metadata['artist']
             track['title'] = metadata['title']
             if tags:
                 track['tags'] = ','.join(tags)
+            if image_url:
+                track['image'] = image_url
             print >>sys.stderr, track
             beanstalk = shuffler.utils.getBeanstalkInstance()
             shuffler.utils.sendScrapedLink(track, beanstalk)

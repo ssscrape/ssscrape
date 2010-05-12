@@ -84,7 +84,8 @@ def sendScrapedLink(track, beanstalk=None):
       'title': track.get('title', u''),
       'tags': track.get('tags', u''),
       'created': track['posted'].isoformat(),
-      'site_url': track['site_url']
+      'site_url': track['site_url'],
+      'image': track.get('image', u'')
     })
     print >>sys.stderr, json_obj
     if beanstalk:
