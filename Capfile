@@ -44,6 +44,7 @@ namespace :deploy do
   end
 
   task :after_deploy do
+    run "mkdir -p #{current_path}/log"
     cleanup
   end
 
