@@ -37,16 +37,7 @@ class ShufflerPermalinkParser(feedworker.PermalinkScraper):
       item.load(self.feed_item_id)
       
       # Find URL associated with this item
-      url = None 
-      if item.has_key('links'):
-          for relation in ['feedburner_origlink', 'alternate']:
-              if url is not None:
-                  break
-              for link in item['links'].itervalues():
-                  #print link
-                  if link.has_key('relation') and link['relation'] == relation and link.has_key('link'):
-                      url = link['link']
-                      break
+      url = self.feedUrl
 
       # find the feed url
       feed_link = self.instantiate('feed_link', feed_id=item['feed_id'], relation="alternate", type="text/html")
