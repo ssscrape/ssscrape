@@ -74,7 +74,7 @@ function parse_ini($f, $conf = array()) {
 
 function read_config() {
     $conf = array();
-    $env = _SERVER["RAILS_ENV"];
+    $env = $_SERVER["RAILS_ENV"];
     $env_conf = $env ? "$env.conf" : "development.conf"
     $conf_files = array('default.conf', $env_conf, 'local.conf');
     $conf_dir = get_conf_dir();
