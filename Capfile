@@ -44,8 +44,8 @@ namespace :deploy do
   end
 
   task :before_deploy do
-    run "#{current_path}/bin/ssscrape-kill"
-    run "#{current_path}/bin/ssscrape-kill scheduler"
+    #run "#{current_path}/bin/ssscrape-kill && #{current_path}/bin/ssscrape-kill scheduler"
+    run "kill -9 `cat #{current_path}/*.pid`"
   end
   
   task :after_deploy do
