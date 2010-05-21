@@ -43,6 +43,11 @@ namespace :deploy do
     strategy.deploy!
   end
 
+  task :before_deploy do
+    run "#{current_path}/bin/ssscrape-kill"
+    run "#{current_path}/bin/ssscrape-kill scheduler"
+  end
+  
   task :after_deploy do
     run "mkdir -p #{current_path}/log"
     cleanup
