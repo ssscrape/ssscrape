@@ -8,6 +8,7 @@ import httplib
 import urllib2
 import shutil
 
+import mutagen.mp3
 from mutagen.easyid3 import EasyID3
 from mutagen.mp3 import MP3
 
@@ -68,7 +69,9 @@ class Id3MetadataReader:
                         'title': audio['title'][0]
                     }
             except urllib2.HTTPError, e:
-                raise Id3MetadataReaderHTTPError(e.code)                
+                raise Id3MetadataReaderHTTPError(e.code) 
+            except mutagen.mp3.HeaderNotFoundError, e:
+                pass #no id3 info               
             except EOFError, e:
                 pass # means that thee ID3 information is larger than we fetched
             except httplib.BadStatusLine, e:
