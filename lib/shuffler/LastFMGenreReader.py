@@ -55,7 +55,11 @@ class LastFMGenreReader:
         tag_list = None
         min_confidence = ssscrapeapi.config.get_int('lastfm', 'min-tag-confidence', 50)
         if top_tags:
-            #tag_list = [tag['item'].name for tag in top_tags if int(tag['weight']) >= min_confidence]
-            tag_list = [tag.item.name for tag in top_tags if int(tag.weight) >= min_confidence]
+            # pylast has this stupid thing where it returns different structure on python 2.5 v 2.6
+            v = sys.version_info
+            if v[1] >= 6 and v[0] < 3:
+                tag_list = [tag.item.name for tag in top_tags if int(tag.weight) >= min_confidence]
+            else:
+                tag_list = [tag['item'].name for tag in top_tags if int(tag['weight']) >= min_confidence]
         # return the top tags
         return (image_url, tag_list)
