@@ -4,7 +4,7 @@ class TracksTable extends Table {
 
   function TracksTable($m, $params, $unused) {
       parent::Table($m, $params);
-      $this->set_fields(array('id', 'item', 'feed', 'anchor', 'artist', 'title', 'tags', 'method', 'sent', 'permalink', 'location', 'blog'));
+      $this->set_fields(array('id', 'item', 'feed', 'anchor', 'artist', 'title', 'manual_tags', 'tags', 'method', 'sent', 'permalink', 'location', 'blog'));
       $this->set_field_option('item', 'sql-name', 'feed_item_id');
       $this->set_field_option('feed', 'sql-name', 'i.feed_id');      
       $this->set_field_option('posted', 'datetime');
@@ -30,13 +30,18 @@ class TracksTable extends Table {
         s.method,
         s.posted,
         s.sent,
-        s.site_url
+        s.site_url,
+        m.tags AS manual_tags
       FROM
         shuffler_track s
       LEFT JOIN
         ssscrape_feed_item i
       ON
         s.feed_item_id = i.id
+      LEFT JOIN
+        ssscrape_feed_metadata m
+      ON
+        i.feed_id = m.feed_id
       ?where?";
 
       $this->run_query($q);
