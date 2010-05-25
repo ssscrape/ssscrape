@@ -31,13 +31,18 @@ class Usage(Exception):
 
 def getMetadata(url, anchorText, id3Reader):
     anchorReader = None
+    method = 'id3'
     metadata = id3Reader.fetch(url)
     anchorReader = shuffler.AnchorMetadataReader()
     if (not metadata) and anchorText:
+        method = 'anchor'
         metadata = anchorReader.fetch(anchorText)
     if not metadata:
+        method = 'filename'
         filenameReader = shuffler.FilenameMetadataReader()
         metadata = filenameReader.fetch(url, anchorReader)
+    if metadata:
+        metadata['method'] = method
     return metadata     
 
 def main(argv=None):
@@ -86,6 +91,7 @@ def main(argv=None):
             #print >>sys.stderr, tags
             track['artist'] = metadata['artist']
             track['title'] = metadata['title']
+            track['method'] = metadata['method']
             if tags:
                 track['tags'] = ','.join(tags)
             if image_url:

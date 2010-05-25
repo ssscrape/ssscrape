@@ -18,6 +18,10 @@ class Track(ssscrapeapi.TableObject):
 	        'permalink',
             'location',
             'anchor',
+            'artist',
+            'title',
+            'tags',
+            'method',
             'posted',
             'sent'
         ]

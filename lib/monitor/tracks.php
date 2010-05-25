@@ -4,7 +4,7 @@ class TracksTable extends Table {
 
   function TracksTable($m, $params, $unused) {
       parent::Table($m, $params);
-      $this->set_fields(array('id', 'item', 'feed', 'permalink', 'anchor', 'posted', 'sent', 'location', 'blog'));
+      $this->set_fields(array('id', 'item', 'feed', 'anchor', 'artist', 'title', 'tags', 'method', 'sent', 'permalink', 'location', 'blog'));
       $this->set_field_option('item', 'sql-name', 'feed_item_id');
       $this->set_field_option('site', 'sql-name', 'i.feed_id');      
       $this->set_field_option('posted', 'datetime');
@@ -24,10 +24,13 @@ class TracksTable extends Table {
         s.permalink,
         s.location,
         s.anchor,
+        s.artist,
+        s.title,
+        s.tags,
+        s.method,
         s.posted,
         s.sent,
-        s.site_url,
-        i.title
+        s.site_url
       FROM
         shuffler_track s
       LEFT JOIN
@@ -48,7 +51,7 @@ class TracksTable extends Table {
   }
 
   function display_permalink($permalink, $row) {
-    return ax_a_href_title($row['title'], $permalink, 'Go to this permalink');
+    return ax_a_href_title(ax_raw("&rarr;"), $permalink, 'Go to this permalink');
   }
 
   function display_location($location, $row) {
