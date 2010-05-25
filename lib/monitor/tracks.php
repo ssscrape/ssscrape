@@ -4,7 +4,7 @@ class TracksTable extends Table {
 
   function TracksTable($m, $params, $unused) {
       parent::Table($m, $params);
-      $this->set_fields(array('id', 'item', 'site', 'permalink', 'anchor', 'posted', 'sent', 'location', 'blog'));
+      $this->set_fields(array('id', 'item', 'feed', 'permalink', 'anchor', 'posted', 'sent', 'location', 'blog'));
       $this->set_field_option('item', 'sql-name', 'feed_item_id');
       $this->set_field_option('site', 'sql-name', 'i.feed_id');      
       $this->set_field_option('posted', 'datetime');
@@ -20,7 +20,7 @@ class TracksTable extends Table {
       $q = "SELECT
         s.id,
         s.feed_item_id AS item,
-        i.feed_id AS site,
+        i.feed_id AS feed,
         s.permalink,
         s.location,
         s.anchor,
@@ -43,8 +43,8 @@ class TracksTable extends Table {
     return ax_a_href_title($feed_item, $this->make_url(1, array('item' => $feed_item)), "View tracks for this item");
   }
   
-  function display_site($site, $row) {
-    return ax_a_href_title($site, $this->make_url(1, array('site' => $site)), 'Go to this site');
+  function display_feed($feed, $row) {
+    return ax_a_href_title($feed, $this->make_url(1, array('feed' => $feed)), 'Go to this site');
   }
 
   function display_permalink($permalink, $row) {
