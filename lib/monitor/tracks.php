@@ -6,7 +6,7 @@ class TracksTable extends Table {
       parent::Table($m, $params);
       $this->set_fields(array('id', 'item', 'feed', 'anchor', 'artist', 'title', 'tags', 'method', 'sent', 'permalink', 'location', 'blog'));
       $this->set_field_option('item', 'sql-name', 'feed_item_id');
-      $this->set_field_option('site', 'sql-name', 'i.feed_id');      
+      $this->set_field_option('feed', 'sql-name', 'i.feed_id');      
       $this->set_field_option('posted', 'datetime');
       $this->set_field_option('sent', 'datetime-key');
       
