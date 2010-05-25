@@ -22,7 +22,11 @@ class TrackCountsTable extends Table {
     }
 
     function display_site($site, $row) {
-      return ax_a_href_title($site, $this->make_url(0, array('show'=>'tracks', 'site'=>$row['id'])), 'Show tracks');
+      return ax_a_href_title($site, $this->make_url(0, array('show'=>'items', 'feed'=>$row['id'])), 'Show feed items');
+    }
+
+    function display_tracks($tracks, $row) {
+      return ax_a_href_title($tracks, $this->make_url(0, array('show'=>'tracks', 'site'=>$row['id'])), 'Show feed tracks');
     }
     
     function check_tracks($tracks, $row) {
