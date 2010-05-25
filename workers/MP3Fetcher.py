@@ -87,8 +87,9 @@ def main(argv=None):
         track.load(track_id)
     feed_item = ssscrapeapi.feeds.FeedItem()
     feed_item.load(track['feed_item_id'])
-    feed_metadata = ssscrapeapi.feeds.FeedMetadata()
-    feed_metadata.load(feed_item['feed_id'])
+    feed_metadata = ssscrapeapi.feeds.FeedMetadata(feed_id=feed_item['feed_id'])
+    feed_metadata_id = feed_metadata.find()
+    feed_metadata.load(feed_metadata_id)
     if feed_metadata['tags']:
         manual_tags = feed_metadata['tags'].split(r'\s*,\s*')
     else:
@@ -108,8 +109,8 @@ def main(argv=None):
             track['method'] = metadata['method']
             if not tags:
                 tags = []
-            #print "found tags : ", tags
-            #print "manual tags : ", manual_tags
+            print >>sys.stderr, "found tags : ", tags
+            print >>sys.stderr, "manual tags : ", manual_tags
             if manual_tags:
                 tags = mergeUnique(tags, manual_tags)
             if len(tags) > 0:
