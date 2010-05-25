@@ -12,6 +12,7 @@ require('feed_item_comments.php');
 require('feed_item_comment_counts.php');
 require('enclosures.php');
 require('tracks.php');
+require('tracks_counts.php');
 require('tasks.php');
 require('jobs.php');
 require('job_logs.php');
@@ -59,7 +60,15 @@ class SsscrapeMonitor extends AnewtPage
         array(
             'name'=>'tracks',
             'class'=>'TracksTable',
-            'descr'=>'Information about tracks'
+            'descr'=>'Information about tracks',
+            'parent' => 'tracks'
+        ),
+        array(
+            'name'=>'trackCounts',
+            'class'=>'TrackCountsTable',
+            'descr'=>'Basic statistics about tracks',
+            'tab' => false,
+            'parent' => 'tracks'
         ),
         array(
             'name'=>'tasks',
