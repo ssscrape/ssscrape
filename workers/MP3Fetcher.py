@@ -45,6 +45,11 @@ def getMetadata(url, anchorText, id3Reader):
         metadata['method'] = method
     return metadata     
 
+def mergeUnique(l1, l2):
+    l3 = [x for x in filter(lambda y: y not in l1, l2)]
+    l1.extend(l3)
+    return l1
+
 def main(argv=None):
     url = None
     if argv is None:
@@ -80,6 +85,15 @@ def main(argv=None):
     else:
         track = shuffler.Track()
         track.load(track_id)
+    feed_item = ssscrapeapi.feeds.FeedItem()
+    feed_item.load(track['feed_item_id'])
+    feed_metadata = ssscrapeapi.feeds.FeedMetadata()
+    feed_metadata.load(feed_item['feed_id'])
+    if feed_metadata['tags']:
+        manual_tags = feed_metadata['tags'].split(r'\s*,\s*')
+    else:
+        manual_tags = None
+    #print manual_tags
     url = track['location']
     id3Reader = shuffler.Id3MetadataReader()
     try:
@@ -92,7 +106,13 @@ def main(argv=None):
             track['artist'] = metadata['artist']
             track['title'] = metadata['title']
             track['method'] = metadata['method']
-            if tags:
+            if not tags:
+                tags = []
+            #print "found tags : ", tags
+            #print "manual tags : ", manual_tags
+            if manual_tags:
+                tags = mergeUnique(tags, manual_tags)
+            if len(tags) > 0:
                 track['tags'] = ','.join(tags)
             if image_url:
                 track['image'] = image_url
