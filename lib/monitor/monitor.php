@@ -11,6 +11,7 @@ require('feed_items.php');
 require('feed_item_comments.php');
 require('feed_item_comment_counts.php');
 require('enclosures.php');
+require('tracks.php');
 require('tasks.php');
 require('jobs.php');
 require('job_logs.php');
@@ -54,6 +55,11 @@ class SsscrapeMonitor extends AnewtPage
             'name'=>'enclosures',
             'class'=>'EnclosuresTable',
             'descr'=>'Information about enclosures'
+        ),
+        array(
+            'name'=>'tracks',
+            'class'=>'TracksTable',
+            'descr'=>'Information about tracks'
         ),
         array(
             'name'=>'tasks',
