@@ -5,13 +5,12 @@ class TracksTable extends Table {
   function TracksTable($m, $params, $unused) {
       parent::Table($m, $params);
       $this->set_fields(array('id', 'item', 'site', 'permalink', 'anchor', 'posted', 'sent', 'location', 'blog'));
-      //$this->set_field_option('id', 'sql-name', 'i.id');
-      //$this->set_field_option('feed', 'sql-name', 'i.feed_id');
-      //$this->set_field_option('pub_date', 'datetime-key');
       $this->set_field_option('item', 'sql-name', 'feed_item_id');
       $this->set_field_option('site', 'sql-name', 'i.feed_id');      
       $this->set_field_option('posted', 'datetime');
       $this->set_field_option('sent', 'datetime-key');
+      
+      $this->set_default_ordering('sent', 'DESC');
       $this->process_options($params);
       $this->max_limit = 200;
   }
