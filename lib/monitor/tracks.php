@@ -74,6 +74,28 @@ class TracksTable extends Table {
     return ax_a_href_title(ax_raw("&rarr;"), $row['site_url'], 'Go to this blog');
   }
   
+  function display_artist($artist, $row) {
+    $lastfm_link = "http://www.last.fm/music/". urlencode($artist);
+    return ax_a_href_title($artist, $lastfm_link, 'Go to this artist on last.fm');
+  }
+  
+  function display_title($title, $row) {
+    if ($row['artist'] != '') {
+      $lastfm_link = "http://www.last.fm/music/". urlencode($row['artist']) ."/_/". urlencode($title);
+      return ax_a_href_title($title, $lastfm_link, 'Go to this track on last.fm');      
+    } else {
+      return $title;
+    }
+  }
+  
+  function check_artist($artist, $row) {
+      return ($artist != '');
+  }
+
+  function check_tags($tags, $row) {
+      return ($tags != '');
+  }
+  
   function inc_tags($tags, $row) {
     return ($tags == '') ? 0 : 1;
   }
@@ -88,9 +110,15 @@ class TracksTable extends Table {
   }
   
   function sum_method() {
+    $methods_sh = array(
+      'id3' => 'id3',
+      'filename' => 'file',
+      'anchor' => 'anch',
+      '' => ''
+    );
     $display_values = array();
     foreach($this->method_counts as $method => $count) {
-      $display_values[] = array(ax_raw("&sum; $method="), $count, ax_br());
+      $display_values[] = array(ax_raw("&sum; ". $methods_sh[$method] ."="), $count, ax_br());
       
     }
     return $display_values;
