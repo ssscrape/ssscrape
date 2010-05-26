@@ -9,8 +9,8 @@ class TrackCountsTable extends Table {
     }
 
     function count_feeds() {
-      $q = "SELECT COUNT(DISTINCT i.feed_id) AS num FROM ssscrape_feed_item i, shuffler_track s WHERE s.feed_item_id = i.id ?where-and? -- ";
-      $num_active_feeds = $this->count($q);
+      $q = "SELECT COUNT(DISTINCT i.feed_id) AS num FROM ssscrape_feed_item i, shuffler_track s WHERE s.feed_item_id = i.id AND ?temp-constraint? -- ";
+      $num_active_feeds = $this->count($this->prepare_query($q, 'sent'));
       $num_feeds = $this->count("SELECT COUNT(*) FROM `ssscrape_feed_metadata` -- ");
       $num_feeds_pct = round(($num_active_feeds * 100) / $num_feeds);
       $this->m->append(ax_p("$num_active_feeds feeds out of $num_feeds have tracks in this period ($num_feeds_pct %)"));      
