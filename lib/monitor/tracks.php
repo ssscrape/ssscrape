@@ -13,6 +13,13 @@ class TracksTable extends Table {
       $this->set_default_ordering('sent', 'DESC');
       $this->process_options($params);
       $this->max_limit = 200;
+      
+      //$this->stat['tags']['sum'] = 0;
+      $this->method_counts = array(
+        'id3' => 0,
+        'filename' => 0,
+        'anchor' => 0
+      );
   }
   
   function show() {
@@ -64,11 +71,28 @@ class TracksTable extends Table {
   }
 
   function display_blog($blog, $row) {
-    return ax_a_href_title(ax_raw("&rarr;"), $row['sound_url'], 'Go to this blog');
+    return ax_a_href_title(ax_raw("&rarr;"), $row['site_url'], 'Go to this blog');
   }
   
-  function sum_tags() {
-    $display_value = array(ax_raw("&sum;="), "0");
-    return $display_value;
+  function inc_tags($tags, $row) {
+    return ($tags == '') ? 0 : 1;
+  }
+  
+  function inc_artist($artist, $row) {
+    return ($artist == '') ? 0 : 1;    
+  }
+  
+  function inc_method($method, $row) {
+    $this->method_counts[$method] += 1;
+    return 0;
+  }
+  
+  function sum_method() {
+    $display_values = array();
+    foreach($this->method_counts as $method => $count) {
+      $display_values[] = array(ax_raw("&sum; $method="), $count, ax_br());
+      
+    }
+    return $display_values;
   }
 }

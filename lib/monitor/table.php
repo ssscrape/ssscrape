@@ -116,7 +116,7 @@ class Table {
             } else {
                 $c = &ax_th(ax_a_href_title($field, $this->make_url(1, array('order'=>$field), array('orderdir', 'offset')), "order by $field"));
             }
-            if (isset($this->field_opts[$field]['num'])) {
+            if (isset($this->field_opts[$field]['num']) || method_exists($this, "inc_".$field)) {
                 $this->stat[$field]['sum'] = 0;
             }
             $r->append_child($c);
@@ -163,6 +163,9 @@ class Table {
         if (isset($this->field_opts[$field]['num'])) {
             $classes['number'] = 1;
             $this->stat[$field]['sum'] += intval($value);
+        } else if (method_exists($this, "inc_".$field)) {
+            $incr_value = call_user_func(array($this, "inc_".$field), $value, &$row);
+            $this->stat[$field]['sum'] += intval($incr_value);
         }
         $display_value = $value;
         if (method_exists($this, "display_".$field)) {
@@ -186,11 +189,12 @@ class Table {
         foreach($this->fields as $field) {
             $display_value = "";
             $attrs = array();
-            if (isset($this->field_opts[$field]['num'])) {
+            if (method_exists($this, "sum_".$field)) {
+                $display_value = call_user_func(array($this, "sum_".$field));
+                $attrs['class'] = 'number';
+            } else if (isset($this->field_opts[$field]['num']) || method_exists($this, "inc_".$field)) {
                 $display_value = array(ax_raw("&sum;="), $this->stat[$field]['sum']);
                 $attrs['class'] = 'number';
-            } else if (method_exists($this, "sum_".$field)) {
-                $display_value = call_user_func(array($this, "sum_".$field));
             }
             $c = &ax_td($display_value, $attrs);
             $r->append_child($c);
