@@ -67,4 +67,8 @@ class TracksTable extends Table {
     return ax_a_href_title(ax_raw("&rarr;"), $row['sound_url'], 'Go to this blog');
   }
   
+  function sum_tags() {
+    $display_value = array(ax_raw("&sum;="), "0");
+    return $display_value;
+  }
 }

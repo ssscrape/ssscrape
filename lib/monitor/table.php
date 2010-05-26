@@ -189,6 +189,8 @@ class Table {
             if (isset($this->field_opts[$field]['num'])) {
                 $display_value = array(ax_raw("&sum;="), $this->stat[$field]['sum']);
                 $attrs['class'] = 'number';
+            } else if (method_exists($this, "sum_".$field)) {
+                $display_value = call_user_func(array($this, "sum_".$field));
             }
             $c = &ax_td($display_value, $attrs);
             $r->append_child($c);
