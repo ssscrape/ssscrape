@@ -115,6 +115,8 @@ def main(argv=None):
                 tags = mergeUnique(tags, manual_tags)
             if len(tags) > 0:
                 track['tags'] = ','.join(tags)
+            else:
+                del track['tags']
             if image_url:
                 track['image'] = image_url
             print >>sys.stderr, track
