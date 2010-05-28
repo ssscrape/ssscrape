@@ -5,7 +5,7 @@ while read line
 do
   value=`expr $value + 1`
   remain_hour=`expr $value % 24`
-  remain_minute=`expr $value % 60`
+  remain_minute=`expr $RANDOM % 60`
   echo "$line <=> $remain_hour <=> $remain_minute"
   ./ssscrape-add-feed -p 24h -H $remain_hour -m $remain_minute -k partial "$line"
 done
