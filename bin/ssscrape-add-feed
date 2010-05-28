@@ -95,6 +95,7 @@ if __name__ == '__main__':
  
     # insert metadata
     m = ssscrapeapi.feeds.FeedMetadata(url=feed_url, kind=options.kind, partial_args=options.partial_args, tags=options.tags)
+    
     m.save()
 
     # disconnect from the feeds database
