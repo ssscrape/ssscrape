@@ -3,6 +3,7 @@ __doc__ = '''Twones specific content saver plugin'''
 import sys
 import os
 import re
+import urllib
 
 import ssscrapeapi
 
@@ -52,7 +53,7 @@ class ShufflerPermalinkParser(feedworker.PermalinkScraper):
       links = self.soup.findAll('a', href=re.compile('\.mp3$'))
       for link in links:
           anchor_text = ''.join(link.findAll(text=True))
-          link =  link['href']
+          link =  urllib.unquote_plus(link['href'])
           # print link, self.feedUrl, service_url, post_title.encode('ascii', 'ignore'), str(item['pub_date'])
           track = shuffler.Track(feed_item_id=item['id'], location=link)
           track_id = track.find()
