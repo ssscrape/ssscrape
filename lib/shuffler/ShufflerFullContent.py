@@ -63,7 +63,7 @@ class ShufflerPermalinkParser(feedworker.PermalinkScraper):
           track['permalink'] = url
           track['site_url'] = service_url
           track['anchor'] = anchor_text
-          #print >>sys.stderr, track
+          print >>sys.stderr, track
           track.save()  
           job = self.instantiate('job')
           scheduleTrack(track, job)
