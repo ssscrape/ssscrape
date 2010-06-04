@@ -54,7 +54,7 @@ class ShufflerPermalinkParser(feedworker.PermalinkScraper):
       for link in links:
           anchor_text = ''.join(link.findAll(text=True))
           link =  urllib.unquote_plus(link['href'])
-          # print link, self.feedUrl, service_url, post_title.encode('ascii', 'ignore'), str(item['pub_date'])
+          print link, self.feedUrl, service_url, post_title.encode('ascii', 'ignore'), str(item['pub_date'])
           track = shuffler.Track(feed_item_id=item['id'], location=link)
           track_id = track.find()
           if track_id > 0:
@@ -63,7 +63,7 @@ class ShufflerPermalinkParser(feedworker.PermalinkScraper):
           track['permalink'] = url
           track['site_url'] = service_url
           track['anchor'] = anchor_text
-          print >>sys.stderr, track
+          # print >>sys.stderr, track
           track.save()  
           job = self.instantiate('job')
           scheduleTrack(track, job)
