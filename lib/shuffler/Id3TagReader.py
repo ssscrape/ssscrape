@@ -48,7 +48,7 @@ class Id3MetadataReader:
                 self.http_url = r.geturl() # may be a redirect
                 if self.http_status >= 400:
                      raise Id3MetadataReaderHTTPError(self.http_status)
-                max_file_size = ssscrapeapi.config.get_int('id3', 'max-size', 40960)
+                max_file_size = ssscrapeapi.config.get_int('id3', 'max-size', 102400)
                 cur_file_size = 0
                 chunk_size = 1
                 buf_file_size = 4096
@@ -71,8 +71,10 @@ class Id3MetadataReader:
             except urllib2.HTTPError, e:
                 raise Id3MetadataReaderHTTPError(e.code) 
             except mutagen.mp3.HeaderNotFoundError, e:
+                print >>sys.stderr, "id3 header not found!"
                 pass #no id3 info               
             except EOFError, e:
+                print >>sys.stderr, "not complete id3 tag!"
                 pass # means that thee ID3 information is larger than we fetched
             except httplib.BadStatusLine, e:
                 raise feedworker.FeedWorkerException(1, feedworker.FeedWorkerException.KEYWORDS.NOCONNECTION)

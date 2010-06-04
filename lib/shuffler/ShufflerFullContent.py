@@ -52,6 +52,7 @@ class ShufflerPermalinkParser(feedworker.PermalinkScraper):
           audio_match = re.search('audio_file=http\:\/\/www\.tumblr\.com\/audio_file\/' + audio_player_id + '\/([^&]+)', self.contents)
           if audio_match:
               audio_player_url = 'http://www.tumblr.com/audio_file/' + audio_player_id + '/' + audio_match.group(1)
+              audio_player_url = audio_player_url + '?plead=please-dont-download-this-or-our-lawyers-wont-let-us-host-audio';
               print audio_player_url
               tumblr_players[audio_player_url] = u''
       return tumblr_players
