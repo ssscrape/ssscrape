@@ -4,6 +4,7 @@ import sys
 import os
 import re
 import urllib
+import cgi
 
 import ssscrapeapi
 
@@ -32,6 +33,29 @@ def scheduleTrack(track, job):
         job.save()
 
 class ShufflerPermalinkParser(feedworker.PermalinkScraper):
+  def find_mp3_players(self):
+      mp3_players = {}
+      links = self.soup.findAll('a', href=re.compile('\.mp3$'))
+      for link in links:
+          anchor_text = ''.join(link.findAll(text=True))
+          link =  urllib.unquote_plus(link['href'])
+          mp3_players[link] = anchor_text
+      return mp3_players
+  
+  def find_tumblr_players(self):
+      tumblr_players = {}
+      print "Finding tumblr players .."
+      players = self.soup.findAll('span', {'id': re.compile('^audio_player_(\d+)$')})
+      for player in players:
+          audio_player_id = re.search('_(\d+)$', player['id']).group(1)
+          # audio_file=http://www.tumblr.com/audio_file/438796839/tumblr_kz2bqjoM6y1qa1h3s
+          audio_match = re.search('audio_file=http\:\/\/www\.tumblr\.com\/audio_file\/' + audio_player_id + '\/([^&]+)', self.contents)
+          if audio_match:
+              audio_player_url = 'http://www.tumblr.com/audio_file/' + audio_player_id + '/' + audio_match.group(1)
+              print audio_player_url
+              tumblr_players[audio_player_url] = u''
+      return tumblr_players
+  
   def scrape(self, collection):      
       # load info about feed item
       item = self.instantiate('feed_item')
@@ -50,25 +74,26 @@ class ShufflerPermalinkParser(feedworker.PermalinkScraper):
           service_url = self.feedUrl
           
       # find all links that end in .mp3
-      links = self.soup.findAll('a', href=re.compile('\.mp3$'))
-      for link in links:
-          anchor_text = ''.join(link.findAll(text=True))
-          link =  urllib.unquote_plus(link['href'])
+      players = self.find_mp3_players()
+      players.update(self.find_tumblr_players())
+      for link in players.keys():
+          anchor_text = players[link]
           print link, self.feedUrl, service_url, str(item['pub_date'])
           track = shuffler.Track(feed_item_id=item['id'], location=link)
           track_id = track.find()
+          print track_id
           if track_id > 0:
               continue # assume it's saved correctly
           track['posted'] = item['pub_date']
           track['permalink'] = url
           track['site_url'] = service_url
           track['anchor'] = anchor_text
-          # print >>sys.stderr, track
+          print >>sys.stderr, track
           track.save()  
           job = self.instantiate('job')
           scheduleTrack(track, job)
           #sendScrapedLink(link, self.feedUrl, service_url, anchor_text, str(item['pub_date']), beanstalk)
-            
+          
       collection['items'] = []
 
 class ShufflerFullContentPlugin(feedworker.FullContent.FullContentPlugin):
