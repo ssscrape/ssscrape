@@ -9,6 +9,7 @@ class TracksTable extends Table {
       $this->set_field_option('feed', 'sql-name', 'i.feed_id');      
       $this->set_field_option('posted', 'datetime');
       $this->set_field_option('sent', 'datetime-key');
+      $this->set_field_option('tags', 'sql-name', 's.tags');      
       
       $this->set_default_ordering('sent', 'DESC');
       $this->process_options($params);
