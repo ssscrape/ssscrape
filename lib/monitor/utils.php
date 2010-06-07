@@ -52,8 +52,12 @@ function get_conf_dir() {
 
 # parse an .ini file
 function parse_ini($f, $conf = array()) {
-    $lines = file($f);
+    $lines = @file($f);
     $_section = False;
+    # if a file stopped being read for some reason ...
+    if (!is_array($lines)) {
+      $lines = array();
+    }
     foreach ($lines as $line) {
         if (preg_match('/^\s*\[([^\]]+)\]/', $line, $matches)) {
             $section = trim($matches[1]);
