@@ -294,11 +294,12 @@ class Table {
         }
         if (str_contains($q, '?temp-constraint?')) {
             $q = str_replace('?temp-constraint?', 
-                             sprintf("(`%s` > NOW() - INTERVAL %s)", $field_name, $this->interval),
+                             ($this->interval != '*') ? sprintf("(`%s` > NOW() - INTERVAL %s)", $field_name, $this->interval) : '1',
                              $q);  
         }
 
         $q = $q . " ORDER BY `" . $this->order_by . "` " . $this->order_dir . " LIMIT " . ($this->limit+1) . " OFFSET " . $this->offset;
+        //print "$q<br />\n";
         return $q;
     }
 
