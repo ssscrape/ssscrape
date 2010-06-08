@@ -46,9 +46,10 @@ class FeedTable extends Table {
             # don't check anything unless the feed fetching task is enabled
             return true;
         }
+        /*
         if ($items == 0) {
             return false;
-        } 
+        } */
         return true;
     }
 
