@@ -299,7 +299,7 @@ class Table {
         }
 
         $q = $q . " ORDER BY `" . $this->order_by . "` " . $this->order_dir . " LIMIT " . ($this->limit+1) . " OFFSET " . $this->offset;
-        print "$q<br />\n";
+        //print "$q<br />\n";
         return $q;
     }
 
