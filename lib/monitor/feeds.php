@@ -14,6 +14,7 @@ class FeedTable extends Table {
     }
 
     function show() {
+      /*
         $q = "SELECT f.id, f.url, f.title, t.id task, t.state task_state, m.kind, m.tags, f.mod_date, 
                      count(i.feed_id) items, count(i.feed_id)-count(i.content_clean) errors, f.id 2_weeks
               FROM ssscrape.ssscrape_feed f 
@@ -25,7 +26,17 @@ class FeedTable extends Table {
                    LEFT JOIN ssscrapecontrol.ssscrape_task t ON LOCATE(f.url, t.args)
               ?where?
               GROUP BY f.id";
-
+*/
+        $q = "SELECT f.id, f.url, f.title, '0' task, 'enabled' task_state, m.kind, m.tags, f.mod_date, 
+                     count(i.feed_id) items, count(i.feed_id)-count(i.content_clean) errors, f.id 2_weeks
+              FROM ssscrape.ssscrape_feed f 
+                   LEFT JOIN ssscrape_feed_metadata m ON f.id=m.feed_id 
+                   LEFT JOIN (SELECT feed_id, content_clean 
+                              FROM ssscrape_feed_item 
+                              WHERE ?temp-constraint?) i 
+                        ON f.id=i.feed_id 
+              ?where?
+              GROUP BY f.id";
         $this->m->append(ax_p(ax_a_href("Create new feed", "editor/?show=feeds&id=NEW")));
 
         $this->run_query($q, 'pub_date');
