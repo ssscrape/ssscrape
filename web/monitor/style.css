@@ -216,3 +216,19 @@ label.choice input {
 fieldset {
     margin-top: 10px;
 }
+
+form#search div.form-control {
+  float: left;
+}
+
+form#search #submit {
+  margin: 2px 0 0 5px;
+  height: 23px;
+}
+form#interval {
+  clear: both;
+}
+
+#condition {
+  clear: both;
+}

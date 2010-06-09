@@ -10,6 +10,10 @@ class FeedTable extends Table {
         $this->set_field_option('items', 'num');
         $this->set_field_option('errors', 'num');
         $this->set_field_option('title', 'truncate', 30);
+        
+        $this->set_field_option('url', 'search');
+        $this->set_field_option('title', 'search');
+        
         $this->process_options($params);
     }
 

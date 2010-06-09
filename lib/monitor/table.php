@@ -32,7 +32,8 @@ class Table {
     private $stat;
     private $query_restriction;
     private $last_displayed_tags = "";
-
+    private $show_search = false;
+    
     function Table($monitor) {
         $this->m = $monitor;
 
@@ -55,6 +56,7 @@ class Table {
             $this->time_field = $field;
             $this->field_opts[$field]['datetime'] = 1;
         }
+        $this->show_search = $this->show_search || ($option == 'search');
     }
 
     function set_default_ordering($field, $order) {
@@ -93,6 +95,12 @@ class Table {
 
         $this->interval = array_get_default($params, 'interval', $this->m->interval);
         unset($this->params['interval']);
+        
+        if (isset($params['q']) && isset($params['qf'])) {
+          // FIXME: do more smart stuff here
+          $qf = $params['qf'];
+          $this->params[$qf] = 'LIKE:%'. $params['q'] .'%';
+        }
     }
 
     function make_url($keep_current_params, $params_add=null, $params_del=null) {
@@ -232,7 +240,7 @@ class Table {
         $form->setup('interval', ANEWT_FORM_METHOD_GET, $this->make_url(0));
        
         foreach ($this->params as $name => $val) {
-            if ($name != 'interval') {
+            if (($name != 'interval') && ($name != 'submit')) {
                 $c = &new AnewtFormControlHidden($name);
                 $c->set('value', $val);
                 $form->add_control($c);
@@ -256,6 +264,52 @@ class Table {
         return $fr;
     }
 
+    function make_search() {
+      $search_fields = array();
+      foreach($this->fields as $field) {
+        $search = array_get_default($this->field_opts[$field], 'search', false);
+        if ($search) {
+          $search_fields[$field] = ucfirst($field);
+        }
+      }
+      $search_keys = array_keys($search_fields);
+      
+      $form = new AnewtForm();
+      $form->setup('search', ANEWT_FORM_METHOD_GET, $this->make_url(0));
+      foreach ($this->params as $name => $val) {
+          if (($name != 'q') && ($name != 'qf') && ($name != 'submit') && ($name != $this->params['qf'])) {
+              $c = &new AnewtFormControlHidden($name);
+              $c->set('value', $val);
+              $form->add_control($c);
+          }
+      }
+      if (count($search_keys) <= 1) {
+        $c = &new AnewtFormControlHidden('qf');
+        $c->set('value', $search_keys[0]);
+        $form->add_control($c);
+      } else {
+        $c = &new AnewtFormControlChoice('qf');
+        $c->set('threshold', 1);
+        foreach($search_keys as $field) {
+          $c->add_option_value_label($field, $search_fields[$field]);
+        }
+        $c->set('label', 'Search :');
+        $c->set('value', array_get_default($this->params, 'qf', $search_keys[0]));   
+        $form->add_control($c);
+      }
+      $c = &new AnewtFormControlText('q');
+      if (count($search_keys) <= 1) {
+        $c->set('label', 'Search :');
+      } 
+      $c->set('value', array_get_default($this->params, 'q', ''));
+      $form->add_control($c);
+      $c = &new AnewtFormControlButtonSubmit('submit');
+      $form->add_control($c);
+      $fr = &new AnewtFormRendererDefault();
+      $fr->set_form($form);
+      return $fr;
+    }
+    
     function prepare_query($q, $field_name = null) {
         $where = array();
         foreach ($this->fields as $f) {
@@ -331,9 +385,12 @@ class Table {
         cycle(array('bg1', 'bg0'));
         $this->stat = array();
 
-        $descr = array(); 
+        $descr = array();
+        if ($this->show_search) {
+            array_push($descr, $this->make_search());
+        }
         if ($this->query_restriction) {
-            array_push($descr, "Condition: " . $this->query_restriction);
+            array_push($descr, ax_div_id("Condition: " . $this->query_restriction, 'condition'));
         }
         if ($this->interval) {
             array_push($descr, $this->make_interval_selection($this->interval));
