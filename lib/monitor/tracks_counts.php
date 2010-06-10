@@ -5,6 +5,8 @@ class TrackCountsTable extends Table {
     function TrackCountsTable($m, $params, $unused) {
         parent::Table($m, $params);
         $this->set_fields(array('feed', 'tracks'));
+        $this->set_field_option('feed', 'sql-name', 'f.url');      
+        $this->set_field_option('feed', 'search');
         $this->process_options($params);
     }
 

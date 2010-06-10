@@ -7,12 +7,14 @@ class TracksTable extends Table {
       $this->set_fields(array('id', 'item', 'feed', 'anchor', 'artist', 'title', 'manual_tags', 'tags', 'method', 'sent', 'permalink', 'location', 'blog'));
       $this->set_field_option('item', 'sql-name', 'feed_item_id');
       $this->set_field_option('feed', 'sql-name', 'i.feed_id');      
-      $this->set_field_option('title', 'sql-name', 's.title');      
+      $this->set_field_option('title', 'sql-name', 's.title');  
+      $this->set_field_option('blog', 'sql-name', 's.site_url');      
       $this->set_field_option('posted', 'datetime');
       $this->set_field_option('sent', 'datetime-key');
       $this->set_field_option('tags', 'sql-name', 's.tags');      
       $this->set_field_option('artist', 'search');
       $this->set_field_option('title', 'search');
+      $this->set_field_option('blog', 'search');
       $this->set_default_ordering('sent', 'DESC');
       $this->process_options($params);
       $this->max_limit = 200;
