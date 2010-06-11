@@ -25,6 +25,7 @@ CREATE TABLE `ssscrape_feed_metadata` (
         `kind` ENUM('full', 'partial') NOT NULL DEFAULT 'full', -- whether it is a full content feed, or partial
 	`partial_args` VARCHAR(255) DEFAULT NULL, -- arguments for crawler for permalinks (partial content feeds)
         `tags` VARCHAR(255) DEFAULT NULL, -- tags for feeds are comma-seperated, Ie. tag1,tag2,tag3. Allows grouping of related feeds
+    'notes' TEXT DEFAULT NULL,
 	PRIMARY KEY(`id`),
 	UNIQUE KEY(`url`),
 	KEY(`feed_id`)

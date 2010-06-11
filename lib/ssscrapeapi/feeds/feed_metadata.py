@@ -19,7 +19,8 @@ class FeedMetadata(ssscrapeapi.TableObject):
 	        'language',
             'kind',
             'partial_args',
-            'tags'
+            'tags',
+            'notes'
         ]
         self.unescaped = [
         ]     

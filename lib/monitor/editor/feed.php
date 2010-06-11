@@ -179,7 +179,7 @@ class FeedForm extends AnewtForm {
         $ctl->set('readonly', true);
         $fieldset->add_control($ctl);
 
-        $ctl = &new AnewtFormControlText('flavicon');
+        $ctl = &new AnewtFormControlText('favicon');
         $ctl->set('label', 'Flavicon:');
         $ctl->set('readonly', true);
         $fieldset->add_control($ctl);
@@ -201,7 +201,15 @@ class FeedForm extends AnewtForm {
 
         $this->add_fieldset($fieldset);
 
+        $fieldset = new AnewtFormFieldset('feed-notes');
+        $fieldset->set('label', 'Notes');
 
+        $ctl = &new AnewtFormControlTextMultiline('m_notes');
+        $ctl->set('label', 'Notes:');
+        $fieldset->add_control($ctl);
+
+        $this->add_fieldset($fieldset);
+        
         $ctl = &new AnewtFormControlButtonSubmit('submit');
         $ctl->set('label', 'Save feed');
         $this->add_control($ctl);
