@@ -35,7 +35,7 @@ class FeedForm extends AnewtForm {
         $ctl->set('label', 'Kind:');
         $ctl->add_option_value_label('full', 'full');
         $ctl->add_option_value_label('partial', 'partial (permalinks will be fetched for items)');
-        $ctl->set('value', 'full');
+        $ctl->set('value', 'partial');
         $this->add_control($ctl);
 
         $ctl = &new AnewtFormControlText('m_partial_args');
@@ -56,7 +56,7 @@ class FeedForm extends AnewtForm {
         $ctl->add_option_value_label('text', 'text');
         $ctl->add_option_value_label('audio', 'audio');
         $ctl->add_option_value_label('video', 'video');
-        $ctl->set('value', 'text');
+        $ctl->set('value', 'audio');
         $this->add_control($ctl);
 
         
@@ -101,7 +101,7 @@ class FeedForm extends AnewtForm {
         $ctl = &new AnewtFormControlText('t_periodicity');
         $ctl->set('label', 'Periodicity:');
         $ctl->set('secondary-label', '(interval to run jobs for this task; e.g., 00:15:00 for "every 15 minutes")');
-        $ctl->set('value', '00:15:00');
+        $ctl->set('value', '24:00:00');
         $this->add_control($ctl);
 
         $ctl = &new AnewtFormControlChoice('t_autoperiodicity');
