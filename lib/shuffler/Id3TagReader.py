@@ -29,6 +29,23 @@ class Id3MetadataReaderHTTPError(Id3MetadataReaderException):
         Id3MetadataReaderException.__init__(self, "HTTP Error %d" % (status))
 
 class Id3MetadataReader:
+    def id3(self, fileName):
+        try:
+            audio = MP3(fileName, ID3=EasyID3)
+            #print >>sys.stderr, audio
+            #audio.pprint()
+            if audio.has_key('artist') and audio.has_key('title'):
+                return {
+                    'artist' : audio['artist'][0],
+                    'title': audio['title'][0]
+                }
+        except mutagen.mp3.HeaderNotFoundError, e:
+            #print >>sys.stderr, "id3 header not found!"
+            pass #no id3 info               
+        except EOFError, e:
+            #print >>sys.stderr, "not complete id3 tag!"
+            pass # means that thee ID3 information is larger than we fetched
+    
     def fetch(self, orig_url):
         r = None
         try:
@@ -39,7 +56,7 @@ class Id3MetadataReader:
                 req = urllib2.Request(url)
                 r = opener.open(req) 
                 t = tempfile.NamedTemporaryFile()
-                print >>sys.stderr, "Created temp file %s .." % (t.name)
+                # print >>sys.stderr, "Created temp file %s .." % (t.name)
                 # shutil.copyfileobj(r, t, SHUFFLER_MAX_FILE_SIZE)
                 try:
                     self.http_status = r.status # HTTP status
@@ -49,33 +66,31 @@ class Id3MetadataReader:
                 if self.http_status >= 400:
                      raise Id3MetadataReaderHTTPError(self.http_status)
                 max_file_size = ssscrapeapi.config.get_int('id3', 'max-size', 102400)
+                #print >>sys.stderr, "Max file size : %s" % (max_file_size)
                 cur_file_size = 0
                 chunk_size = 1
                 buf_file_size = 4096
-                while ((chunk_size > 0) and (cur_file_size < max_file_size)):
+                id3_tries = 0
+                #while ((chunk_size > 0) and (cur_file_size < max_file_size)):
+                while (chunk_size > 0):
                     chunk = r.read(buf_file_size)
                     if not chunk: break
                     chunk_size = len(chunk)
                     cur_file_size += chunk_size
                     t.write(chunk)
+                    # print >>sys.stderr, "%s /  %s " % (cur_file_size, max_file_size)
+                    if ((cur_file_size >= max_file_size) and (id3_tries == 0)):
+                        #print >>sys.stderr, "Getting id3 tag ..."
+                        audio = self.id3(t.name)
+                        id3_tries = 1
+                        #print audio
+                        if audio:
+                            return audio
+                return self.id3(t.name)
                 # os.system("ls -l %s" % (t.name))
                 # FIXME: we could try to get the ID3 tag incrementally?
-                audio = MP3(t.name, ID3=EasyID3)
-                print >>sys.stderr, audio
-                #audio.pprint()
-                if audio.has_key('artist') and audio.has_key('title'):
-                    return {
-                        'artist' : audio['artist'][0],
-                        'title': audio['title'][0]
-                    }
             except urllib2.HTTPError, e:
                 raise Id3MetadataReaderHTTPError(e.code) 
-            except mutagen.mp3.HeaderNotFoundError, e:
-                print >>sys.stderr, "id3 header not found!"
-                pass #no id3 info               
-            except EOFError, e:
-                print >>sys.stderr, "not complete id3 tag!"
-                pass # means that thee ID3 information is larger than we fetched
             except httplib.BadStatusLine, e:
                 raise feedworker.FeedWorkerException(1, feedworker.FeedWorkerException.KEYWORDS.NOCONNECTION)
         finally:
