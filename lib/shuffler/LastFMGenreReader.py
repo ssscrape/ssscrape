@@ -35,22 +35,13 @@ class LastFMGenreReader:
         # get the track first and find out the top tags
         top_tags = None
         image_url = None
+        
         try:
-            track = network.get_track(artist, title)
-            #print >>sys.stderr, track
-            top_tags = track.get_top_tags()
-            image_url = track.artist.get_cover_image(pylast.COVER_MEDIUM)
+            artist = network.get_artist(artist)
+            top_tags = artist.get_top_tags()
+            image_url = artist.get_cover_image(pylast.COVER_LARGE)
         except pylast.WSError, e:
             pass
-        
-        # if there were no top tags for the track, then find out top tags for the artist
-        if ((not top_tags) or (len(top_tags) <= 0)):
-            try:
-                artist = network.get_artist(artist)
-                top_tags = artist.get_top_tags()
-                image_url = artist.get_cover_image(pylast.COVER_MEDIUM)
-            except pylast.WSError, e:
-                pass
         
         tag_list = None
         min_confidence = ssscrapeapi.config.get_int('lastfm', 'min-tag-confidence', 50)
@@ -62,4 +53,4 @@ class LastFMGenreReader:
             else:
                 tag_list = [tag['item'].name for tag in top_tags if int(tag['weight']) >= min_confidence]
         # return the top tags
-        return (image_url, tag_list)
+        return (image_url, tag_list[:3])
