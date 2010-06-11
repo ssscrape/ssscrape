@@ -4,7 +4,7 @@ class FeedTable extends Table {
 
     function FeedTable($m, $params, $unused) {
         parent::Table($m, $params);
-        $this->set_fields(array('id', 'url', 'title', 'task', 'kind', 'tags', 'mod_date', 'items', 'errors', '2_weeks'));
+        $this->set_fields(array('id', 'url', 'title', 'task', 'kind', 'tags', 'mod_date', 'items', 'tracks', 'errors', '2_weeks'));
         $this->set_field_option('id', 'sql-name', 'f.id');
         $this->set_field_option('url', 'sql-name', 'f.url');
         $this->set_field_option('items', 'num');
@@ -37,11 +37,9 @@ class FeedTable extends Table {
     }
 
     function display_items($items, $row) {
-        if ($items) {
-            $items = ax_a_href_title($items, 
-                                     $this->make_url(0, array('show'=>'items', 'feed'=>$row['id'])),
-                                     "Show items for feed " . $row['id']);
-        }
+        $items = ax_a_href_title(ax_raw('&rarr;'), 
+                                 $this->make_url(0, array('show'=>'items', 'feed'=>$row['id'])),
+                                 "Show items for feed " . $row['id']);
         return $items;
     }
 
@@ -83,6 +81,10 @@ class FeedTable extends Table {
         return ($row['task_state'] == 'enabled');
     }
 
+    function display_task($task, $row) {
+      return ax_a_href_title(ax_raw('&rarr;'), $this->make_url(0, array('show' => 'tasks', 'args' => 'LIKE:%'. $row['url'] .'%')), 'Go to this site');            
+    }
+    
     function display_2_weeks($feed_id, $row) {
             $plot_file = "plots/feed_statistics/$feed_id.png"; 
             if (file_exists($plot_file)) {
@@ -91,6 +93,10 @@ class FeedTable extends Table {
             } else {
                 return "";
             }
+    }
+    
+    function display_tracks($tracks, $row) {
+      return ax_a_href_title(ax_raw('&rarr;'), $this->make_url(0, array('show' => 'tracks', 'feed' => $row['id'])), 'Go to this site');      
     }
 }
 
