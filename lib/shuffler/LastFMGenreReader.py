@@ -53,4 +53,6 @@ class LastFMGenreReader:
             else:
                 tag_list = [tag['item'].name for tag in top_tags if int(tag['weight']) >= min_confidence]
         # return the top tags
-        return (image_url, tag_list[:3])
+        if tag_list:
+            tag_list = tag_list[:3]
+        return (image_url, tag_list)
