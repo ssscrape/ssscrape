@@ -232,3 +232,7 @@ form#interval {
 #condition {
   clear: both;
 }
+
+.icon {
+  border: 0;
+}

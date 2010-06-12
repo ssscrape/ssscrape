@@ -76,7 +76,8 @@ class TracksTable extends Table {
   }
 
   function display_blog($blog, $row) {
-    return ax_a_href_title(ax_raw("&rarr;"), $row['site_url'], 'Go to this blog');
+    $img_src = "http://www.google.com/s2/favicons?domain=". urlencode(parse_url($row['site_url'], PHP_URL_HOST));
+    return ax_a_href_title(ax_img_src($img_src, array('class' => 'icon')), $row['site_url'], 'Go to this blog');
   }
   
   function display_artist($artist, $row) {
