@@ -244,12 +244,13 @@ class FullContentPlugin(feedworker.CommonPlugins.FeedPlugin):
             #    linkInfo['link'] = entry.feedburner_origlink # TODO: 
             if not entry.has_key('links'):
                 entry['links'] = []
-            entry['links'].append({
-              'rel': 'feedburner_origlink',
-              'type': 'text/html',
-              'href': entry.feedburner_origlink,
-              'title': 'Feedburner original link'
-            })
+            if entry.has_key('feedburner_origlink'):
+                entry['links'].append({
+                  'rel': 'feedburner_origlink',
+                  'type': 'text/html',
+                  'href': entry.feedburner_origlink,
+                  'title': 'Feedburner original link'
+                })
         # if it has additional links, then add them
         if entry.has_key('links'):
             for link in entry.links:

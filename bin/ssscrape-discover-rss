@@ -43,6 +43,7 @@ def getRSSLinkFromHTMLSource(htmlSource):
 def getRSSLink(url):
     try:
         usock = urllib.urlopen(url)
+        usock.set_socket_read_timeout(10)
         parser = LinkParser()
         while 1:
             buffer = usock.read(BUFFERSIZE)
