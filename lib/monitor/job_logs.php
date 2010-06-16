@@ -11,6 +11,10 @@ class JobLogsTable extends JobsTable {
         $this->set_field_option('message', 'expand', 40);
         $this->set_field_option('resource', 'sql-name', 'resource_id');
         $this->set_field_option('task', 'sql-name', 'task_id');
+        $this->set_field_option('output', 'search');
+        $this->set_field_option('args', 'search');
+        $this->set_field_option('program', 'search');
+        $this->set_field_option('message', 'search');        
         $this->set_default_ordering('start', 'DESC');
         $this->process_options($params);
     }

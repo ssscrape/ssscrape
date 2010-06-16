@@ -277,7 +277,7 @@ class Table {
       $form = new AnewtForm();
       $form->setup('search', ANEWT_FORM_METHOD_GET, $this->make_url(0));
       foreach ($this->params as $name => $val) {
-          if (($name != 'q') && ($name != 'qf') && ($name != 'submit') && ($name != $this->params['qf'])) {
+          if (($name != 'q') && ($name != 'qf') && ($name != 'submit') && ($name != 'offset') && ($name != $this->params['qf'])) {
               $c = &new AnewtFormControlHidden($name);
               $c->set('value', $val);
               $form->add_control($c);

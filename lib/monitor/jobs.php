@@ -10,6 +10,10 @@ class JobsTable extends Table {
         $this->set_field_option('message', 'expand', 20);
         $this->set_field_option('output', 'expand', 20);
         $this->set_field_option('attempts', 'num');
+        $this->set_field_option('output', 'search');
+        $this->set_field_option('args', 'search');
+        $this->set_field_option('program', 'search');
+        $this->set_field_option('message', 'search');        
         $this->set_default_ordering('scheduled', 'ASC');
         $this->process_options($params);
     }
