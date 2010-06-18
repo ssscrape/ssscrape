@@ -29,7 +29,6 @@ class FeedForm extends AnewtForm {
         $ctl->set('label', 'Feed URL:');
         $ctl->set('secondary-label', '(should point to an RSS/Atom feed)');
         $ctl->set('size', 100);
-        $ctl->set('readonly', true);
         $this->add_control($ctl);
 
         $ctl = &new AnewtFormControlChoice('m_kind');
@@ -92,7 +91,6 @@ class FeedForm extends AnewtForm {
         $ctl->set('secondary-label', '(assigned automatically, unless modified manually)');
         $ctl->set('size', 100);
         $ctl->set('value', $this->default_t_args);
-        $ctl->set('readonly', true);
         $this->add_control($ctl);
 
         $ctl = &new AnewtFormControlText('t_hostname');
