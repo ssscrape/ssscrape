@@ -333,7 +333,8 @@ class FeedForm extends AnewtForm {
         }
 
         # Add/update feed metadata
-        if ($new_feed) {
+        $row = array_values($db->prepare_execute_fetch("SELECT COUNT(*) FROM ssscrape.ssscrape_feed_metadata WHERE feed_id=?str?", $values['id']));
+        if ($row[0] == 0) {
             $sql = "INSERT INTO ssscrape.ssscrape_feed_metadata SET " . implode(", ", $feed_metadata_sql_values) . ", feed_id=?str?";
         } else {
             $sql = "UPDATE ssscrape.ssscrape_feed_metadata SET " . implode(", ", $feed_metadata_sql_values) . " WHERE feed_id=?str?";
