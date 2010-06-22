@@ -39,7 +39,7 @@ class LastFMGenreReader:
         try:
             artist = network.get_artist(artist)
             top_tags = artist.get_top_tags()
-            image_url = artist.get_cover_image(pylast.COVER_LARGE)
+            image_url = artist.get_cover_image(pylast.COVER_EXTRA_LARGE)
         except pylast.WSError, e:
             pass
         
