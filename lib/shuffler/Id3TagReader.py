@@ -6,6 +6,7 @@ import re
 import tempfile
 import httplib
 import urllib2
+import urllib
 import shutil
 
 import mutagen.mp3
@@ -51,7 +52,8 @@ class Id3MetadataReader:
         try:
             # quote non-ascii characters in URLs to percent encodings. See #119 in Trac.
             try:
-                url = ssscrapeapi.misc.quote_url(orig_url)
+                url = ssscrapeapi.misc.url_fix(ssscrapeapi.misc.quote_url(orig_url))
+                print >>sys.stderr, url
                 opener = urllib2.build_opener(feedworker.CommonPlugins.SmartRedirectHandler())
                 req = urllib2.Request(url)
                 r = opener.open(req) 
