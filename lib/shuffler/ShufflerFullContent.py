@@ -4,6 +4,7 @@ import sys
 import os
 import re
 import urllib
+import urlparse
 import cgi
 
 import ssscrapeapi
@@ -33,12 +34,23 @@ def scheduleTrack(track, job):
         job.save()
 
 class ShufflerPermalinkParser(feedworker.PermalinkScraper):
+  def get_base_url(self):
+      head = self.soup.find('head')
+      if not head:
+          return self.service_url
+      base = head.find('base')
+      if base and base.has_key('href'):
+          return base['href']
+      else:
+          return self.service_url
+  
   def find_mp3_players(self):
       mp3_players = {}
       links = self.soup.findAll('a', href=re.compile('\.mp3$'))
+      base_url = self.get_base_url()
       for link in links:
           anchor_text = ''.join(link.findAll(text=True))
-          link =  urllib.unquote_plus(link['href'])
+          link = urlparse.urljoin(base_url, urllib.unquote_plus(link['href']))
           mp3_players[link] = anchor_text
       return mp3_players
   
@@ -73,7 +85,8 @@ class ShufflerPermalinkParser(feedworker.PermalinkScraper):
           service_url = feed_link['link']
       else:
           service_url = self.feedUrl
-          
+      self.service_url = service_url
+      
       # find all links that end in .mp3
       players = self.find_mp3_players()
       players.update(self.find_tumblr_players())
