@@ -1,0 +1,51 @@
+#!/usr/bin/env python
+
+import sys, os
+import datetime
+import optparse
+
+
+# first determine the top level directory (Ie. /path/to/ssscrape)
+topdir = os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]), os.pardir, os.pardir))
+
+# then add the lib/ and lib/ext/ paths to sys.path
+sys.path.insert(0, os.path.join(topdir, 'lib'))
+sys.path.insert(0, os.path.join(topdir, 'lib', 'ext'))
+
+from twisted.internet import reactor
+from twisted.python import log
+
+import ssscrape
+import ssscrapeapi
+import ssscrapeapi.feeds
+
+# connect to the DB
+ssscrapeapi.database.connect()
+ssscrapeapi.database.connect('database')
+
+cursor = ssscrapeapi.database.execute('''SELECT id, location FROM shuffler_track WHERE sent IS NULL''')
+tracks = [{'id': track_id, 'location': track_location} for [track_id, track_location] in cursor.fetchall()]
+
+for track in tracks:
+    job = ssscrapeapi.Job()
+    job['type'] = ssscrapeapi.config.get_string('id3', 'default-type', 'id3')
+    job['program'] = ssscrapeapi.config.get_string('id3', 'default-program', 'MP3Fetcher.py')
+    job['args'] = "-t %s" % (track['id'])
+    # Set resource id based on the URL of the permalink    
+    resource = ssscrapeapi.Resource()
+    resource['name'] = ssscrapeapi.misc.url2resource(track['location'])
+    resource_id = resource.find()
+    if resource_id <= 0:
+        resource.save()
+    job['resource_id'] = resource['id']
+    # only schedule if not done before.
+    id = job.find()
+    if id <= 0:
+        print "Rescheduling track %d" % (track['id'])
+        job['scheduled'] = 'NOW()'
+        job.unescaped = ['scheduled']
+        job.save()
+
+# disconnect from DB
+ssscrapeapi.database.disconnect('database')
+ssscrapeapi.database.disconnect()
