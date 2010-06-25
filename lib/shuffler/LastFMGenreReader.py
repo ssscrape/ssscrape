@@ -49,9 +49,9 @@ class LastFMGenreReader:
             # pylast has this stupid thing where it returns different structure on python 2.5 v 2.6
             v = sys.version_info
             if v[1] >= 6 and v[0] < 3:
-                tag_list = [tag.item.name.lowercase for tag in top_tags if int(tag.weight) >= min_confidence]
+                tag_list = [tag.item.name.lower() for tag in top_tags if int(tag.weight) >= min_confidence]
             else:
-                tag_list = [tag['item'].name.lowercase for tag in top_tags if int(tag['weight']) >= min_confidence]
+                tag_list = [tag['item'].name.lower() for tag in top_tags if int(tag['weight']) >= min_confidence]
         # return the top tags
         if tag_list:
             tag_list = tag_list[:3]
