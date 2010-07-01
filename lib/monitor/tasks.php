@@ -9,7 +9,9 @@ class TasksTable extends Table {
         //$this->set_field_option('periodicity', 'time');
         $this->set_field_option('id', 'sql-name', 't.id');
         $this->set_field_option('type', 'sql-name', 't.type');
-        $this->set_default_ordering('latest_run', 'DESC'); 
+        $this->set_default_ordering('latest_run', 'DESC');
+        $this->set_field_option('program', 'search');
+        $this->set_field_option('args', 'search');
         $this->process_options($params);
     }
 

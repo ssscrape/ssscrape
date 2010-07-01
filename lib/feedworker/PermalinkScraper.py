@@ -177,6 +177,7 @@ class PermalinkScraper(feedworker.CommonPlugins.HTMLPlugin):
             self.soup_filter = self.parser.filter()
         except AttributeError, e:
             pass 
+        #print >>sys.stderr, pageText
         self.soup = BeautifulSoup(pageText, convertEntities=BeautifulSoup.HTML_ENTITIES, smartQuotesTo=None, parseOnlyThese=self.soup_filter)
         return self._scrape()
     # end def parse
