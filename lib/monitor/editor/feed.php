@@ -101,7 +101,7 @@ class FeedForm extends AnewtForm {
         $ctl = &new AnewtFormControlText('t_periodicity');
         $ctl->set('label', 'Periodicity:');
         $ctl->set('secondary-label', '(interval to run jobs for this task; e.g., 00:15:00 for "every 15 minutes")');
-        $ctl->set('value', '24:00:00');
+        $ctl->set('value', '00:23:59');
         $this->add_control($ctl);
 
         $ctl = &new AnewtFormControlChoice('t_autoperiodicity');
