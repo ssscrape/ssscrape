@@ -13,6 +13,7 @@ import re
 import tempfile
 import httplib
 import urllib2
+import urllib
 import shutil
 
 import ssscrapeapi
@@ -30,8 +31,10 @@ class AnchorMetadataReader:
         if hasSplitter:
             splitter = hasSplitter.group(1)
             [artist, title] = anchor_text.split(splitter, 1)
+            artist = urllib.unquote(artist)
             artist = re.sub(r'^["\'_]*', '', artist)
             artist = re.sub(r'["\'_]*$', '', artist)
+            title = urllib.unquote(title)
             title = re.sub(r'^["\'_]*', '', title)
             title = re.sub(r'["\'_]*$', '', title)
         else :
