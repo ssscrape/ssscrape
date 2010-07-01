@@ -40,7 +40,8 @@ class LastFMGenreReader:
             artist = network.get_artist(artist)
             top_tags = artist.get_top_tags()
             image_url = artist.get_cover_image(pylast.COVER_LARGE)  # http://userserve-ak.last.fm/serve/126/34800607.jpg
-            image_url = re.sub("/126/", "/174s/", image_url)        # http://userserve-ak.last.fm/serve/174s/34800607.jpg
+            if image_url:
+                image_url = re.sub("/126/", "/174s/", image_url)        # http://userserve-ak.last.fm/serve/174s/34800607.jpg
         except pylast.WSError, e:
             pass
         
