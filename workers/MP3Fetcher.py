@@ -11,6 +11,7 @@ import sys
 import os
 import re
 import getopt
+import urlparse
 
 help_message = '''
 Can have the following parameters:
@@ -95,7 +96,7 @@ def main(argv=None):
     else:
         manual_tags = None
     #print manual_tags
-    url = track['location']
+    url = urlparse.urljoin(track['site_url'], track['location'])
     id3Reader = shuffler.Id3MetadataReader()
     try:
         metadata = getMetadata(url, None, id3Reader)
