@@ -25,6 +25,8 @@ class TrackCountsTable extends Table {
     }
     
     function show() {
+        $this->disabled_tasks = $this->get_disabled_tasks();
+        
         $this->count_feeds();
 
         $q = "SELECT f.id, f.url AS feed, COUNT(s.feed_id) AS tracks, s.site_url AS blog FROM ssscrape_feed f LEFT JOIN (SELECT i.feed_id, s.site_url FROM ssscrape_feed_item i, shuffler_track s WHERE ?temp-constraint? AND s.feed_item_id = i.id) s ON f.id = s.feed_id ?where? GROUP BY f.id";
@@ -49,6 +51,10 @@ class TrackCountsTable extends Table {
         $img_src = "http://www.google.com/s2/favicons?domain=". urlencode(parse_url($row['blog'], PHP_URL_HOST));
         return ax_a_href_title(ax_img_src($img_src, array('class' => 'icon')), $row['blog'], 'Go to this blog');
       }
+    }
+    
+    function check_feed($feed, $row) {
+      return !array_key_exists("-u '". $feed ."'", $this->disabled_tasks);
     }
 }
 

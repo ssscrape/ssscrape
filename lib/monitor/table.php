@@ -357,6 +357,17 @@ class Table {
         return $q;
     }
 
+    function get_disabled_tasks() {
+      $q = "SELECT args FROM ssscrapecontrol.ssscrape_task WHERE state = 'disabled'";
+      $db = DB::get_instance();
+      $rows = $db->prepare_execute_fetch_all($q);
+      $disabled_tasks = array();
+      foreach($rows as $row) {
+        $disabled_tasks[$row['args']] = 1; // dumy value
+      }
+      return $disabled_tasks;
+    }
+
     function message($msg) {
         $this->m->append(ax_p($msg)); 
     }
