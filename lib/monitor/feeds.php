@@ -17,7 +17,20 @@ class FeedTable extends Table {
         $this->process_options($params);
     }
 
+    function get_disabled_tasks() {
+      $q = "SELECT args FROM ssscrapecontrol.ssscrape_task WHERE state = 'disabled'";
+      $db = DB::get_instance();
+      $rows = $db->prepare_execute_fetch_all($q);
+      $disabled_tasks = array();
+      foreach($rows as $row) {
+        $disabled_tasks[$row['args']] = 1; // dumy value
+      }
+      return $disabled_tasks;
+    }
+    
     function show() {
+        $this->disabled_tasks = $this->get_disabled_tasks();
+        
         $q = "SELECT f.id, f.url, f.title, '0' task, 'enabled' task_state, m.kind, m.tags, f.mod_date, 
                      '0' items, '0' errors, f.id 2_weeks
               FROM ssscrape.ssscrape_feed f 
@@ -78,6 +91,9 @@ class FeedTable extends Table {
 
 
     function check_task($task, $row) {
+        if (array_key_exists("-u '". $row['url'] ."'", $this->disabled_tasks)) {
+          return false;
+        }
         return ($row['task_state'] == 'enabled');
     }
 
