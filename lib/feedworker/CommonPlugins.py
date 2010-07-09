@@ -685,8 +685,10 @@ class FeedPlugin(UrlPlugin):
             feed = self.instantiate('feed')
             feed.load(self.metadata['feed_id'])
             if feed['url'] != self.metadata['url']:
-                feed['url'] = self.metadata['url']
-                feed.save()
+                feed2 = self.instantiate('feed', id=feed['id']);
+                feed2['url'] = self.metadata['url']
+                print >>sys.stderr, feed2
+                feed2.save()
 
         # now address the task
         if os.environ.has_key('SSSCRAPE_TASK_ID'):
