@@ -50,6 +50,7 @@ namespace :deploy do
   
   task :after_deploy do
     run "mkdir -p #{current_path}/log"
+    run "cd #{current_path}/web/monitor && ln -s /var/cache/munin/www munin"
     cleanup
   end
 
