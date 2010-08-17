@@ -34,7 +34,7 @@ def scheduleTrack(track, job):
         job.save()
 
 class ShufflerPermalinkParser(feedworker.PermalinkScraper):
-  def get_base_url(self):
+    def get_base_url(self):
       head = self.soup.find('head')
       if not head:
           return self.service_url
@@ -43,8 +43,8 @@ class ShufflerPermalinkParser(feedworker.PermalinkScraper):
           return base['href']
       else:
           return self.service_url
-  
-  def find_mp3_players(self):
+
+    def find_mp3_players(self):
       mp3_players = {}
       links = self.soup.findAll('a', href=re.compile('\.mp3$'))
       base_url = self.get_base_url()
@@ -53,10 +53,10 @@ class ShufflerPermalinkParser(feedworker.PermalinkScraper):
           link = urlparse.urljoin(base_url, urllib.unquote_plus(link['href']))
           mp3_players[link] = anchor_text
       return mp3_players
-  
-  def find_tumblr_players(self):
+
+    def find_tumblr_players(self):
       tumblr_players = {}
-      print "Finding tumblr players .."
+      print "Finding tumblr players ..."
       players = self.soup.findAll('span', {'id': re.compile('^audio_player_(\d+)$')})
       for player in players:
           audio_player_id = re.search('_(\d+)$', player['id']).group(1)
@@ -68,12 +68,26 @@ class ShufflerPermalinkParser(feedworker.PermalinkScraper):
               print audio_player_url
               tumblr_players[audio_player_url] = u''
       return tumblr_players
-  
-  def scrape(self, collection):      
+
+    def find_youtube_players(self):
+        youtube_players = {}
+        print "Finding youtube players ..."
+        # we have object and embeds
+        param_players = self.soup.findAll('param', {'name':'src', 'value' : re.compile('youtube\.com\/v')})
+        # print param_players
+        for player in param_players:
+            youtube_players[player['value']] = u''
+        players = self.soup.findAll('embed', src=re.compile('youtube\.com\/v'))
+        for player in players:
+            youtube_players[player['src']] = u''
+        # print players
+        return youtube_players
+
+    def scrape(self, collection):      
       # load info about feed item
       item = self.instantiate('feed_item')
       item.load(self.feed_item_id)
-      
+  
       # Find URL associated with this item
       url = self.feedUrl
 
@@ -86,10 +100,11 @@ class ShufflerPermalinkParser(feedworker.PermalinkScraper):
       else:
           service_url = self.feedUrl
       self.service_url = service_url
-      
+  
       # find all links that end in .mp3
       players = self.find_mp3_players()
       players.update(self.find_tumblr_players())
+      players.update(self.find_youtube_players())
       for link in players.keys():
           anchor_text = players[link]
           print link, self.feedUrl, service_url, str(item['pub_date'])
@@ -105,9 +120,9 @@ class ShufflerPermalinkParser(feedworker.PermalinkScraper):
           print >>sys.stderr, track
           track.save()  
           job = self.instantiate('job')
-          scheduleTrack(track, job)
+          #scheduleTrack(track, job)
           #sendScrapedLink(link, self.feedUrl, service_url, anchor_text, str(item['pub_date']), beanstalk)
-          
+      
       collection['items'] = []
 
 class ShufflerFullContentPlugin(feedworker.FullContent.FullContentPlugin):
