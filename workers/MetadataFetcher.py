@@ -53,6 +53,7 @@ def mergeUnique(l1, l2):
 
 def main(argv=None):
     url = None
+    verbose = False
     if argv is None:
         argv = sys.argv
     try:
@@ -96,36 +97,52 @@ def main(argv=None):
     else:
         manual_tags = None
     #print manual_tags
+    metadata = None
     url = urlparse.urljoin(track['site_url'], track['location'])
-    id3Reader = shuffler.Id3MetadataReader()
-    try:
-        metadata = getMetadata(url, None, id3Reader)
-        if metadata:
-            print >>sys.stderr, metadata
-            genreReader = shuffler.LastFMGenreReader()
-            (image_url, tags) = genreReader.fetch(metadata['artist'], metadata['title'])
-            #print >>sys.stderr, tags
-            track['artist'] = metadata['artist']
-            track['title'] = metadata['title']
-            track['method'] = metadata['method']
-            if not tags:
-                tags = []
-            print >>sys.stderr, "found tags : ", tags
-            print >>sys.stderr, "manual tags : ", manual_tags
-            if manual_tags:
-                tags = mergeUnique(tags, manual_tags)
-            if len(tags) > 0:
-                track['tags'] = ','.join(tags)
-            else:
-                del track['tags']
-            if image_url:
-                track['image'] = image_url
-            print >>sys.stderr, track
-            beanstalk = shuffler.utils.getBeanstalkInstance()
-            shuffler.utils.sendScrapedLink(track, beanstalk)
-            beanstalk.close()
-    except shuffler.Id3MetadataReaderHTTPError, e:
-        print >>sys.stderr, e.status
+    if verbose:
+        print >>sys.stderr, url
+    if re.search('\.mp3$', url):
+        print "MP3 track!"
+        id3Reader = shuffler.Id3MetadataReader()
+        try:
+            metadata = getMetadata(url, None, id3Reader)
+        except shuffler.Id3MetadataReaderHTTPError, e:
+            print >>sys.stderr, e.status
+            sys.exit(1)
+    elif re.search('youtube\.com\/v', url):
+        print "Youtube track!"
+        ytReader = shuffler.YoutubeMetadataReader()
+        video_id = ytReader.url2id(url)
+        metadata = ytReader.fetch(video_id)
+    else:
+        print "Unknown track!"
+    #sys.exit()
+    if metadata:
+        print >>sys.stderr, metadata
+        genreReader = shuffler.LastFMGenreReader()
+        (image_url, tags) = genreReader.fetch(metadata['artist'], metadata['title'])
+        #print >>sys.stderr, tags
+        track['artist'] = metadata['artist']
+        track['title'] = metadata['title']
+        track['method'] = metadata['method']
+        if not tags:
+            tags = []
+        print >>sys.stderr, "found tags : ", tags
+        print >>sys.stderr, "manual tags : ", manual_tags
+        if manual_tags:
+            tags = mergeUnique(tags, manual_tags)
+        if len(tags) > 0:
+            track['tags'] = ','.join(tags)
+        else:
+            del track['tags']
+        if image_url:
+            track['image'] = image_url
+        print >>sys.stderr, track
+        beanstalk = shuffler.utils.getBeanstalkInstance()
+        shuffler.utils.sendScrapedLink(track, beanstalk)
+        beanstalk.close()
+    else:
+        print "No metadata!"
     
 # fixup paths
 topdir = os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]), os.pardir, os.pardir))
