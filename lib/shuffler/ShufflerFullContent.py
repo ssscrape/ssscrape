@@ -18,7 +18,7 @@ import anyjson
 
 def scheduleTrack(track, job):
     job['type'] = ssscrapeapi.config.get_string('id3', 'default-type', 'id3')
-    job['program'] = ssscrapeapi.config.get_string('id3', 'default-program', 'MP3Fetcher.py')
+    job['program'] = ssscrapeapi.config.get_string('id3', 'default-program', 'MetadataFetcher.py')
     job['args'] = "-t %s" % (track['id'])
     # Set resource id based on the URL of the permalink    
     resource = ssscrapeapi.Resource()
