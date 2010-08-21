@@ -27,6 +27,8 @@ def scheduleTrack(track, job):
     if resource_id <= 0:
         resource.save()
     job['resource_id'] = resource['id']
+    print "Looking for scheduled job:"
+    print job
     id = job.find()
     if id <= 0:
         job['scheduled'] = 'NOW()'
@@ -120,7 +122,7 @@ class ShufflerPermalinkParser(feedworker.PermalinkScraper):
           print >>sys.stderr, track
           track.save()  
           job = self.instantiate('job')
-          #scheduleTrack(track, job)
+          scheduleTrack(track, job)
           #sendScrapedLink(link, self.feedUrl, service_url, anchor_text, str(item['pub_date']), beanstalk)
       
       collection['items'] = []

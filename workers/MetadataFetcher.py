@@ -102,7 +102,6 @@ def main(argv=None):
     if verbose:
         print >>sys.stderr, url
     if re.search('\.mp3$', url):
-        print "MP3 track!"
         id3Reader = shuffler.Id3MetadataReader()
         try:
             metadata = getMetadata(url, None, id3Reader)
@@ -110,13 +109,12 @@ def main(argv=None):
             print >>sys.stderr, e.status
             sys.exit(1)
     elif re.search('youtube\.com\/v', url):
-        print "Youtube track!"
         ytReader = shuffler.YoutubeMetadataReader()
         video_id = ytReader.url2id(url)
         metadata = ytReader.fetch(video_id)
     else:
         print "Unknown track!"
-    #sys.exit()
+        sys.exit(2)
     if metadata:
         print >>sys.stderr, metadata
         genreReader = shuffler.LastFMGenreReader()
