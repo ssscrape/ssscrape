@@ -72,7 +72,8 @@ class TracksTable extends Table {
   }
 
   function display_location($location, $row) {
-    return ax_a_href_title(ax_raw("&rarr;"), $location, 'Go to this sound location');
+    $img_src = "http://www.google.com/s2/favicons?domain=". urlencode(parse_url($location, PHP_URL_HOST));
+    return ax_a_href_title(ax_img_src($img_src, array('class' => 'icon')), $location, 'Go to this sound location');
   }
 
   function display_blog($blog, $row) {
