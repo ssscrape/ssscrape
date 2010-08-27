@@ -108,6 +108,11 @@ def main(argv=None):
         except shuffler.Id3MetadataReaderHTTPError, e:
             print >>sys.stderr, e.status
             sys.exit(1)
+    elif re.search('\/media\.soundcloud\.com\/', url):
+        anchorReader = shuffler.AnchorMetadataReader()
+        method = 'anchor'
+        metadata = anchorReader.fetch(track['anchor'])
+        metadata['method'] = method        
     elif re.search('youtube\.com\/v', url):
         ytReader = shuffler.YoutubeMetadataReader()
         video_id = ytReader.url2id(url)
