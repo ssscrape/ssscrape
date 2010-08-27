@@ -101,7 +101,7 @@ def main(argv=None):
     url = urlparse.urljoin(track['site_url'], track['location'])
     if verbose:
         print >>sys.stderr, url
-    if re.search('\.mp3$', url):
+    if (re.search('\.mp3$', url) or re.search('tumblr.com\/', url)):
         id3Reader = shuffler.Id3MetadataReader()
         try:
             metadata = getMetadata(url, None, id3Reader)
