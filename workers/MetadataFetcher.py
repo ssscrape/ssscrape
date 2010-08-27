@@ -129,6 +129,11 @@ def main(argv=None):
         print >>sys.stderr, "manual tags : ", manual_tags
         if manual_tags:
             tags = mergeUnique(tags, manual_tags)
+        
+        p = re.compile('remix', re.IGNORECASE)
+        if p.search(track['title']):
+            tags = ['remix']
+        
         if len(tags) > 0:
             track['tags'] = ','.join(tags)
         else:
