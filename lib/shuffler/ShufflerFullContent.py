@@ -6,6 +6,9 @@ import re
 import urllib
 import urlparse
 import cgi
+import httplib
+import urllib2
+from xml.dom import minidom
 
 import ssscrapeapi
 
@@ -85,6 +88,79 @@ class ShufflerPermalinkParser(feedworker.PermalinkScraper):
         # print players
         return youtube_players
 
+    def fetch_soundcloud_permalink(self, permalink):
+        consumer_key = ssscrapeapi.config.get_string('soundcloud', 'consumer-key', '')
+        resolve_url = 'http://api.soundcloud.com/resolve?' + urllib.urlencode({'url': permalink, 'consumer_key': consumer_key})
+        print resolve_url
+        contents = None
+        http_status = None
+        http_url = None
+        try:
+            url = ssscrapeapi.misc.quote_url(resolve_url)
+            opener = urllib2.build_opener(feedworker.CommonPlugins.SmartRedirectHandler())
+            req = urllib2.Request(url)
+            f = opener.open(req) 
+            # FIXME: doesn't this need a while loop? is read() guarantueed to read all data?
+            contents = f.read()
+            try:
+                http_status = f.status # HTTP status
+            except AttributeError:
+                http_status = f.code
+            http_url = f.geturl() # may be a redirect
+        except httplib.BadStatusLine, e:
+            return
+        return (contents, http_status, http_url)
+
+    def find_soundcloud_players(self):
+        soundcloud_players = {}
+        print "Finding soundcloud players ..."
+        # <object height="225" width="100%">
+        #  <param name="movie" value="http://player.soundcloud.com/player.swf?url=http%3A%2F%2Fsoundcloud.com%2Fnathantayloronline%2Fsets%2F5eya-as-its-loud-ep&show_comments=true&show_playcount=true&show_artwork=true&color=000000"></param>
+        #  <param name="allowscriptaccess" value="always"></param>
+        #  <embed allowscriptaccess="always" height="225" src="http://player.soundcloud.com/player.swf?url=http%3A%2F%2Fsoundcloud.com%2Fnathantayloronline%2Fsets%2F5eya-as-its-loud-ep&show_comments=true&show_playcount=true&show_artwork=true&color=000000" type="application/x-shockwave-flash" width="100%"></embed>
+        # </object>
+        # <span><a href="http://soundcloud.com/nathantayloronline/sets/5eya-as-its-loud-ep">5EYA - 'As Its Loud EP'</a> by <a href="http://soundcloud.com/nathantayloronline">nathantayloronline</a></span>
+        players = self.soup.findAll('embed', src=re.compile('player.soundcloud.com\/'))
+        for player in players:
+            player_url = urlparse.urlparse(player['src'])
+            if player_url:
+                player_permalink = cgi.parse_qs(player_url.query)['url'][0]
+                player_info = self.fetch_soundcloud_permalink(player_permalink)
+                player_dom = minidom.parseString(player_info[0])
+                if player_dom:
+                    if player_dom.documentElement.tagName == 'playlist':
+                        tracks = player_dom.getElementsByTagName('track')
+                        for track in tracks:
+                            track_url, track_title = self.parse_soundcloud_track(track)
+                            #print track_url, track_title
+                            if track_url:
+                                soundcloud_players[track_url] = track_title
+                    else:
+                        track_url, track_title = self.parse_soundcloud_track(player_dom.documentElement)
+                        if track_url:
+                            soundcloud_players[track_url] = track_title
+                #print player_dom.documentElement.tagName
+            #soundcloud_players[player['src']] = u'' 
+        return soundcloud_players
+    
+    def getText(self, nodelist):
+        rc = []
+        for node in nodelist:
+            if node.nodeType == node.TEXT_NODE:
+                rc.append(node.data)
+        return ''.join(rc)
+    
+    def parse_soundcloud_track(self, track):
+        streamUrl = None
+        streams = track.getElementsByTagName('stream-url')
+        for stream in streams:
+            streamUrl = self.getText(stream.childNodes)
+        title = None
+        titles = track.getElementsByTagName('title')
+        for track_title in titles:
+            title = self.getText(track_title.childNodes)
+        return (streamUrl, title)
+    
     def scrape(self, collection):      
       # load info about feed item
       item = self.instantiate('feed_item')
@@ -107,6 +183,7 @@ class ShufflerPermalinkParser(feedworker.PermalinkScraper):
       players = self.find_mp3_players()
       players.update(self.find_tumblr_players())
       players.update(self.find_youtube_players())
+      players.update(self.find_soundcloud_players())
       for link in players.keys():
           anchor_text = players[link]
           print link, self.feedUrl, service_url, str(item['pub_date'])

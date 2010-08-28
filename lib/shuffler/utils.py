@@ -32,11 +32,11 @@ class AnchorMetadataReader:
             splitter = hasSplitter.group(1)
             [artist, title] = anchor_text.split(splitter, 1)
             artist = urllib.unquote(artist)
-            artist = re.sub(r'^["\'_]*', '', artist)
-            artist = re.sub(r'["\'_]*$', '', artist)
+            artist = re.sub(r'^\s*["\'_]*', '', artist)
+            artist = re.sub(r'["\'_]*\s*$', '', artist)
             title = urllib.unquote(title)
-            title = re.sub(r'^["\'_]*', '', title)
-            title = re.sub(r'["\'_]*$', '', title)
+            title = re.sub(r'^\s*["\'_]*', '', title)
+            title = re.sub(r'["\'_]*\s*$', '', title)
         else :
             if title_only:
                 title = re.sub(r'["\'_]*', '', anchor_text)
