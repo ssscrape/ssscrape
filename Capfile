@@ -3,10 +3,7 @@ load 'deploy'
 
 # You need to fill in the 2 vars below
 set :application, "shuffler"
-set :domain, "shuffler.fm"
 set :repository,  "git@github.com:shuffler/ssscrape.git"
-
-server "#{application}", :app, :web, :db, :primary => true
 
 set :scm, :git
 set :branch, "master"
@@ -25,6 +22,17 @@ ssh_options[:forward_agent] = true
 
 default_run_options[:pty] = true
 set :use_sudo, false
+
+task :pro do
+  set :domain, "shuffler.fm"
+  server "shuffler", :app, :web, :db, :primary => true
+end
+
+task :pre do
+  set :domain, "pre.shuffler.fm"
+  server "pre.shuffler", :app, :web, :db, :primary => true
+end
+
 
 namespace :deploy do
 
