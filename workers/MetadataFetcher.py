@@ -111,7 +111,7 @@ def main(argv=None):
     elif re.search('\/media\.soundcloud\.com\/', url):
         anchorReader = shuffler.AnchorMetadataReader()
         method = 'anchor'
-        metadata = anchorReader.fetch(track['anchor'])
+        metadata = anchorReader.fetch(track['anchor'], True)
         metadata['method'] = method        
     elif re.search('youtube\.com\/v', url):
         ytReader = shuffler.YoutubeMetadataReader()
