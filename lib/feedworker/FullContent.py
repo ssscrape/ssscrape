@@ -232,7 +232,10 @@ class FullContentPlugin(feedworker.CommonPlugins.FeedPlugin):
         if entry.has_key('link'):
             linkInfo['relation'] = 'alternate' # alternate is the default for feeds
             linkInfo['type'] = 'text/html'
-            linkInfo['link'] = entry.link 
+            if ('feedburner' in feed.namespaces) and entry.has_key('feedburner_origlink'):
+                linkInfo['link'] = entry.feedburner_origlink
+            else:
+                linkInfo['link'] = entry.link
             if entry.has_key('title'):
                 linkInfo['title'] = entry.title
             else:
@@ -240,13 +243,16 @@ class FullContentPlugin(feedworker.CommonPlugins.FeedPlugin):
             # end if
             links[linkInfo['link'] + ':alternate'] = linkInfo
         # end if
+        feedburner_link = None
         if 'feedburner' in feed.namespaces:
             #    linkInfo['link'] = entry.feedburner_origlink # TODO: 
             if not entry.has_key('links'):
                 entry['links'] = []
             if entry.has_key('feedburner_origlink'):
+                feedburner_link = entry.feedburner_origlink
+                print entry.feedburner_origlink
                 entry['links'].append({
-                  'rel': 'feedburner_origlink',
+                  'rel': 'alternate',
                   'type': 'text/html',
                   'href': entry.feedburner_origlink,
                   'title': 'Feedburner original link'
@@ -257,6 +263,9 @@ class FullContentPlugin(feedworker.CommonPlugins.FeedPlugin):
                 if not link.has_key('href'):
                     continue
                 # end if
+                if re.search(r'feedproxy\.google\.com', link['href']) and (feedburner_link is not None):
+                    link['rel'] = 'alternate'
+                    link['href'] = feedburner_link
                 linkInfo = self.instantiate('feed_item_link')
                 for what in ['rel', 'type', 'href', 'title']:
                     try:
