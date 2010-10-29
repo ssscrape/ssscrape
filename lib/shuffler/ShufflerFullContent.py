@@ -153,8 +153,9 @@ class ShufflerPermalinkParser(feedworker.PermalinkScraper):
     def parse_soundcloud_track(self, track):
         streamUrl = None
         streams = track.getElementsByTagName('stream-url')
+        consumer_key = ssscrapeapi.config.get_string('soundcloud', 'consumer-key', '')
         for stream in streams:
-            streamUrl = self.getText(stream.childNodes)
+            streamUrl = self.getText(stream.childNodes) + '?' + urllib.urlencode({'consumer_key': consumer_key})
         title = None
         titles = track.getElementsByTagName('title')
         for track_title in titles:
