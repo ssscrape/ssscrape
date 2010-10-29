@@ -1,7 +1,6 @@
 #!/usr/bin/php -q
 <?php
 
-error_reporting(E_ALL | E_STRICT);
 require_once '../anewt.lib.php';
 anewt_include('mail');
 

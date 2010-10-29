@@ -1,6 +1,5 @@
 <?php
 
-error_reporting(E_ALL);
 require_once '../anewt.lib.php';
 
 function str_has_prefix2($str, $prefix) {

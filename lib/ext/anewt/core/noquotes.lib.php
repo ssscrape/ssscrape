@@ -33,7 +33,7 @@ function stripslashes_recursive($value) {
 }
 
 
-set_magic_quotes_runtime(0);
+// set_magic_quotes_runtime(0);
 
 if (get_magic_quotes_gpc()) {
 	$_GET = array_map('stripslashes_recursive', $_GET);       /**< Clean GET */

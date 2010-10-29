@@ -1,2 +1,5 @@
 *.pyc
 ./conf/local.conf
+ssscrape-daemon.pid
+ssscrape-scheduler.pid
+log

@@ -1,6 +1,5 @@
 <?php
 
-error_reporting(E_ALL | E_STRICT);
 require_once dirname(__FILE__) . '/../anewt.lib.php';
 
 define('ANEWT_TEXTILE_DEVELOPMENT', 1);

@@ -1,7 +1,6 @@
 #!/usr/bin/php
 <?php
 
-error_reporting(E_ALL);
 require_once dirname(__FILE__) . '/../anewt.lib.php';
 anewt_include('textformatting');
 

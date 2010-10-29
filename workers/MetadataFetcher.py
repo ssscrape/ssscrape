@@ -99,6 +99,7 @@ def main(argv=None):
     #print manual_tags
     metadata = None
     url = urlparse.urljoin(track['site_url'], track['location'])
+    print url
     if verbose:
         print >>sys.stderr, url
     if (re.search('\.mp3$', url) or re.search('tumblr.com\/', url)):
@@ -108,7 +109,7 @@ def main(argv=None):
         except shuffler.Id3MetadataReaderHTTPError, e:
             print >>sys.stderr, e.status
             sys.exit(1)
-    elif re.search('\/media\.soundcloud\.com\/', url):
+    elif re.search('\/api\.soundcloud\.com\/', url):
         anchorReader = shuffler.AnchorMetadataReader()
         method = 'anchor'
         metadata = anchorReader.fetch(track['anchor'], True)

@@ -1,0 +1,555 @@
+-- MySQL dump 10.13  Distrib 5.1.41, for debian-linux-gnu (x86_64)
+--
+-- Host: localhost    Database: ssscrape
+-- ------------------------------------------------------
+-- Server version	5.1.41-3ubuntu12.6
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Table structure for table `shuffler_track`
+--
+
+DROP TABLE IF EXISTS `shuffler_track`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `shuffler_track` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `feed_item_id` int(10) unsigned DEFAULT NULL,
+  `site_url` varchar(255) DEFAULT NULL,
+  `permalink` varchar(255) NOT NULL COMMENT 'permalink',
+  `location` varchar(255) NOT NULL COMMENT 'mp3/.. url',
+  `anchor` text,
+  `artist` varchar(255) DEFAULT NULL,
+  `title` varchar(255) DEFAULT NULL,
+  `tags` varchar(255) DEFAULT NULL,
+  `method` enum('id3','filename','anchor') DEFAULT NULL,
+  `posted` datetime DEFAULT NULL,
+  `sent` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `feed_item_id` (`feed_item_id`,`location`),
+  KEY `permalink` (`permalink`)
+) ENGINE=MyISAM AUTO_INCREMENT=268850 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `ssscrape_author`
+--
+
+DROP TABLE IF EXISTS `ssscrape_author`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `ssscrape_author` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `link` varchar(255) DEFAULT NULL,
+  `email` varchar(64) DEFAULT NULL,
+  `fullname` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `fullname` (`fullname`,`email`)
+) ENGINE=MyISAM AUTO_INCREMENT=3073 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `ssscrape_category`
+--
+
+DROP TABLE IF EXISTS `ssscrape_category`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `ssscrape_category` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `label` varchar(255) DEFAULT NULL,
+  `term` varchar(255) NOT NULL,
+  `scheme` varchar(255) DEFAULT NULL,
+  `type` enum('c','k') NOT NULL DEFAULT 'c' COMMENT 'c=category, k=keyword',
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=435225 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `ssscrape_enclosure`
+--
+
+DROP TABLE IF EXISTS `ssscrape_enclosure`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `ssscrape_enclosure` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `feed_item_id` int(10) unsigned NOT NULL,
+  `guid` varchar(255) DEFAULT NULL,
+  `link` varchar(255) NOT NULL,
+  `title` varchar(255) DEFAULT NULL,
+  `description` varchar(255) DEFAULT NULL,
+  `audio_channels` tinyint(3) unsigned DEFAULT NULL,
+  `height` smallint(5) unsigned DEFAULT NULL,
+  `width` smallint(5) unsigned DEFAULT NULL,
+  `filesize` int(10) unsigned DEFAULT NULL,
+  `duration` int(11) DEFAULT NULL,
+  `bit_rate` float DEFAULT NULL,
+  `sampling_rate` float DEFAULT NULL,
+  `frame_rate` float DEFAULT NULL,
+  `expression` varchar(255) DEFAULT NULL,
+  `mime` varchar(255) DEFAULT NULL,
+  `mime_real` varchar(255) DEFAULT NULL,
+  `language` varchar(255) DEFAULT NULL,
+  `copyright_url` varchar(255) DEFAULT NULL,
+  `copyright_attribution` text,
+  `medium` varchar(32) DEFAULT NULL,
+  `pub_date` datetime DEFAULT NULL,
+  `mod_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `guid` (`guid`)
+) ENGINE=MyISAM AUTO_INCREMENT=93032 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `ssscrape_enclosure2category`
+--
+
+DROP TABLE IF EXISTS `ssscrape_enclosure2category`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `ssscrape_enclosure2category` (
+  `enclosure_id` int(10) unsigned NOT NULL,
+  `category_id` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`enclosure_id`,`category_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `ssscrape_enclosure2rating`
+--
+
+DROP TABLE IF EXISTS `ssscrape_enclosure2rating`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `ssscrape_enclosure2rating` (
+  `enclosure_id` int(10) unsigned NOT NULL,
+  `rating_id` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`enclosure_id`,`rating_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `ssscrape_enclosure_caption`
+--
+
+DROP TABLE IF EXISTS `ssscrape_enclosure_caption`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `ssscrape_enclosure_caption` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `enclosure_id` int(10) unsigned NOT NULL,
+  `link` varchar(255) NOT NULL,
+  `format` enum('machine','native') NOT NULL,
+  `language` varchar(255) DEFAULT NULL,
+  `type` enum('plain','html') DEFAULT NULL,
+  `time_start` float NOT NULL,
+  `time_end` float NOT NULL,
+  `caption` text NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `ssscrape_enclosure_credits`
+--
+
+DROP TABLE IF EXISTS `ssscrape_enclosure_credits`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `ssscrape_enclosure_credits` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `enclosure_id` int(10) unsigned NOT NULL,
+  `link` varchar(255) DEFAULT NULL,
+  `role` varchar(255) DEFAULT NULL,
+  `scheme` varchar(255) DEFAULT NULL,
+  `credit` varchar(255) DEFAULT NULL COMMENT 'This is a defined list of accepted values',
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=1021 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `ssscrape_enclosure_restriction`
+--
+
+DROP TABLE IF EXISTS `ssscrape_enclosure_restriction`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `ssscrape_enclosure_restriction` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `enclosure_id` int(10) unsigned NOT NULL,
+  `link` varchar(255) DEFAULT NULL,
+  `type` enum('allow','deny') DEFAULT NULL,
+  `relationship` varchar(255) DEFAULT NULL,
+  `restriction` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `ssscrape_feed`
+--
+
+DROP TABLE IF EXISTS `ssscrape_feed`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `ssscrape_feed` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `url` varchar(255) NOT NULL COMMENT 'permalink',
+  `title` varchar(255) NOT NULL,
+  `description` text,
+  `language` varchar(255) DEFAULT NULL,
+  `copyright` varchar(255) DEFAULT NULL,
+  `type` varchar(255) DEFAULT NULL,
+  `class` enum('text','audio','video') NOT NULL DEFAULT 'text',
+  `favicon` varchar(255) DEFAULT NULL,
+  `encoding` varchar(255) DEFAULT NULL,
+  `lastmod` varchar(255) DEFAULT NULL,
+  `etag` varchar(255) DEFAULT NULL,
+  `pub_date` datetime DEFAULT NULL,
+  `mod_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `url` (`url`)
+) ENGINE=MyISAM AUTO_INCREMENT=4943 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `ssscrape_feed2author`
+--
+
+DROP TABLE IF EXISTS `ssscrape_feed2author`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `ssscrape_feed2author` (
+  `feed_id` int(10) unsigned NOT NULL,
+  `author_id` int(10) unsigned NOT NULL,
+  `type` enum('a','c') NOT NULL DEFAULT 'a' COMMENT 'type a=author, c=contributor',
+  PRIMARY KEY (`feed_id`,`author_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `ssscrape_feed2geo`
+--
+
+DROP TABLE IF EXISTS `ssscrape_feed2geo`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `ssscrape_feed2geo` (
+  `feed_id` int(10) unsigned NOT NULL,
+  `geo_id` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`feed_id`,`geo_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `ssscrape_feed_image`
+--
+
+DROP TABLE IF EXISTS `ssscrape_feed_image`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `ssscrape_feed_image` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `feed_id` int(10) unsigned NOT NULL,
+  `url` varchar(255) DEFAULT NULL,
+  `title` varchar(255) DEFAULT NULL,
+  `width` int(10) unsigned DEFAULT NULL,
+  `height` int(10) unsigned DEFAULT NULL,
+  `description` text,
+  `link` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `ssscrape_feed_item`
+--
+
+DROP TABLE IF EXISTS `ssscrape_feed_item`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `ssscrape_feed_item` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `feed_id` int(10) unsigned NOT NULL,
+  `guid` varchar(255) DEFAULT NULL COMMENT 'guid',
+  `title` varchar(255) DEFAULT NULL,
+  `summary` text,
+  `content` mediumtext COMMENT 'raw HTML of the permalink',
+  `content_clean_html` mediumtext COMMENT 'cleaned HTML of the permalink',
+  `content_clean` text COMMENT 'cleaned plain text of the permalink',
+  `comments_url` varchar(255) DEFAULT NULL,
+  `pub_date` datetime DEFAULT NULL,
+  `mod_date` datetime DEFAULT NULL,
+  `fetch_date` datetime DEFAULT NULL,
+  `copyright` varchar(255) DEFAULT NULL,
+  `language` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `feed_id` (`feed_id`,`guid`),
+  KEY `pub_date` (`pub_date`)
+) ENGINE=MyISAM AUTO_INCREMENT=431743 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `ssscrape_feed_item2author`
+--
+
+DROP TABLE IF EXISTS `ssscrape_feed_item2author`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `ssscrape_feed_item2author` (
+  `feed_item_id` int(10) unsigned NOT NULL,
+  `author_id` int(10) unsigned NOT NULL,
+  `type` enum('a','c') NOT NULL DEFAULT 'a' COMMENT 'a=author, c=contributor',
+  PRIMARY KEY (`feed_item_id`,`author_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `ssscrape_feed_item2category`
+--
+
+DROP TABLE IF EXISTS `ssscrape_feed_item2category`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `ssscrape_feed_item2category` (
+  `feed_item_id` int(10) unsigned NOT NULL,
+  `category_id` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`feed_item_id`,`category_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `ssscrape_feed_item2geo`
+--
+
+DROP TABLE IF EXISTS `ssscrape_feed_item2geo`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `ssscrape_feed_item2geo` (
+  `feed_item_id` int(10) unsigned NOT NULL,
+  `geo_id` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`feed_item_id`,`geo_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `ssscrape_feed_item_comment`
+--
+
+DROP TABLE IF EXISTS `ssscrape_feed_item_comment`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `ssscrape_feed_item_comment` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `feed_item_id` int(10) unsigned NOT NULL,
+  `guid` varchar(255) DEFAULT NULL,
+  `comment` text,
+  `author` varchar(255) DEFAULT NULL,
+  `author_id` int(10) unsigned DEFAULT NULL,
+  `pub_date` datetime DEFAULT NULL,
+  `mod_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `guid` (`guid`),
+  KEY `pub_date` (`pub_date`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `ssscrape_feed_item_event`
+--
+
+DROP TABLE IF EXISTS `ssscrape_feed_item_event`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `ssscrape_feed_item_event` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `feed_item_id` int(10) unsigned NOT NULL,
+  `DATETIME_start` datetime DEFAULT NULL,
+  `DATETIME_end` datetime DEFAULT NULL,
+  `title` varchar(255) DEFAULT NULL,
+  `description` text,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='this should be linked to geodata as well';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `ssscrape_feed_item_event2geo`
+--
+
+DROP TABLE IF EXISTS `ssscrape_feed_item_event2geo`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `ssscrape_feed_item_event2geo` (
+  `event_id` int(10) unsigned NOT NULL,
+  `geo_id` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`event_id`,`geo_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `ssscrape_feed_item_link`
+--
+
+DROP TABLE IF EXISTS `ssscrape_feed_item_link`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `ssscrape_feed_item_link` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `feed_item_id` int(10) unsigned NOT NULL,
+  `relation` varchar(100) DEFAULT NULL,
+  `link` varchar(255) DEFAULT NULL,
+  `type` varchar(255) DEFAULT NULL,
+  `title` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `feed_item_id` (`feed_item_id`,`relation`(25),`link`),
+  KEY `link` (`link`)
+) ENGINE=MyISAM AUTO_INCREMENT=657288 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `ssscrape_feed_item_option`
+--
+
+DROP TABLE IF EXISTS `ssscrape_feed_item_option`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `ssscrape_feed_item_option` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `feed_item_id` int(10) unsigned NOT NULL,
+  `option` varchar(255) NOT NULL,
+  `value` varchar(255) NOT NULL,
+  `mod_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `ssscrape_feed_link`
+--
+
+DROP TABLE IF EXISTS `ssscrape_feed_link`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `ssscrape_feed_link` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `feed_id` int(10) unsigned NOT NULL,
+  `relation` varchar(100) DEFAULT NULL,
+  `link` varchar(255) DEFAULT NULL,
+  `type` varchar(255) DEFAULT NULL,
+  `title` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `feed_id` (`feed_id`,`link`)
+) ENGINE=MyISAM AUTO_INCREMENT=10574 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `ssscrape_feed_metadata`
+--
+
+DROP TABLE IF EXISTS `ssscrape_feed_metadata`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `ssscrape_feed_metadata` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `feed_id` int(10) unsigned DEFAULT NULL,
+  `url` varchar(255) NOT NULL COMMENT 'feed url',
+  `class` enum('text','audio','video') NOT NULL DEFAULT 'text',
+  `language` varchar(255) DEFAULT NULL,
+  `kind` enum('full','partial') NOT NULL DEFAULT 'full',
+  `partial_args` varchar(255) DEFAULT NULL,
+  `tags` varchar(255) DEFAULT NULL,
+  `notes` text,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `url` (`url`),
+  KEY `feed_id` (`feed_id`)
+) ENGINE=MyISAM AUTO_INCREMENT=6458 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `ssscrape_geo`
+--
+
+DROP TABLE IF EXISTS `ssscrape_geo`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `ssscrape_geo` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `latitude` float DEFAULT NULL,
+  `longitude` float DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `description` text,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `latitude` (`latitude`,`longitude`)
+) ENGINE=MyISAM AUTO_INCREMENT=371 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `ssscrape_rating`
+--
+
+DROP TABLE IF EXISTS `ssscrape_rating`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `ssscrape_rating` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `scheme` varchar(255) DEFAULT NULL,
+  `value` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `scheme` (`scheme`(165),`value`(165))
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `ssscrape_thumbnail`
+--
+
+DROP TABLE IF EXISTS `ssscrape_thumbnail`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `ssscrape_thumbnail` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `enclosure_id` int(10) unsigned NOT NULL,
+  `link` varchar(255) DEFAULT NULL,
+  `url` varchar(255) DEFAULT NULL COMMENT 'url of the thumbnail image',
+  `height` int(10) unsigned DEFAULT NULL,
+  `width` int(10) unsigned DEFAULT NULL,
+  `time` float DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=133121 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `twones_enclosure`
+--
+
+DROP TABLE IF EXISTS `twones_enclosure`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `twones_enclosure` (
+  `enclosure_id` int(10) unsigned NOT NULL,
+  `sent` datetime DEFAULT NULL,
+  PRIMARY KEY (`enclosure_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2010-10-25 19:56:17
