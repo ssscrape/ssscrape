@@ -1,2 +1,0 @@
-from twones.TwonesFullContent import TwonesFullContentPlugin
-from twones.TwonesFullContent import TwonesPermalinkParser

@@ -1,7 +1,0 @@
-from shuffler.ShufflerFullContent import ShufflerFullContentPlugin
-from shuffler.ShufflerFullContent import ShufflerPermalinkParser
-from shuffler.Id3TagReader import Id3MetadataReader, Id3MetadataReaderHTTPError
-from shuffler.YoutubeReader import YoutubeMetadataReader
-from shuffler.LastFMGenreReader import LastFMGenreReader
-from shuffler.utils import AnchorMetadataReader, FilenameMetadataReader
-from shuffler.track import Track
