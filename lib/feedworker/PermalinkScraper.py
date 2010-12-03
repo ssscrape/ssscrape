@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-__doc__ = '''Usage: feedworker.py -i <itemid> -p <parser>'''
+__doc__ = '''Usage: feedworker.py -i <itemid> [-p <parser>]
+When the parser is not specified, the cleanup flag from the feed metadata determines which parser will be used, either the default parser, or the html cleaning parser.'''
 
 import os, sys
 import re
@@ -10,72 +11,7 @@ from BeautifulSoup import BeautifulSoup, Comment, Declaration, ProcessingInstruc
 
 import ssscrapeapi
 import feedworker
-
-BLOCK_LEVEL_TAGS = set(['address', 'blockquote', 'center', 'dir', 'div', 'dl', 
-                        'fieldset', 'form', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 
-                        'hr', 'isindex', 'menu', 'noframes', 'noscript', 'ol', 
-                        'p', 'pre', 'table', 'ul', 'dd', 'dt', 'frameset', 
-                        'li', 'tbody', 'td', 'tfoot', 'th', 'thead', 'tr',
-                        'br']) 
-
-
-class SampleParser:
-    def __init__(self, parent):
-        print >>sys.stderr, "Sample parser initialized."
-        self.parent = parent
-
-    def parse(self, soup, collection):
-        print "Sample parser called."
-        return []
-
-    def filter(self):
-        print "Sample filter called."
-        return None
-
-
-class DefaultHTMLParser:
-    def __init__(self, parent):
-        self.parent = parent
-
-    def parse(self, soup, collection):
-        if len(collection['items']) == 0: 
-            return []
-
-        item = collection['items'][0]
-        item['content'] = str(soup)
-        if not item['content']:
-            item['content'] = None
-
-        # Remove scripts, styles, iframes, comments
-        for node in soup.findAll(['script', 'style', 'iframe']) + \
-                    soup.findAll(text=lambda text:isinstance(text, (Comment, Declaration, ProcessingInstruction))):
-            node.extract()
-
-        # Keep only page title and body, extract only raw text
-        text = ''
-        newline = True
-        for node in soup.findAll(['title', 'body']):
-            for e in node.recursiveChildGenerator():
-                if isinstance(e,unicode):
-                    text += re.sub(r"\s+", " ", e)
-                elif isinstance(e, Tag) and e.name.lower() in BLOCK_LEVEL_TAGS:
-                    text += "\n"
-
-        # Avoid three or more empty lines in a row
-        text = re.sub(r"\n\s*\n\s*\n", "\n", text)
-
-        # Save text
-        item['content_clean'] = text
-        if not item['content_clean']:
-            item['content_clean'] = None
-
-        return collection['items']
-
-
-
-
-    def filter(self):
-        return None
+import feedworker.html_parsing
 
 
 class PermalinkScraper(feedworker.CommonPlugins.HTMLPlugin):
@@ -83,10 +19,33 @@ class PermalinkScraper(feedworker.CommonPlugins.HTMLPlugin):
     A HTML permalink scraper for Ssscrape.
     '''
 
+    def load_metadata(self): 
+        feed_item = self.instantiate('feed_item')
+        feed_item.load(self.feed_item_id)
+
+        # get ssscrape_feed_metadata for this feed_item_id
+        feed_id = feed_item['feed_id'] 
+        metadata = self.instantiate('feed_metadata', feed_id=feed_id)
+        metadata_id = metadata.find()
+        assert metadata_id >= 0
+        metadata.load(metadata_id)
+
+        self.metadata = metadata
+
     def load_permalink_parser(self):
+        self.load_metadata()
+        #if hasattr(self, "feed_item_id"):
+        #    self.load_metadata()
 
         if not self.permalink_parser:
-            self.parser = DefaultHTMLParser(self)
+            # No parser specified. 
+            # The cleanup flag in the feed metadata determines which parser to use. 
+            cleanup = self.metadata['cleanup']
+            if cleanup == 'disabled':
+                self.parser = feedworker.html_parsing.DefaultHTMLParser(self)
+            else:   # 'enabled'
+                self.parser = feedworker.html_parsing.HTMLCleaner(self)
+
             return
 
         parser_parts = self.permalink_parser.split('.')
@@ -126,7 +85,7 @@ class PermalinkScraper(feedworker.CommonPlugins.HTMLPlugin):
                     link.load(link['id'])
                     feedFile = link['link']
                 else:
-                    cursor = ssscrapeapi.database.execute('''SELECT guid FROM `ssscrape_feed_item` WHERE id = %s''', (self.feed_item_id))
+                    cursor = ssscrapeapi.database.execute('''SELECT guid FROM `ssscrape_feed_item` WHERE id = %s''', (self.feed_item_id,))
                     row = cursor.fetchone()
                     if row and re.match('http:\/\/', row[0]):
                         feedFile = row[0] 
@@ -147,7 +106,7 @@ class PermalinkScraper(feedworker.CommonPlugins.HTMLPlugin):
             item = self.instantiate('feed_item')
             item.load(self.feed_item_id)
             assert item.has_key('content'), "Item %d not found or has empty content" % (self.feed_item_id,)
-            self.fetched_content = item['content']
+            self.fetched_content = str(item['content'])
 
 
            
@@ -177,7 +136,7 @@ class PermalinkScraper(feedworker.CommonPlugins.HTMLPlugin):
             self.soup_filter = self.parser.filter()
         except AttributeError, e:
             pass 
-        #print >>sys.stderr, pageText
+        self.raw_html = pageText
         self.soup = BeautifulSoup(pageText, convertEntities=BeautifulSoup.HTML_ENTITIES, smartQuotesTo=None, parseOnlyThese=self.soup_filter)
         return self._scrape()
     # end def parse
@@ -186,6 +145,8 @@ class PermalinkScraper(feedworker.CommonPlugins.HTMLPlugin):
         if self.parser:
             try:
                 items = self.parser.parse(self.soup, collection)
+                for item in items:
+                    item['content'] = self.raw_html
             except UnicodeDecodeError, e:
                 raise FeedWorkerException(2, FeedWorkerException.KEYWORDS.UNICODE, "%s" % (e))
         else:

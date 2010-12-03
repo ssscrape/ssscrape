@@ -8,9 +8,11 @@ class FeedItemTable extends Table {
         $this->set_field_option('id', 'sql-name', 'i.id');
         $this->set_field_option('feed', 'sql-name', 'i.feed_id');
         $this->set_field_option('pub_date', 'datetime-key');
-        $this->set_field_option('title', 'expand', 50);
-        $this->set_field_option('summary', 'expand', 90);
-        $this->set_field_option('content', 'expand', 90);
+        $this->set_field_option('title', 'expand', 100);
+        $this->set_field_option('summary', 'expand', 200);
+        $this->set_field_option('content', 'expand', 500);
+        $this->set_field_option('content', 'dynamic', TRUE);
+        $this->limit = 10;
         $this->process_options($params);
         $this->max_limit = 200;
     }
@@ -43,6 +45,11 @@ class FeedItemTable extends Table {
         if ($row['link_src']) {
             $link = ax_fragment($link, ax_raw(' '), ax_a_href_title(ax_raw("&rArr;"), $row['link_src'], "source link"));
         }
+        $link = ax_fragment($link,
+                            ax_a_href_title(ax_raw("<br/>t&rarr;"), "get_feed_item.php?id=".$row['id']."&what=content_clean", "extracted text content"),
+                            ax_a_href_title(ax_raw("<br/>c&rarr;"), "get_feed_item.php?id=".$row['id']."&what=content_clean_html&raw", "cleaned HTML"),
+                            ax_a_href_title(ax_raw("<br/>o&rarr;"), "get_feed_item.php?id=".$row['id']."&what=content", "original HTML")
+        );                    
         return $link;
     }
 
@@ -51,6 +58,10 @@ class FeedItemTable extends Table {
             return true;
         }
         return false;
+    }
+
+    function display_content($content, $row) {
+        return ax_span($content, array('onmouseover'=>'load_content(this, "get_feed_item.php", "id='.$row['id'].'&what=content_clean_html&ifempty=content"); this.onmouseover=null'));
     }
 
     function display_jobs($jobs, $row) {

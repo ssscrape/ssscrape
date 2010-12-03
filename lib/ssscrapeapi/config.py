@@ -1,5 +1,5 @@
 
-import sys, os, os.path
+import sys, os.path
 import ConfigParser
 
 #
@@ -8,7 +8,7 @@ import ConfigParser
 
 BASE_DIR = os.path.normpath(os.path.join(os.path.dirname(__file__), os.path.pardir, os.pardir))
 CONF_DIR = os.path.join(BASE_DIR, 'conf')
-ENV_VAR = 'RAILS_ENV'
+
 
 #
 # Create and populate the ConfigParser instance
@@ -18,8 +18,7 @@ try:
     _cp
 except NameError:
     _cp = ConfigParser.ConfigParser()
-    env_conf = os.getenv(ENV_VAR, 'development') + '.conf'
-    config_files = ['default.conf', env_conf, 'local.conf']
+    config_files = ['default.conf', 'local.conf']
     _cp.read([os.path.join(CONF_DIR, filename) for filename in config_files])
     del filename
     del config_files

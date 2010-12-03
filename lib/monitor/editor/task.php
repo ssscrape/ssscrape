@@ -56,7 +56,7 @@ class TaskForm extends AnewtForm {
         $ctl = &new AnewtFormControlText('periodicity');
         $ctl->set('label', 'Periodicity:');
         $ctl->set('secondary-label', '(interval to run jobs for this task; e.g., 00:15:00 for "every 15 minutes")');
-        $ctl->set('value', '23:59:00');
+        $ctl->set('value', '00:15:00');
         $this->add_control($ctl);
 
         $ctl = &new AnewtFormControlChoice('autoperiodicity');

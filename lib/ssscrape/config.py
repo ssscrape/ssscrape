@@ -1,5 +1,5 @@
 
-import sys, os, os.path
+import sys, os.path
 import ConfigParser
 
 import ssscrape
@@ -12,7 +12,7 @@ import ssscrape
 BASE_DIR = os.path.normpath(os.path.join(os.path.dirname(__file__), os.path.pardir, os.pardir))
 CONF_DIR = os.path.join(BASE_DIR, 'conf')
 LOG_DIR = os.path.join(BASE_DIR, 'log')
-ENV_VAR = 'RAILS_ENV'
+
 
 #
 # Create and populate the ConfigParser instance
@@ -22,8 +22,7 @@ try:
     _cp
 except NameError:
     _cp = ConfigParser.ConfigParser()
-    env_conf = os.getenv(ENV_VAR, 'development') + '.conf'
-    config_files = ['default.conf', env_conf, 'local.conf']
+    config_files = ['default.conf', 'local.conf']
     _cp.read([os.path.join(CONF_DIR, filename) for filename in config_files])
     del filename
     del config_files
@@ -130,7 +129,7 @@ def get_time(section, option, default=None):
 
 def worker_get_string(job_type, option, default=None):
     try:
-        out = get_string(_section_for_job_type(job_type), option, default)
+        out = get_string(_section_for_job_type(job_type), option)
     except (ConfigParser.NoSectionError, ConfigParser.NoOptionError), e:
         out = get_string(WORKER_DEFAULTS_SECTION, option, default)
 
@@ -139,7 +138,7 @@ def worker_get_string(job_type, option, default=None):
 
 def worker_get_int(job_type, option, default=None):
     try:
-        out = get_int(_section_for_job_type(job_type), option, default)
+        out = get_int(_section_for_job_type(job_type), option)
     except (ConfigParser.NoSectionError, ConfigParser.NoOptionError), e:
         out = get_int(WORKER_DEFAULTS_SECTION, option, default)
 
@@ -148,7 +147,7 @@ def worker_get_int(job_type, option, default=None):
 
 def worker_get_bool(job_type, option, default=None):
     try:
-        out = get_bool(_section_for_job_type(job_type), option, default)
+        out = get_bool(_section_for_job_type(job_type), option)
     except (ConfigParser.NoSectionError, ConfigParser.NoOptionError), e:
         out = get_bool(WORKER_DEFAULTS_SECTION, option, default)
 
@@ -157,7 +156,7 @@ def worker_get_bool(job_type, option, default=None):
 
 def worker_get_time(job_type, option, default=None):
     try:
-        out = get_time(_section_for_job_type(job_type), option, default)
+        out = get_time(_section_for_job_type(job_type), option)
     except (ConfigParser.NoSectionError, ConfigParser.NoOptionError), e:
         out = get_time(WORKER_DEFAULTS_SECTION, option, default)
 

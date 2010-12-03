@@ -1,4 +1,4 @@
-_doc__ = '''Main collection worker module'''
+'''Main collection worker module'''
 
 import feedworker.CommonPlugins
 import feedworker.FullContent

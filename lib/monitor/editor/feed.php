@@ -35,15 +35,17 @@ class FeedForm extends AnewtForm {
         $ctl->set('label', 'Kind:');
         $ctl->add_option_value_label('full', 'full');
         $ctl->add_option_value_label('partial', 'partial (permalinks will be fetched for items)');
-        $ctl->set('value', 'partial');
+        $ctl->set('value', 'full');
         $this->add_control($ctl);
 
         $ctl = &new AnewtFormControlText('m_partial_args');
         $ctl->set('label', 'Permalink fetching args:');
+        $ctl->set('size', 50);
         $this->add_control($ctl);
 
         $ctl = &new AnewtFormControlText('m_tags');
         $ctl->set('label', 'Tags:');
+        $ctl->set('size', 50);
         $this->add_control($ctl);
 
         $ctl = &new AnewtFormControlText('m_language');
@@ -56,7 +58,7 @@ class FeedForm extends AnewtForm {
         $ctl->add_option_value_label('text', 'text');
         $ctl->add_option_value_label('audio', 'audio');
         $ctl->add_option_value_label('video', 'video');
-        $ctl->set('value', 'audio');
+        $ctl->set('value', 'text');
         $this->add_control($ctl);
 
         
@@ -101,7 +103,7 @@ class FeedForm extends AnewtForm {
         $ctl = &new AnewtFormControlText('t_periodicity');
         $ctl->set('label', 'Periodicity:');
         $ctl->set('secondary-label', '(interval to run jobs for this task; e.g., 00:15:00 for "every 15 minutes")');
-        $ctl->set('value', '00:23:59');
+        $ctl->set('value', '00:15:00');
         $this->add_control($ctl);
 
         $ctl = &new AnewtFormControlChoice('t_autoperiodicity');
@@ -143,6 +145,50 @@ class FeedForm extends AnewtForm {
         $ctl->set('size', 100);
         $this->add_control($ctl);
 
+        // cleanup parameters
+        $fieldset_cleanup = new AnewtFormFieldset('feed-auto');
+        $fieldset_cleanup->set('label', 'HTML model-based cleaning parameters');
+
+        $ctl = &new AnewtFormControlChoice('m_cleanup');
+        $ctl->set('label', 'Apply cleaning:');
+        $ctl->add_option_value_label('enabled', 'enabled');
+        $ctl->add_option_value_label('disabled', 'disabled');
+        $ctl->set('enabled', false);
+        $fieldset_cleanup->add_control($ctl);
+
+        $ctl = &new AnewtFormControlText('m_cleanup_threshold');
+        $ctl->set('label', 'Threshold:');
+        $ctl->set('secondary-label', '(number between 0.0 and 1.0; higher value = more conservative cleanup)');
+        $ctl->set('value', '0.1');
+        $fieldset_cleanup->add_control($ctl);
+
+        $ctl = &new AnewtFormControlText('m_cleanup_train_size');
+        $ctl->set('label', 'Training size:');
+        $ctl->set('secondary-label', '(number of HTMLs used for model training)');
+        $ctl->set('value', '20');
+        $fieldset_cleanup->add_control($ctl);
+
+        $ctl = &new AnewtFormControlText('m_cleanup_max_duplicates');
+        $ctl->set('label', 'Max # of duplicates:');
+        $ctl->set('secondary-label', '(max number of identical HTMLs that can be present in HTMLs for model training)');
+        $ctl->set('value', '2');
+        $fieldset_cleanup->add_control($ctl);
+
+        $ctl = &new AnewtFormControlText('ct_id');
+        $ctl->set('label', 'Model updating task id:');
+        $ctl->set('secondary-label', '(assigned automatically)');
+        $ctl->set('readonly', true);
+        $fieldset_cleanup->add_control($ctl);
+
+        $ctl = &new AnewtFormControlText('ct_periodicity');
+        $ctl->set('label', 'Model updating periodicity:');
+        $ctl->set('secondary-label', '(e.g., 04:00:00 for "once every four hours")');
+        $ctl->set('value', '23:59:59');
+        $fieldset_cleanup->add_control($ctl);
+
+        $this->add_fieldset($fieldset_cleanup);
+
+
         $fieldset = new AnewtFormFieldset('feed-auto');
         $fieldset->set('label', 'Extracted from the feed automatically');
 
@@ -179,7 +225,7 @@ class FeedForm extends AnewtForm {
         $ctl->set('readonly', true);
         $fieldset->add_control($ctl);
 
-        $ctl = &new AnewtFormControlText('favicon');
+        $ctl = &new AnewtFormControlText('flavicon');
         $ctl->set('label', 'Flavicon:');
         $ctl->set('readonly', true);
         $fieldset->add_control($ctl);
@@ -201,15 +247,6 @@ class FeedForm extends AnewtForm {
 
         $this->add_fieldset($fieldset);
 
-        $fieldset = new AnewtFormFieldset('feed-notes');
-        $fieldset->set('label', 'Notes');
-
-        $ctl = &new AnewtFormControlTextMultiline('m_notes');
-        $ctl->set('label', 'Notes:');
-        $fieldset->add_control($ctl);
-
-        $this->add_fieldset($fieldset);
-        
         $ctl = &new AnewtFormControlButtonSubmit('submit');
         $ctl->set('label', 'Save feed');
         $this->add_control($ctl);
@@ -233,7 +270,7 @@ class FeedForm extends AnewtForm {
                 }
             }
 
-            $q = "SELECT * FROM ssscrapecontrol.ssscrape_task WHERE LOCATE(?str?, args)";
+            $q = "SELECT * FROM ssscrapecontrol.ssscrape_task WHERE LOCATE(?str?, args) AND type in ('fetch', 'peilendfetch')";
             $task_data = $db->prepare_execute_fetch($q, "'" . $data['url'] . "'");
             if ($task_data) {  
                 $task_data['periodicity'] = AnewtDateTime::time($task_data['periodicity']);
@@ -243,6 +280,20 @@ class FeedForm extends AnewtForm {
                 }
             }
 
+            $q = "SELECT * FROM ssscrapecontrol.ssscrape_task WHERE LOCATE(?str?, args) AND type='modelupdate'";
+            $task_data = $db->prepare_execute_fetch($q, "'" . $data['url'] . "'");
+            if ($task_data) {  
+                if ($task_data['periodicity']) {
+                    $task_data['periodicity'] = AnewtDateTime::time($task_data['periodicity']);
+                } else {
+                    # In case periodicity cannot be read from the DB 
+                    $task_data['periodicity'] = "24:00:00";
+                }
+                $task_data['latest_run'] = AnewtDateTime::sql($task_data['latest_run']);
+                foreach ($task_data as $name => $value) {
+                    $data['ct_' . $name] = $value;
+                }
+            }
             $this->fill($data);
             return true;
         }
@@ -299,7 +350,7 @@ class FeedForm extends AnewtForm {
             $resource_id = $row ? array_pop($row) : '';
             if ($resource_id == '') {
                 # Create new resource
-                $sql = "INSERT INTO ssscrapecontrol.ssscrape_resource SET name=?str?, latest_run=0";
+                $sql = "INSERT INTO ssscrapecontrol.ssscrape_resource SET name=?str?, latest_run=NULL";
                 $db->prepare_execute($sql, $hostname);
                 $row = $db->prepare_execute_fetch("SELECT LAST_INSERT_ID()");
                 $resource_id = array_pop($row);
@@ -333,8 +384,7 @@ class FeedForm extends AnewtForm {
         }
 
         # Add/update feed metadata
-        $row = array_values($db->prepare_execute_fetch("SELECT COUNT(*) FROM ssscrape.ssscrape_feed_metadata WHERE feed_id=?str?", $values['id']));
-        if ($row[0] == 0) {
+        if ($new_feed) {
             $sql = "INSERT INTO ssscrape.ssscrape_feed_metadata SET " . implode(", ", $feed_metadata_sql_values) . ", feed_id=?str?";
         } else {
             $sql = "UPDATE ssscrape.ssscrape_feed_metadata SET " . implode(", ", $feed_metadata_sql_values) . " WHERE feed_id=?str?";
@@ -351,13 +401,43 @@ class FeedForm extends AnewtForm {
         } else {
             $sql = "UPDATE ssscrapecontrol.ssscrape_task SET " . implode(", ", $task_sql_values) . " WHERE id=?str?";
             $db->prepare_execute($sql, $values['t_id']);
-            $msg .= $sql . "[" . $values['t_id'] . "]";
+            $msg .= $sql . "[" . $values['t_id'] . "]; ";
+        }
+
+        if ($values['m_cleanup'] == 'enabled')  # Add/update model update task
+        {
+            # Don't allow periodicity >24 hours
+            if (intval($values['ct_periodicity']) > 23) {
+                $values['ct_periodicity'] = "23:59:59";
+            }
+            if ($values['ct_id'] == '') {        # create new model update task with default parameters
+                $args = "-u '" . $values['url'] . "'";
+                $sql = "INSERT INTO ssscrapecontrol.ssscrape_task SET type='modelupdate', " .
+                                                                    " program='update_cleanup_model.py', " .
+                                                                    " args=?str?, " .
+                                                                    " periodicity=?str?";
+                $db->prepare_execute($sql, $args, $values['ct_periodicity']);
+                $msg .= $sql . "[" . $args . "," . $values['ct_periodicity'] . "]; ";
+            } else {    # ensure existing task is enabled
+                $sql = "UPDATE ssscrapecontrol.ssscrape_task SET state='enabled', periodicity=?str? WHERE id=?str?";
+                $db->prepare_execute($sql, $values['ct_periodicity'], $values['ct_id']);
+                $msg .= $sql . "[" . $values['ct_periodicity'] . "," . $values['ct_id'] . "]; ";
+            }
+        }
+        else    # cleanup disabled: disable task, if it exists
+        {
+            if ($values['ct_id'] == '') {    # task does not exist, so nothing to do
+                ;
+            } else {    # ensure existing task is disabled
+                $sql = "UPDATE ssscrapecontrol.ssscrape_task SET state='disabled' WHERE id=?str?";
+                $db->prepare_execute($sql, $values['ct_id']);
+                $msg .= $sql . "[" . $values['ct_id'] . "]; ";
+            }
         }
 
         return $msg;
     }
-                                                                                            
-                                                                                                
+
 }
 
 ?>

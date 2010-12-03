@@ -5,13 +5,11 @@ class TasksTable extends Table {
     function TasksTable($m, $params, $unused) {
         parent::Table($m, $params);
         $this->set_fields(array('id', 'type', 'program', 'args', 'state', 'hostname', 'periodicity', 'latest_run', 'jobs', 'resource'));
-        //$this->set_field_option('latest_run', 'datetime-key');
-        //$this->set_field_option('periodicity', 'time');
+        $this->set_field_option('latest_run', 'datetime');
         $this->set_field_option('id', 'sql-name', 't.id');
         $this->set_field_option('type', 'sql-name', 't.type');
-        $this->set_default_ordering('latest_run', 'DESC');
-        $this->set_field_option('program', 'search');
-        $this->set_field_option('args', 'search');
+        $this->set_field_option('resource', 'sql-name', 'resource_id');
+        $this->set_default_ordering('latest_run', 'DESC'); 
         $this->process_options($params);
     }
 

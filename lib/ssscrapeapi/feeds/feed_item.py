@@ -20,6 +20,7 @@ class FeedItem(ssscrapeapi.TableObject):
             'title',
             'summary',
             'content',
+            'content_clean_html',
             'content_clean',
             'comments_url',
             'pub_date',

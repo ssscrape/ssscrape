@@ -76,7 +76,7 @@ def execute(query, values = None, config_section='database-workers'):
         #t2 = time.time()
         #print "Time taken for query: %s\n-- %s seconds" % (query, str(t2 - t))
     except Exception, e:
-        print e
+        print query, e
         raise e    
     return _cursors[config_section]
 
@@ -143,7 +143,7 @@ def update_row_data(table, identifier, valid_fields, unescaped_fields = [], conf
     values = []
     for column, value in row_data.items():
         # hack to have this method work with unescaped values
-        if column in unescaped_fields: 
+        if column in unescaped_fields and value is not None: 
             update_parts.append('`%s` = %s' % (column, value))
             # no placeholder, so nothing added to values
         else:

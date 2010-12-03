@@ -20,7 +20,11 @@ class FeedMetadata(ssscrapeapi.TableObject):
             'kind',
             'partial_args',
             'tags',
-            'notes'
+            'cleanup',
+            'cleanup_train_size',
+            'cleanup_max_duplicates',
+            'cleanup_threshold',
+            'cleanup_model'
         ]
         self.unescaped = [
         ]     

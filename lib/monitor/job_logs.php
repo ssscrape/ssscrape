@@ -11,16 +11,13 @@ class JobLogsTable extends JobsTable {
         $this->set_field_option('message', 'expand', 40);
         $this->set_field_option('resource', 'sql-name', 'resource_id');
         $this->set_field_option('task', 'sql-name', 'task_id');
-        $this->set_field_option('output', 'search');
-        $this->set_field_option('args', 'search');
-        $this->set_field_option('program', 'search');
-        $this->set_field_option('message', 'search');        
         $this->set_default_ordering('start', 'DESC');
         $this->process_options($params);
     }
 
     function show() {
-        $this->count_job_types('ssscrapecontrol.ssscrape_job_log');
+        $this->count_jobs_by('ssscrapecontrol.ssscrape_job_log', 'type', TRUE);
+        $this->count_jobs_by('ssscrapecontrol.ssscrape_job_log', 'state', FALSE);
 
         $q = 'SELECT `id`, `task_id` `task`, `type`, `program`, `args`, `state`, `hostname`, `message`, `output`, 
                      `exit_code` `exit`, `start`, TIMEDIFF(`end`,`start`) as duration, `resource_id` `resource`

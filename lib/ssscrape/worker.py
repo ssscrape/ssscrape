@@ -1,5 +1,4 @@
 
-import os
 import os.path
 
 from twisted.internet import error
@@ -66,11 +65,7 @@ class Worker(ProcessProtocol):
             }
             if self.job.task_id is not None:
                 process_environ['SSSCRAPE_TASK_ID'] = str(self.job.task_id)
-            # FIXME: copy rails environment
-            if os.getenv('RAILS_ENV'):
-                process_environ['RAILS_ENV'] = os.getenv('RAILS_ENV')
-            else:
-                process_environ['RAILS_ENV'] = 'development'
+
             try:
                 process = reactor.spawnProcess(self, self.spawn_params[0],
                     self.spawn_params, process_environ)
@@ -221,7 +216,9 @@ class Worker(ProcessProtocol):
         else:
             exit_code_to_store = exit_code
 
-        if ssscrape.config.worker_get_bool(self.job.type, 'auto-reschedule-after-temporary-error', False) and (new_state == ssscrape.Job.STATES.TEMPORARY_ERROR) and (self.job.attempts == (ssscrape.config.worker_get_int(self.job.type, 'auto-reschedule-max-attempts', 1) + 1)):
+        if ssscrape.config.worker_get_bool(self.job.type, 'auto-reschedule-after-temporary-error', False) \
+                and (new_state == ssscrape.Job.STATES.TEMPORARY_ERROR) \
+                and (self.job.attempts >= (ssscrape.config.worker_get_int(self.job.type, 'auto-reschedule-max-attempts', 1) + 1)):
             new_state = ssscrape.Job.STATES.PERMANENT_ERROR
             log.msg('%s has reached maximum number of attempts, resulting in a permanent error.' % (self.job))
 
