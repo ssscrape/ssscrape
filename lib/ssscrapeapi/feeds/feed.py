@@ -26,7 +26,9 @@ class Feed(ssscrapeapi.TableObject):
 	    'lastmod',
 	    'etag',
 	    'pub_date',
-	    'mod_date'
+	    'mod_date',
+        'hub',
+        'subscription_state'
         ]
 	self.unescaped = [
 	    'pub_date',

@@ -26,7 +26,7 @@ class TableObject(UserDict):
 
         # now set default values for given properties
         for kw in kwargs:
-	    self[kw] = kwargs[kw]
+	        self[kw] = kwargs[kw]
 
     def load(self, id):
         '''
@@ -68,28 +68,35 @@ class TableObject(UserDict):
 
     def find(self):
         '''
-	Finds the id of an object in the table with the specified key/value pairs of the object.
-	'''
-
+	    Finds the id of an object in the table with the specified key/value pairs of the object.
+	    '''
         # try to find the id
         id = ssscrapeapi.database.find_row_data(self.table, self.fields, self.unescaped, self.config_section, **self.data)
 
-	# if a valid id was found, update the property
-	if id > 0:
-	    self['id'] = id
-
-	return id
+        # if a valid id was found, update the property
+        if id > 0:
+            self['id'] = id
+        
+        return id
 
     def retrieve(self, *args, **kwargs):
         '''
-	Finds the id of an object in the table using the specified kkey/value pairs given as arguments, and sets the ID of the object, if found.
-	'''
+	    Finds the id of an object in the table using the specified kkey/value pairs given as arguments, and sets the ID of the object, if found.
+	    '''
 
-	# try to find the id
+	    # try to find the id
         id = ssscrapeapi.database.find_row_data(self.table, self.fields, self.unescaped, self.config_section, **kwargs)
 
-	# if a valid id was found, update the property
-	if id > 0:
-	    self['id'] = id
+        # if a valid id was found, update the property
+        if id > 0:
+            self['id'] = id
 
-	return id
+        return id
+
+
+    def destroy(self):
+        if self['id']:
+            cursor = ssscrapeapi.database.execute('DELETE FROM %s WHERE id = %%s' % (self.table), (self['id']), self.config_section)
+            return cursor.rowcount
+        else:
+            return False

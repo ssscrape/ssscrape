@@ -8,7 +8,7 @@ import ConfigParser
 
 BASE_DIR = os.path.normpath(os.path.join(os.path.dirname(__file__), os.path.pardir, os.pardir))
 CONF_DIR = os.path.join(BASE_DIR, 'conf')
-ENV_VAR = 'RAILS_ENV'
+ENV_VAR = 'SSSCRAPE_ENV'
 
 #
 # Create and populate the ConfigParser instance
@@ -23,7 +23,6 @@ except NameError:
     _cp.read([os.path.join(CONF_DIR, filename) for filename in config_files])
     del filename
     del config_files
-
 
 #
 # Helper methods
