@@ -72,7 +72,8 @@ if __name__ == '__main__':
     print >>sys.stderr, cmd.encode('utf-8', 'replace')
 
     # execute it
-    os.system(cmd.encode('utf-8', 'replace'))
+    ret = os.system(cmd.encode('utf-8', 'replace'))
+    print >>sys.stderr, "Command exit code: ", ret
 
     # clean up
     try:

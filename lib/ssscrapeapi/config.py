@@ -1,5 +1,5 @@
 
-import sys, os, os.path
+import sys, os.path
 import ConfigParser
 
 #
@@ -18,8 +18,7 @@ try:
     _cp
 except NameError:
     _cp = ConfigParser.ConfigParser()
-    env_conf = os.getenv(ENV_VAR, 'development') + '.conf'
-    config_files = ['default.conf', env_conf, 'local.conf']
+    config_files = ['default.conf', 'local.conf']
     _cp.read([os.path.join(CONF_DIR, filename) for filename in config_files])
     del filename
     del config_files

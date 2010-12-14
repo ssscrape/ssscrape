@@ -4,30 +4,31 @@ class FeedTable extends Table {
 
     function FeedTable($m, $params, $unused) {
         parent::Table($m, $params);
-        $this->set_fields(array('id', 'url', 'title', 'task', 'kind', 'tags', 'mod_date', 'items', 'tracks', 'errors', '2_weeks'));
+        $this->set_fields(array('id', 'url', 'title', 'task', 'periodicity', 'kind', 'tags', 'mod_date', 'items', 'errors', '2_weeks'));
         $this->set_field_option('id', 'sql-name', 'f.id');
         $this->set_field_option('url', 'sql-name', 'f.url');
         $this->set_field_option('items', 'num');
         $this->set_field_option('errors', 'num');
         $this->set_field_option('title', 'truncate', 30);
-        
-        $this->set_field_option('url', 'search');
-        $this->set_field_option('title', 'search');
-        
         $this->process_options($params);
     }
-    
+
     function show() {
-        $this->disabled_tasks = $this->get_disabled_tasks();
-        
-        $q = "SELECT f.id, f.url, f.title, '0' task, 'enabled' task_state, m.kind, m.tags, f.mod_date, 
-                     '0' items, '0' errors, f.id 2_weeks
+        $q = "SELECT f.id, f.url, f.title, t.id task, t.periodicity periodicity, t.state task_state, m.kind, m.tags, f.mod_date, 
+                     count(i.feed_id) items, count(i.feed_id)-count(i.content_clean) errors, f.id 2_weeks
               FROM ssscrape.ssscrape_feed f 
                    LEFT JOIN ssscrape_feed_metadata m ON f.id=m.feed_id 
-              ?where?";
+                   LEFT JOIN (SELECT feed_id, content_clean 
+                              FROM ssscrape_feed_item 
+                              WHERE ?temp-constraint?) i 
+                        ON f.id=i.feed_id 
+                   LEFT JOIN ssscrapecontrol.ssscrape_task t ON LOCATE(f.url, t.args)
+              ?where?
+              GROUP BY f.id";
+
         $this->m->append(ax_p(ax_a_href("Create new feed", "editor/?show=feeds&id=NEW")));
 
-        $this->run_query($q);
+        $this->run_query($q, 'pub_date');
     }
     function display_id($id, $row) {
         return ax_a_href_title($id, Request::url(false) . "editor/?show=feeds&id=$id", "Edit feed $id");
@@ -39,9 +40,11 @@ class FeedTable extends Table {
     }
 
     function display_items($items, $row) {
-        $items = ax_a_href_title(ax_raw('&rarr;'), 
-                                 $this->make_url(0, array('show'=>'items', 'feed'=>$row['id'])),
-                                 "Show items for feed " . $row['id']);
+        if ($items) {
+            $items = ax_a_href_title($items, 
+                                     $this->make_url(0, array('show'=>'items', 'feed'=>$row['id'])),
+                                     "Show items for feed " . $row['id']);
+        }
         return $items;
     }
 
@@ -50,10 +53,9 @@ class FeedTable extends Table {
             # don't check anything unless the feed fetching task is enabled
             return true;
         }
-        /*
         if ($items == 0) {
             return false;
-        } */
+        } 
         return true;
     }
 
@@ -80,28 +82,19 @@ class FeedTable extends Table {
 
 
     function check_task($task, $row) {
-        if (array_key_exists("-u '". $row['url'] ."'", $this->disabled_tasks)) {
-          return false;
-        }
         return ($row['task_state'] == 'enabled');
     }
 
-    function display_task($task, $row) {
-      return ax_a_href_title(ax_raw('&rarr;'), $this->make_url(0, array('show' => 'tasks', 'args' => 'LIKE:%'. $row['url'] .'%')), 'Go to this site');            
+    function display_periodicity($value, $row) {
+        return AnewtDateTime::time($value);
     }
-    
+
+
     function display_2_weeks($feed_id, $row) {
-            $plot_file = "plots/feed_statistics/$feed_id.png"; 
-            if (file_exists($plot_file)) {
-                $descr = "Feed $feed_id: items per day in the previous 2 weeks";
-                return ax_img_src_alt_title($plot_file, $descr, $descr); 
-            } else {
-                return "";
-            }
-    }
-    
-    function display_tracks($tracks, $row) {
-      return ax_a_href_title(ax_raw('&rarr;'), $this->make_url(0, array('show' => 'tracks', 'feed' => $row['id'])), 'Go to this site');      
+        #$plot_file = "plots/feed_statistics/$feed_id.png"; 
+        $plot_file = "get_plot.php?feed=$feed_id";
+        $descr = "Feed $feed_id: items per day in the previous 2 weeks";
+        return ax_img_src_alt_title($plot_file, "?", $descr, array('height'=>16, 'width'=>76)); 
     }
 }
 

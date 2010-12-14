@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # check for command line parameters 
-if [ $# = 0 ];
+if [ $# == 0 ];
 then
   echo "usage: $0 <path> daemon|scheduler"
   exit 0

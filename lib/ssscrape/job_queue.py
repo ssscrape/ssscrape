@@ -104,14 +104,17 @@ def _find_job_by_type(transaction, job_type):
     @return A C{Job} instance or None
     '''
 
-    log.msg('Trying to find job with type %s' % job_type)
+    #log.msg('Trying to find job with type %s' % job_type)
 
     # Get the hostname of the machine we're on
     hostname = gethostname()
-    log.msg('Hostname : ' + hostname)
 
     # Gain exclusive access by locking the table 
     transaction.execute('LOCK TABLES `ssscrape_job` WRITE, `ssscrape_resource` WRITE, `ssscrape_task` WRITE;')
+
+    # Find which resources are currently busy
+    transaction.execute('DROP TEMPORARY TABLE IF EXISTS tmp_busy_resource')
+    transaction.execute("CREATE TEMPORARY TABLE tmp_busy_resource SELECT DISTINCT `resource_id` FROM `ssscrape_job` WHERE `state`='running'")
 
     # Select the next job to execute, if any
     transaction.execute('''
@@ -147,9 +150,13 @@ def _find_job_by_type(transaction, job_type):
                     NOT FIND_IN_SET(%s, SUBSTRING_INDEX(`hostname`, ':', -1))
                 )
             ) AND (
+                `resource_id` IS NULL
+                OR
+                `resource_id` NOT IN (SELECT `resource_id` FROM tmp_busy_resource)
+            ) AND (
                 (`ssscrape_resource`.`latest_run` IS NULL)
                 OR
-                (IFNULL((`ssscrape_resource`.`latest_run` + INTERVAL TIME_TO_SEC(`ssscrape_resource`.`interval`) SECOND), NOW()) <= NOW())
+                ((`ssscrape_resource`.`latest_run` + INTERVAL TIME_TO_SEC(`ssscrape_resource`.`interval`) SECOND) <= NOW())
                 OR
                 `resource_id` IS NULL
             )
@@ -159,8 +166,7 @@ def _find_job_by_type(transaction, job_type):
             1''',
         (ssscrape.Job.STATES.PENDING, job_type, hostname, hostname, hostname))
     row = transaction.fetchone()
-    log.msg('Executed SQL statement ...' + str(row))
-    
+
     # Throw away any (obviously non-existing) remaining rows, thereby
     # exhausting the result set. This might fix mysql out of sync errors
     # caused by Cursor.__del__ somewhere deeply hidden inside MySQLdb code.
@@ -205,8 +211,7 @@ def _find_job_by_type(transaction, job_type):
 
     # Release the table lock
     transaction.execute('UNLOCK TABLES;')
-    log.msg('Unlocked tables ...')
-    
+
     # There was no row matching our criteria.
     if job is None:
         raise ssscrape.error.NoJobFoundError('No job of type %s found' % job_type)

@@ -2,7 +2,7 @@
 
 __doc__ = '''Full content parser for the collection worker for scrape.'''
 
-import os, sys, re
+import os, sys
 
 import ssscrapeapi
 import feedworker
@@ -232,40 +232,20 @@ class FullContentPlugin(feedworker.CommonPlugins.FeedPlugin):
         if entry.has_key('link'):
             linkInfo['relation'] = 'alternate' # alternate is the default for feeds
             linkInfo['type'] = 'text/html'
-            if ('feedburner' in feed.namespaces) and entry.has_key('feedburner_origlink'):
-                linkInfo['link'] = entry.feedburner_origlink
-            else:
-                linkInfo['link'] = entry.link
+            linkInfo['link'] = entry.link 
             if entry.has_key('title'):
                 linkInfo['title'] = entry.title
             else:
                 linkInfo['title'] = ''
             # end if
-            links[linkInfo['link'] + ':alternate'] = linkInfo
+            links[entry.link + ':alternate'] = linkInfo
         # end if
-        feedburner_link = None
-        if 'feedburner' in feed.namespaces:
-            #    linkInfo['link'] = entry.feedburner_origlink # TODO: 
-            if not entry.has_key('links'):
-                entry['links'] = []
-            if entry.has_key('feedburner_origlink'):
-                feedburner_link = entry.feedburner_origlink
-                print entry.feedburner_origlink
-                entry['links'].append({
-                  'rel': 'alternate',
-                  'type': 'text/html',
-                  'href': entry.feedburner_origlink,
-                  'title': 'Feedburner original link'
-                })
         # if it has additional links, then add them
         if entry.has_key('links'):
             for link in entry.links:
                 if not link.has_key('href'):
                     continue
                 # end if
-                if re.search(r'feedproxy\.google\.com', link['href']) and (feedburner_link is not None):
-                    link['rel'] = 'alternate'
-                    link['href'] = feedburner_link
                 linkInfo = self.instantiate('feed_item_link')
                 for what in ['rel', 'type', 'href', 'title']:
                     try:
@@ -581,11 +561,15 @@ class FullContentPlugin(feedworker.CommonPlugins.FeedPlugin):
             item['content'] = entry.content.value
         except AttributeError:
             item['content'] = None 
+        """
+        # 07-May-2010: for model-based html cleaning we only want html in the 'content' field. 
+        # entry.description could be plain text
         if not item['content']:
             try:
                 item['content'] = entry.description
             except AttributeError:
                 pass
+        """
         # Avoid saving empty content
         if not item['content']:
             item['content'] = None
@@ -604,14 +588,6 @@ class FullContentPlugin(feedworker.CommonPlugins.FeedPlugin):
             item['enclosures'] = entry.enclosures
         except AttributeError:
             item['enclosures'] = []
-        # fix for stupid feedburner shit
-        if entry.has_key('feedburner_origenclosurelink'):
-            for enclosure in item['enclosures']:
-                #print enclosure['href']
-                if re.search(r'feedproxy\.google\.com', enclosure['href']):
-                    #print "-->", entry['feedburner_origenclosurelink']
-                    enclosure['href'] = entry['feedburner_origenclosurelink']
-        
         # end try
         # language (tricky, rss feeds don't have a way to specify language in *items*)
         # Also, not sure if this is the correct place to do it
@@ -939,11 +915,8 @@ class FullContentPlugin(feedworker.CommonPlugins.FeedPlugin):
         This routine stores a single item into the database.'''
 
         #print >>sys.stderr, "Storing item %s ..." % (item['guid'])
-        
-        # cheap way to determine if we have a new item
-        old_items_new = self.items_new
-        
-        #print >>sys.stderr, "* Storing item info ..."        
+
+        #print >>sys.stderr, "* Storing item info ..."
         self.save_item_info(collection, item)
         #print >>sys.stderr, "* Storing item author ..."
         self.save_item_author(collection, item)
@@ -956,17 +929,10 @@ class FullContentPlugin(feedworker.CommonPlugins.FeedPlugin):
         #print >>sys.stderr, "* Storing item enclosure info ..."
         self._saveItemEnclosures(collection, item)
 
-        # check if the item is new or not
-        is_new = (self.items_new > old_items_new)
-        
-        # check if we need to refetch updated items or not
-        must_refetch = ssscrapeapi.config.get_bool('feeds', 'default-partial-update-refetch', False)
-        
         # check if we have a partial content feed
         if self.metadata:
             try:
-                if (is_new or must_refetch) and (self.metadata['kind'] == 'partial'):
-                    #print >>sys.stderr, "Item new or should refetch always, scheduling..."
+                if self.metadata['kind'] == 'partial':
                     self._schedule_permalink(collection, item)
             except KeyError:
                 pass # not a full content feed anyway

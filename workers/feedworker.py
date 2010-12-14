@@ -4,6 +4,7 @@ import sys
 import os
 import re
 import getopt
+import traceback
 
 def main(argv=None):
     feedFile = None
@@ -17,6 +18,12 @@ def main(argv=None):
         print >>sys.stderr, err.msg
         print >>sys.stderr, "for help use --help"
         return 2 
+    except Exception, e:
+        # print exception traceback...
+        print e
+        traceback.print_exc()
+        return 2
+        
     # end try
 # end def main
 

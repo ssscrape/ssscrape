@@ -11,9 +11,12 @@ textarea {
 }
 
 #footer {
+    position: relative;
+    clear: both;
     background-color: #3263A1;
     padding: 0px 2px;
     color: white;
+    top: 10px;
 }
 
 a {
@@ -119,6 +122,9 @@ a:hover {
 }
 
 table.results  {
+    position: relative:
+    float: left;
+    clear: both;
     border-spacing: 1px 1px;
 }
 
@@ -132,6 +138,12 @@ table.results th.ordered {
 
 table.results td, th {
     padding: 2px 3px;
+    text-align: top;
+    vertical-align: top;
+}
+
+table.results tr:hover td {
+    background-color: #B3C7E1;
 }
 
 table.results td.error {
@@ -155,39 +167,60 @@ tr.first-row-in-group td {
 
 a.expand {
     color: black;
-}
-
-a.expand span {
-    display: none;
-}
-
-a.expand:hover {
-    background-color: #7E9CC4;
-}
-a.expand:hover span {
+    position: relative; 
     display: block;
-    position: fixed; 
-    bottom: 10px; 
-    left: 10px; 
+    max-height: 300px;
+    width: auto;
+    text-decoration: none;
+}
+a.expand:hover {
+    border: none;
+    text-decoration: none;
+}
+
+a.expand span.expanded {
+    display: none;
+    position: absolute; 
+    top: -1px; 
+    left: -1px; 
+    z-index: 100;
+}
+
+a.expand:hover span.expanded {
+    display: block;
     width: auto; 
+    min-width: 100%;
     max-width: 750px;
     max-height: 650px;
-    border: solid 3px #7E9CC4;
+    border: solid 1px #3263A1;
     padding: 2px 2px;
-    background: #F0F0F0;
+    background: #FFF0F0;
     overflow: auto;
 }
 
 td img {
-    margin: -3px 0px;
+    /*margin: -3px 0px;*/
+    border: 0;
+}
+
+td a img {
+    margin: -1px 0px;
+    border: 0;
+}
+
+form {
+    padding-top: 10px;
 }
 
 div.form-control {
     color: gray;
+    position: relative;
+    float: left;
+    clear: both;
 }
 div.form-control input {
     margin-left: 5px;
-    margin-top: 2px;
+    margin-top: 0px;
     color: black;
 }
 div.form-control input.button-submit {
@@ -199,40 +232,22 @@ label.form-control {
     float: left;
     text-align: right;
     width: 150px;
-    padding-top: 1.5ex;
+    padding-top: 3px;
     color: black;
     font-weight: bold;
 }
 
 label.choice {
-    padding-top: 1.5ex;
     color: black;
 }
 
 label.choice input {
-    margin-top: 7px;
+    margin-top: 2px;
 }
 
 fieldset {
+    position: relative;
+    float: left;
+    clear: both;
     margin-top: 10px;
-}
-
-form#search div.form-control {
-  float: left;
-}
-
-form#search #submit {
-  margin: 2px 0 0 5px;
-  height: 23px;
-}
-form#interval {
-  clear: both;
-}
-
-#condition {
-  clear: both;
-}
-
-.icon {
-  border: 0;
 }

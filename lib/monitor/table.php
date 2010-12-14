@@ -4,7 +4,7 @@ anewt_include('form');
 
 class FormChoiceAutoSubmit extends AnewtFormControlChoice {
     function FormChoiceAutoSubmit($name) {
-        parent::__construct($name);
+        parent::AnewtFormControlChoice($name);
     }
 
     function build_widget() {
@@ -24,7 +24,7 @@ class Table {
     private $field_opts;
     private $order_by = null;
     private $order_dir = null;
-    private $limit = 100;
+    public $limit = 100;
     public $max_limit = 500;
     private $offset;
     public $interval;
@@ -32,8 +32,7 @@ class Table {
     private $stat;
     private $query_restriction;
     private $last_displayed_tags = "";
-    private $show_search = false;
-    
+
     function Table($monitor) {
         $this->m = $monitor;
 
@@ -56,7 +55,6 @@ class Table {
             $this->time_field = $field;
             $this->field_opts[$field]['datetime'] = 1;
         }
-        $this->show_search = $this->show_search || ($option == 'search');
     }
 
     function set_default_ordering($field, $order) {
@@ -75,7 +73,7 @@ class Table {
 
         $this->order_dir = array_get_default($params, 'orderdir', $this->order_dir);
         if (!in_array($this->order_dir, array('ASC', 'DESC'))) {
-            if (isset($this->field_opts[$this->order_by]['datetime']) || $this->order_by == 'tags') { 
+            if (isset($this->field_opts[$this->order_by]['datetime']) || $this->order_by == 'id') { 
                 $this->order_dir = 'DESC';
             } else {
                 $this->order_dir = 'ASC';
@@ -95,12 +93,6 @@ class Table {
 
         $this->interval = array_get_default($params, 'interval', $this->m->interval);
         unset($this->params['interval']);
-        
-        if (isset($params['q']) && isset($params['qf'])) {
-          // FIXME: do more smart stuff here
-          $qf = $params['qf'];
-          $this->params[$qf] = 'LIKE:%'. $params['q'] .'%';
-        }
     }
 
     function make_url($keep_current_params, $params_add=null, $params_del=null) {
@@ -124,7 +116,7 @@ class Table {
             } else {
                 $c = &ax_th(ax_a_href_title($field, $this->make_url(1, array('order'=>$field), array('orderdir', 'offset')), "order by $field"));
             }
-            if (isset($this->field_opts[$field]['num']) || method_exists($this, "inc_".$field)) {
+            if (isset($this->field_opts[$field]['num'])) {
                 $this->stat[$field]['sum'] = 0;
             }
             $r->append_child($c);
@@ -169,20 +161,20 @@ class Table {
             $value = AnewtDateTime::time($value);
         }
         if (isset($this->field_opts[$field]['num'])) {
-            $classes['number'] = 1;
             $this->stat[$field]['sum'] += intval($value);
-        } else if (method_exists($this, "inc_".$field)) {
-            $incr_value = call_user_func(array($this, "inc_".$field), $value, &$row);
-            $this->stat[$field]['sum'] += intval($incr_value);
+        }
+        if (preg_match('/^[\d\+\-\.eE]+$/', $value) || isset($this->field_opts[$field]['flushright'])) {
+            $classes['number'] = 1;
         }
         $display_value = $value;
         if (method_exists($this, "display_".$field)) {
             $display_value = call_user_func(array($this, "display_".$field), $value, &$row);
         }
         $expand = array_get_default($this->field_opts[$field], 'expand', "0"); 
-        if ($expand > 0 && is_string($value) && strlen($value) > 0) {
+        $dynamic = array_get_default($this->field_opts[$field], 'dynamic', FALSE); 
+        if ($dynamic || ($expand > 0 && is_string($value) && strlen($value) > 0 && strlen($value) > $expand)) {
             $display_value = ax_a(array(str_truncate($value, $expand, "...", true),
-                                        ax_span($display_value)),
+                                        ax_span($display_value, array('class'=>'expanded'))),
                                   array('class'=>'expand'));
         }
         $c = &ax_td($display_value);
@@ -197,10 +189,7 @@ class Table {
         foreach($this->fields as $field) {
             $display_value = "";
             $attrs = array();
-            if (method_exists($this, "sum_".$field)) {
-                $display_value = call_user_func(array($this, "sum_".$field));
-                $attrs['class'] = 'number';
-            } else if (isset($this->field_opts[$field]['num']) || method_exists($this, "inc_".$field)) {
+            if (isset($this->field_opts[$field]['num'])) {
                 $display_value = array(ax_raw("&sum;="), $this->stat[$field]['sum']);
                 $attrs['class'] = 'number';
             }
@@ -240,7 +229,7 @@ class Table {
         $form->setup('interval', ANEWT_FORM_METHOD_GET, $this->make_url(0));
        
         foreach ($this->params as $name => $val) {
-            if (($name != 'interval') && ($name != 'submit')) {
+            if ($name != 'interval') {
                 $c = &new AnewtFormControlHidden($name);
                 $c->set('value', $val);
                 $form->add_control($c);
@@ -264,52 +253,6 @@ class Table {
         return $fr;
     }
 
-    function make_search() {
-      $search_fields = array();
-      foreach($this->fields as $field) {
-        $search = array_get_default($this->field_opts[$field], 'search', false);
-        if ($search) {
-          $search_fields[$field] = ucfirst($field);
-        }
-      }
-      $search_keys = array_keys($search_fields);
-      
-      $form = new AnewtForm();
-      $form->setup('search', ANEWT_FORM_METHOD_GET, $this->make_url(0));
-      foreach ($this->params as $name => $val) {
-          if (($name != 'q') && ($name != 'qf') && ($name != 'submit') && ($name != 'offset') && ($name != $this->params['qf'])) {
-              $c = &new AnewtFormControlHidden($name);
-              $c->set('value', $val);
-              $form->add_control($c);
-          }
-      }
-      if (count($search_keys) <= 1) {
-        $c = &new AnewtFormControlHidden('qf');
-        $c->set('value', $search_keys[0]);
-        $form->add_control($c);
-      } else {
-        $c = &new AnewtFormControlChoice('qf');
-        $c->set('threshold', 1);
-        foreach($search_keys as $field) {
-          $c->add_option_value_label($field, $search_fields[$field]);
-        }
-        $c->set('label', 'Search :');
-        $c->set('value', array_get_default($this->params, 'qf', $search_keys[0]));   
-        $form->add_control($c);
-      }
-      $c = &new AnewtFormControlText('q');
-      if (count($search_keys) <= 1) {
-        $c->set('label', 'Search :');
-      } 
-      $c->set('value', array_get_default($this->params, 'q', ''));
-      $form->add_control($c);
-      $c = &new AnewtFormControlButtonSubmit('submit');
-      $form->add_control($c);
-      $fr = &new AnewtFormRendererDefault();
-      $fr->set_form($form);
-      return $fr;
-    }
-    
     function prepare_query($q, $field_name = null) {
         $where = array();
         foreach ($this->fields as $f) {
@@ -348,24 +291,15 @@ class Table {
         }
         if (str_contains($q, '?temp-constraint?')) {
             $q = str_replace('?temp-constraint?', 
-                             ($this->interval != '*') ? sprintf("(%s > NOW() - INTERVAL %s)", $field_name, $this->interval) : '1',
+                             sprintf("(`%s` > NOW() - INTERVAL %s)", $field_name, $this->interval),
                              $q);  
         }
 
-        $q = $q . " ORDER BY `" . $this->order_by . "` " . $this->order_dir . " LIMIT " . ($this->limit+1) . " OFFSET " . $this->offset;
-        //print "$q<br />\n";
+        $order_by = array_get_default($this->field_opts[$this->order_by], 'sql-name', $this->order_by);
+        //$order_by = $this->order_by;
+        $q = $q . " ORDER BY " . $order_by . " " . $this->order_dir . " LIMIT " . ($this->limit+1) . " OFFSET " . $this->offset;
+        
         return $q;
-    }
-
-    function get_disabled_tasks() {
-      $q = "SELECT args FROM ssscrapecontrol.ssscrape_task WHERE state = 'disabled'";
-      $db = DB::get_instance();
-      $rows = $db->prepare_execute_fetch_all($q);
-      $disabled_tasks = array();
-      foreach($rows as $row) {
-        $disabled_tasks[$row['args']] = 1; // dumy value
-      }
-      return $disabled_tasks;
     }
 
     function message($msg) {
@@ -386,7 +320,7 @@ class Table {
 
         $db = DB::get_instance();
         $rows = $db->prepare_execute_fetch_all($q);
-
+        
         $more_results = false;
         if (count($rows) == $this->limit+1) {
             $more_results = true;
@@ -396,12 +330,9 @@ class Table {
         cycle(array('bg1', 'bg0'));
         $this->stat = array();
 
-        $descr = array();
-        if ($this->show_search) {
-            array_push($descr, $this->make_search());
-        }
+        $descr = array(); 
         if ($this->query_restriction) {
-            array_push($descr, ax_div_id("Condition: " . $this->query_restriction, 'condition'));
+            array_push($descr, "Condition: " . $this->query_restriction);
         }
         if ($this->interval) {
             array_push($descr, $this->make_interval_selection($this->interval));

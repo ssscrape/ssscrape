@@ -25,8 +25,10 @@ Installing Ssscrape
     * BeautifulSoup (for HTML parsing): http://www.crummy.com/software/BeautifulSoup/
     * Universal feed parser (for RSS/Atom feed parsing): http://feedparser.org/
     * anewt (for web interface for monitor): https://launchpad.net/anewt
+      Ssscrape has been made with anewt revision 1279 of 2008.08.29
     * chardet (Universal encoding detector): http://chardet.feedparser.org/
     * twisted (for parallelizing database access): http://twistedmatrix.com/trac/
+    * zope.interface is needed by twisted
 
  - Adjusting config file.
    Copy conf/local.conf.sample to conf/local.conf and adjust parameters for your setup.
@@ -47,22 +49,35 @@ Installing Ssscrape
    Set up your web server so that Ssscrape's monitor is accessible through a browser. 
    For example, the following should be added to the Apache config file:
 
+    # PHP
+    PHPIniDir /PATH/TO/DIR/CONTAINING/php.ini
+    LoadModule php5_module modules/libphp5.so
+
+    <FilesMatch \.php$>
+        SetHandler application/x-httpd-php
+    </FilesMatch>
+
+    DirectoryIndex index.php
+
     Alias /ssscrape /PATH/TO/SSSCRAPE/web
     <Directory "/PATH/TO/SSSCRAPE/web/monitor">
-            Options All
-            AllowOverride All
-            Order allow,deny
-            Allow from all
-            AuthType Basic
-            AuthName "Password Required"
-            AuthUserFile /PATH/TO/SSSCRAPE/web/.htpasswd
-            Require valid-user
+        Options All
+        AllowOverride All
+        Order allow,deny
+        Allow from all
+        AuthType Basic
+        AuthName "Password Required"
+        AuthUserFile /PATH/TO/SSSCRAPE/web/.htpasswd
+        Require valid-user
     </Directory>
+
+   Regarding the php.ini file, it may be necessary to turn off warnings and errors, to 
+   prevent interference with the ssscrape monitor.
 
    You should setup /PATH/TO/SSSCRAPE/web/.htaccess and /PATH/TO/SSSCRAPE/web/.htpasswd  
    so that access to Ssscrape monitor is protected.
 
-   Check the monitor is accessible via browser.
+   Check that the monitor is accessible via a browser.
 
 
 Starting Ssscrape daemons
@@ -75,6 +90,8 @@ Run the following command to start Ssscrape scheduler:
 Run the following command to start Ssscrape monitor:
 
   $ ./bin/ssscrape-keep-alive 
+
+Check the log files in the Ssscrape/log directory for possible errors.
 
 Multiple monitors can be started on multiple hosts, if they are configured identically.
 

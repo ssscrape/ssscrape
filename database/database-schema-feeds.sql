@@ -22,10 +22,14 @@ CREATE TABLE `ssscrape_feed_metadata` (
 	`url` VARCHAR(255) NOT NULL COMMENT 'feed url',
 	`class` ENUM('text', 'audio', 'video') NOT NULL DEFAULT 'text',
 	`language` VARCHAR(255) DEFAULT NULL,
-        `kind` ENUM('full', 'partial') NOT NULL DEFAULT 'full', -- whether it is a full content feed, or partial
+	`kind` ENUM('full', 'partial') NOT NULL DEFAULT 'full', -- whether it is a full content feed, or partial
 	`partial_args` VARCHAR(255) DEFAULT NULL, -- arguments for crawler for permalinks (partial content feeds)
-        `tags` VARCHAR(255) DEFAULT NULL, -- tags for feeds are comma-seperated, Ie. tag1,tag2,tag3. Allows grouping of related feeds
-    'notes' TEXT DEFAULT NULL,
+	`tags` VARCHAR(255) DEFAULT NULL, -- tags for feeds are comma-seperated, Ie. tag1,tag2,tag3. Allows grouping of related feeds
+	`cleanup` enum('enabled','disabled') DEFAULT 'disabled' COMMENT 'whether html cleaning is performed',
+	`cleanup_train_size` INTEGER UNSIGNED DEFAULT 10 COMMENT 'the number of articles used for training; more better, but slower',
+	`cleanup_max_duplicates` INTEGER UNSIGNED DEFAULT 2 COMMENT 'the number of duplicate articles allowed',
+	`cleanup_threshold` FLOAT DEFAULT 0.1 COMMENT 'threshold range (0...1); do not use 0.0',
+	`cleanup_model` MEDIUMBLOB COMMENT 'the model itself, possibly binary',
 	PRIMARY KEY(`id`),
 	UNIQUE KEY(`url`),
 	KEY(`feed_id`)
@@ -67,7 +71,7 @@ CREATE TABLE `ssscrape_feed_item` (
 	`guid` VARCHAR(255) DEFAULT NULL COMMENT 'guid',
 	`title` VARCHAR(255) DEFAULT NULL,
 	`summary` TEXT,
-	`content` MEDIUMTEXT COMMENT 'raw HTML of the permalink',
+	`content` MEDIUMBLOB COMMENT 'raw HTML of the permalink',
 	`content_clean_html` MEDIUMTEXT COMMENT 'cleaned HTML of the permalink',
 	`content_clean` TEXT COMMENT 'cleaned plain text of the permalink',
 	`comments_url` VARCHAR(255) DEFAULT NULL,

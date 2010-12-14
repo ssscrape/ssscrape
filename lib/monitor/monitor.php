@@ -10,10 +10,7 @@ require('feeds.php');
 require('feed_items.php');
 require('feed_item_comments.php');
 require('feed_item_comment_counts.php');
-require('enclosures.php');
-require('tracks.php');
-require('tracks_counts.php');
-require('tracks_day_counts.php');
+require('tags.php');
 require('tasks.php');
 require('jobs.php');
 require('job_logs.php');
@@ -54,29 +51,9 @@ class SsscrapeMonitor extends AnewtPage
             'parent'=>'comments'
         ),
         array(
-            'name'=>'enclosures',
-            'class'=>'EnclosuresTable',
-            'descr'=>'Information about enclosures'
-        ),
-        array(
-            'name'=>'tracks',
-            'class'=>'TracksTable',
-            'descr'=>'Information about tracks',
-            'parent' => 'tracks'
-        ),
-        array(
-            'name'=>'trackCounts',
-            'class'=>'TrackCountsTable',
-            'descr'=>'Basic statistics about tracks',
-            'tab' => false,
-            'parent' => 'tracks'
-        ),
-        array(
-            'name'=>'trackDayCounts',
-            'class'=>'TrackDayCountsTable',
-            'descr'=>'Basic daily statistics about tracks',
-            'tab' => false,
-            'parent' => 'tracks'
+            'name'=>'tags',
+            'class'=>'TagsTable',
+            'descr'=>'Feed tags'
         ),
         array(
             'name'=>'tasks',
@@ -107,7 +84,7 @@ class SsscrapeMonitor extends AnewtPage
 
     function SsscrapeMonitor()
     {
-        AnewtPage::__construct();
+        AnewtPage::AnewtPage();
  
         /* Provide a list of blocks */
         $this->set('blocks', array('header', 'content', 'footer'));
@@ -123,7 +100,9 @@ class SsscrapeMonitor extends AnewtPage
     }
 
     function build_header() {
-        return ax_img_src_alt(IMG_URL . "ssscrape-logo-horizontal.png", "Ssscrape monitor");
+        return ax_fragment(ax_javascript_src('js/prototype.js'), 
+                           ax_javascript_src('js/utils.js'), 
+                           ax_img_src_alt(IMG_URL . "ssscrape-logo-horizontal.png", "Ssscrape monitor"));
     }
  
     function build_footer() {
@@ -141,7 +120,11 @@ class SsscrapeMonitor extends AnewtPage
                 unset($params[$key]);
             }
         }
-        return Request::url(false) . '?' . http_build_query($params);
+        if ($params == null) {
+            return Request::url(false);
+        } else {
+            return Request::url(false) . '?' . http_build_query($params);
+        }
     }
 
     function get_page_info($page_name) {
@@ -243,6 +226,7 @@ class SsscrapeMonitor extends AnewtPage
  
 
 function run_monitor() { 
+    $_SERVER['HTTP_ACCEPT'] = 'text/html';
     $m = &new SsscrapeMonitor();
     $m->display($_GET);
     $m->flush();

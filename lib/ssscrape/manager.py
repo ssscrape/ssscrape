@@ -134,7 +134,6 @@ class Manager:
         d = ssscrape.job_queue.list_jobs_by_host(gethostname())
         d.addCallback(self._check_jobs)
         d.addErrback(log.err)
-        log.msg('Checked jobs ...')
 
     def _check_jobs(self, jobs):
         '''

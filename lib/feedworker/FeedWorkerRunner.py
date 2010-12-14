@@ -79,12 +79,11 @@ class FeedWorkerRunner:
         except urllib2.HTTPError, e:
            # catch HTTP errors first ( HTTP Error is a subclass of URLEror)
            print >>sys.stderr, 'Bad HTTP response: ', e.code
-           if e.code >= 400:
-               raise FeedWorkerException(2, FeedWorkerException.KEYWORDS.URLNOTFOUND, "%s" % (e.code))
-           else:
-               raise FeedWorkerException(1, FeedWorkerException.KEYWORDS.URLNOTFOUND, "%s" % (e.code))
+           print >>sys.stderr,  str(e)
+           raise FeedWorkerException(2, FeedWorkerException.KEYWORDS.URLNOTFOUND, "%s" % (e.code))
         except urllib2.URLError, e:
            print >>sys.stderr, 'URL error, reason: ', e.errno
+           print >>sys.stderr,  str(e)
            raise FeedWorkerException(1, FeedWorkerException.KEYWORDS.NOCONNECTION, "(%s) %s" % (e.reason[0], e.reason[1]))
         except FeedWorkerException, e:
             raise e # prevent it from becoming a generic error, due to the line below witch catches all Exceptions
@@ -124,11 +123,6 @@ class FeedWorkerRunner:
             for item in self.filteredItems:
                 self.plugin.store(self.feed, item)
 
-    def pre_store(self):
-        if hasattr(self.plugin, 'pre_store'):
-            self.plugin.pre_store()
-    # end def pre_store
-    
     def store(self):
         if hasattr(self.plugin, 'storefeed'):
             self.plugin.storefeed(self.feed)

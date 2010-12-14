@@ -28,7 +28,8 @@ class SsscrapeEditor extends SsscrapeMonitor
 
     function SsscrapeEditor()
     {
-        SsscrapeMonitor::SsscrapeMonitor();
+        AnewtPage::AnewtPage();
+        //SsscrapeMonitor::SsscrapeMonitor();
  
         /* Provide a list of blocks */
         $this->set('blocks', array('header', 'content', 'footer'));
@@ -125,8 +126,22 @@ class SsscrapeEditor extends SsscrapeMonitor
  
 function run_editor() {
     $m = &new SsscrapeEditor();
-    $m->display($_GET);
-    $m->flush();
+    $action = array_get_default($_GET, 'action', 'show');
+    if ($action == 'show') {
+        $m->display($_GET);
+        $m->flush();
+    } elseif ($action == 'delete') {
+        $db = DB::get_instance();
+        $what = array_get_default($_GET, 'what', '');
+        $id = array_get_default($_GET, 'id', null);
+        $url = array_get_default($_GET, 'url', dirname(dirname($_SERVER['PHP_SELF'])));
+        $url = "http://" . $_SERVER['HTTP_HOST'] . $url;
+        if ($what == 'job' && !is_null($id)) {
+            $db->prepare_execute("INSERT INTO ssscrapecontrol.ssscrape_job_log SELECT * FROM ssscrapecontrol.ssscrape_job WHERE id=?str?", $id);
+            $db->prepare_execute("DELETE FROM ssscrapecontrol.ssscrape_job WHERE id=?str?", $id);
+        }
+        header("Location: $url");
+    }
 
 }
  

@@ -72,6 +72,23 @@ if __name__ == '__main__':
             '-c', '--categories',
             dest='tags', metavar='CATEGORIES', default=None,
             help="Assigns tags to the feed; multiple tags should be comma-separated")
+    parser.add_option(
+            '--cleanup',
+            dest='cleanup', action="store_true", default=False,
+            help="Option to activate HTML cleaning. In combination with this flag, 3 other parameters can bet set: --cleanup_train_size, --cleanup_threshold and --cleanup_max_duplicates")
+    parser.add_option(
+            '--cleanup_threshold',
+            dest='cleanup_threshold', type='float', default=None,
+            help="Threshold for HTML cleaning (default: 0.1)")
+    parser.add_option(
+            '--cleanup_train_size',
+            dest='cleanup_train_size', type='int', default=None,
+            help="Number of HTML feeds for model creation (default: 10)")
+    parser.add_option(
+            '--cleanup_max_duplicates',
+            dest='cleanup_max_duplicates', type='int', default=None,
+            help="Max number of feed content duplicates (default: 2 )")
+
     (options, args) = parser.parse_args()
 
 
@@ -90,12 +107,26 @@ if __name__ == '__main__':
     except ValueError:
         parser.error('Invalid time specification: %s' % options.when);
 
+    if options.cleanup:
+        cleanup = "enabled"
+    else:
+        cleanup = "disabled"
+
+    # cleanup defaults
+    if not options.cleanup_threshold:
+      options.cleanup_threshold = 0.1
+    if not options.cleanup_train_size:
+      options.cleanup_train_size = 10
+    if not options.cleanup_max_duplicates:
+      options.cleanup_max_duplicates = 2
+
     # connect to feeds database
     ssscrapeapi.database.connect()
- 
+
     # insert metadata
-    m = ssscrapeapi.feeds.FeedMetadata(url=feed_url, kind=options.kind, partial_args=options.partial_args, tags=options.tags)
-    
+    m = ssscrapeapi.feeds.FeedMetadata(url=feed_url, kind=options.kind, partial_args=options.partial_args, 
+        tags=options.tags, cleanup=cleanup, cleanup_threshold=options.cleanup_threshold,
+        cleanup_train_size=options.cleanup_train_size, cleanup_max_duplicates=options.cleanup_max_duplicates)
     m.save()
 
     # disconnect from the feeds database
@@ -106,6 +137,21 @@ if __name__ == '__main__':
     d = ssscrape.resource_util.add(resource_name)
     d.addCallback(lambda x: add_task(options.type, options.program, "-u '%s'" % (feed_url), n_seconds, options.hour, options.minute, x, options.hostname))
 
+
     # Run!
 
     reactor.run()
+
+
+    # if cleanup enabled, add cleanup model update task
+    if cleanup == "enabled":
+        ssscrapeapi.database.connect('database')        # connect to control database
+
+        update_task = ssscrapeapi.task.Task(type="modelupdate", program="update_cleanup_model.py", 
+            args="-u '%s'" % feed_url, periodicity="24:00:00")
+        # Note: periodicities exceeding "23:59:59" are valid for MySQL, but will not 
+        # be displayed properly by AnewtDateTime (current timestamp is displayed).
+        update_task.save()
+
+        ssscrapeapi.database.disconnect('database')     # disconnect from the control database
+

@@ -35,7 +35,6 @@ class WorkerPool:
         Start the C{WorkerPool}.
         '''
 
-        log.msg('Starting worker pool for %s' % self.job_type)
         self.find_job()
 
 
@@ -69,7 +68,7 @@ class WorkerPool:
         # call to this method anyway.
         self.unschedule_find_job()
 
-        log.msg('Trying to find job type %s...' % self.job_type)
+        #log.msg('Trying to find job type %s...' % self.job_type)
 
         d = ssscrape.job_queue.find_job_by_type(self.job_type)
         d.addCallback(self._find_job_cb)
