@@ -19,6 +19,7 @@ try:
 except NameError:
     _cp = ConfigParser.ConfigParser()
     config_files = ['default.conf', 'local.conf']
+    config_files.append(os.getenv(ENV_VAR) + '.conf')
     _cp.read([os.path.join(CONF_DIR, filename) for filename in config_files])
     del filename
     del config_files
