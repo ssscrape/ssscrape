@@ -40,6 +40,7 @@ class WorkerRunnerTester(unittest.TestCase):
         self.m = mox.Mox()
     
     def loadFixtures(self):
+
         self.fixtures = {}
         feed = feeds.Feed(url='http://www.slothboogie.com/feeds/posts/default?alt=rss')
         feed.save()
@@ -52,12 +53,6 @@ class WorkerRunnerTester(unittest.TestCase):
         job = ssscrapeapi.Job(task_id=task['id'])
         job.save()
         self.fixtures['job'] = job
-
-    def testDb(self):
-        print 'test_db'
-        feed = feeds.Feed()
-        feed.load(self.fixtures['feed']['id'])
-        print(feed)
 
     def testGethub(self):
         # <link rel='hub' href='http://pubsubhubbub.appspot.com/'/>
@@ -134,6 +129,11 @@ class WorkerRunnerTester(unittest.TestCase):
 
     def tearDown(self):
         """ cleanup fixtures """
+        # mysql> delete from ssscrape_feed;
+        # mysql> use ssscrapecontrol_test 
+        # mysql> delete from ssscrape_task;
+        # mysql> delete from ssscrape_job;
+
         for k in self.fixtures:
             self.fixtures[k].destroy()
 
